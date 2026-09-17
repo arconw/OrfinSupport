@@ -21,10 +21,21 @@ const kind = new URLSearchParams(location.search).get('framework') ?? 'vanilla';
 const root = document.getElementById('framework-root')!;
 let dispose: () => void;
 if (kind === 'react') {
-  const [{ createRoot }, { OrfinSupport }] = await Promise.all([
+  const [{ createRoot }, { OrfinSupport, useOrfin }] = await Promise.all([
     import('react-dom/client'),
     import('../src/adapters/react'),
   ]);
+  function LocaleControls() {
+    const { locale, setLocale } = useOrfin();
+    return (
+      <div>
+        <output id="host-locale">{locale}</output>
+        <button id="set-french" onClick={() => setLocale('fr')}>
+          Français
+        </button>
+      </div>
+    );
+  }
   const app = createRoot(root);
   app.render(
     <OrfinSupport
@@ -32,8 +43,39 @@ if (kind === 'react') {
       onReady={(controller) => {
         window.__orfin = controller;
       }}
-    />,
+    >
+      <LocaleControls />
+    </OrfinSupport>,
   );
+  dispose = () => app.unmount();
+} else if (kind === 'vue-composable') {
+  const [{ createApp, h, watch }, { useOrfin }] = await Promise.all([
+    import('vue'),
+    import('../src/adapters/vue'),
+  ]);
+  const app = createApp({
+    setup() {
+      const api = useOrfin(options);
+      watch(api.controller, (controller) => {
+        window.__orfin = controller ?? undefined;
+      });
+      return () =>
+        h('div', [
+          h('output', { id: 'host-locale' }, api.locale.value),
+          h(
+            'button',
+            {
+              id: 'set-french',
+              onClick: () => {
+                api.locale.value = 'fr';
+              },
+            },
+            'Français',
+          ),
+        ]);
+    },
+  });
+  app.mount(root);
   dispose = () => app.unmount();
 } else if (kind === 'vue') {
   const [{ createApp, h }, { OrfinSupport }] = await Promise.all([
@@ -53,19 +95,32 @@ if (kind === 'react') {
   dispose = () => app.unmount();
 } else if (kind === 'angular') {
   await import('@angular/compiler');
-  const [{ Component }, { bootstrapApplication }, { provideOrfin, ORFIN }] = await Promise.all([
-    import('@angular/core'),
-    import('@angular/platform-browser'),
-    import('../src/adapters/angular'),
-  ]);
-  class FixtureApp {}
+  const [{ Component, signal }, { bootstrapApplication }, { provideOrfin, ORFIN, injectOrfin }] =
+    await Promise.all([
+      import('@angular/core'),
+      import('@angular/platform-browser'),
+      import('../src/adapters/angular'),
+    ]);
+  const optionLocale = signal('en');
+  class FixtureApp {
+    api = injectOrfin();
+    french() {
+      this.api.setLocale('fr');
+    }
+    polish() {
+      optionLocale.set('pl');
+    }
+  }
   Component({
     selector: 'fixture-app',
     standalone: true,
-    template: '<p>Angular integration mounted.</p>',
+    template:
+      '<p>Angular integration mounted.</p><output id="host-locale">{{ api.locale() }}</output><button id="set-french" (click)="french()">Français</button><button id="set-polish" (click)="polish()">Polski</button>',
   })(FixtureApp);
   root.innerHTML = '<fixture-app></fixture-app>';
-  const app = await bootstrapApplication(FixtureApp, { providers: [provideOrfin(options)] });
+  const app = await bootstrapApplication(FixtureApp, {
+    providers: [provideOrfin(() => ({ ...options, locale: optionLocale() }))],
+  });
   window.__orfin = app.injector.get(ORFIN) ?? undefined;
   dispose = () => app.destroy();
 } else {

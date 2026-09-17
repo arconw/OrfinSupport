@@ -23,19 +23,20 @@
 
 Your visitors can ask a question, take a tour, or point at the part of the interface they want to understand. Orfin connects the conversation to the page in front of them.
 
-| Capability                   | What it does                                                                                                                  |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Questions keep the current step and section context.                  |
-| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included. |
-| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.       |
-| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and shades the surrounding viewport at 70% for two seconds.   |
-| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.          |
-| **Your tools and MCP**       | Calls schema-validated server tools and explicitly allowed MCP tools, then continues the answer.                              |
-| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.          |
-| **Your product’s style**     | Cloud, Midnight and Iris presets; CSS variables and shadow parts. Shadow DOM protects the interface from host styles.         |
-| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy. |
+| Capability                   | What it does                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Questions keep the current step and section context.                          |
+| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.         |
+| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.               |
+| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and shades the surrounding viewport at 70% for two seconds.           |
+| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                  |
+| **Your tools and MCP**       | Calls schema-validated server tools and explicitly allowed MCP tools, then continues the answer.                                      |
+| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                  |
+| **Your product’s style**     | Cloud, Midnight and Iris presets; CSS variables and shadow parts. Shadow DOM protects the interface from host styles.                 |
+| **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies. |
+| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.         |
 
-The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. English and Russian UI strings are included.
+The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](docs/LOCALIZATION.md).
 
 ## Try it locally
 
@@ -149,7 +150,7 @@ Set `ORFIN_API_URL`, `ORFIN_API_KEY` and `ORFIN_MODEL` in the **host application
 
 <table>
 <tr><th>React / Next.js</th><th>Vue</th><th>Angular</th></tr>
-<tr><td><code>orfinsupport/react</code><br/>Client component with automatic cleanup.</td><td><code>orfinsupport/vue</code><br/>Component with reactive settings and a ready event.</td><td><code>orfinsupport/angular</code><br/>Environment provider and injectable controller.</td></tr>
+<tr><td><code>orfinsupport/react</code><br/>Provider, reactive <code>useOrfin()</code> hook and automatic cleanup.</td><td><code>orfinsupport/vue</code><br/>Component and <code>useOrfin()</code> composable with writable locale.</td><td><code>orfinsupport/angular</code><br/>Environment provider, controller and <code>injectOrfin()</code> signals.</td></tr>
 </table>
 
 ```tsx
@@ -163,6 +164,15 @@ export function Assistant() {
 ```
 
 See [framework recipes](docs/INTEGRATIONS.md#framework-recipes) and the [runnable Next.js example](examples/next). The React distribution preserves its `use client` boundary. Server imports do not access the DOM. Changing feature settings updates a mounted adapter; remount it when replacing the transport, catalog or router.
+
+## Change the language
+
+```ts
+const orfin = createOrfin({ endpoint: '/api/orfin', locale: 'en' });
+orfin.setLocale('ja');
+```
+
+Visitors can also choose a language in assistant preferences. React exposes `useOrfin().setLocale()`, Vue exposes a writable `locale` computed ref, and Angular exposes `injectOrfin().locale()` and `setLocale()`. Supply partial `translations` overrides or localized section descriptions; missing text falls back to English. [Examples and fallback behavior](docs/LOCALIZATION.md).
 
 ## Models and context
 

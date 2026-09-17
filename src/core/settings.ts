@@ -1,4 +1,5 @@
 import type { AssistantSettings, SettingsInput } from './types';
+import { normalizeLocale } from './locale';
 
 export const defaultSettings: AssistantSettings = {
   features: {
@@ -22,6 +23,7 @@ export const defaultSettings: AssistantSettings = {
   highlightDuration: 2000,
   theme: 'cloud',
   locale: 'en',
+  translations: {},
 };
 
 export function resolveSettings(
@@ -30,7 +32,8 @@ export function resolveSettings(
 ): AssistantSettings {
   return {
     theme: input.theme ?? previous.theme,
-    locale: input.locale ?? previous.locale,
+    locale: normalizeLocale(input.locale ?? previous.locale),
+    translations: input.translations ?? previous.translations,
     features: { ...previous.features, ...input.features },
     memory: { ...previous.memory, ...input.memory },
     hoverDelay: Math.max(300, input.hoverDelay ?? previous.hoverDelay),

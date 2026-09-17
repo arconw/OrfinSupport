@@ -67,6 +67,28 @@ export const widgetStyles = css`
     line-height: 1.55;
     color: var(--text);
     pointer-events: none;
+    text-align: start;
+  }
+  .orfin[dir='rtl'] [data-icon='arrow'],
+  .orfin[dir='rtl'] [data-icon='back'],
+  .orfin[dir='rtl'] [data-icon='chevron'] {
+    transform: scaleX(-1);
+  }
+  .orfin[dir='rtl'] .launcher {
+    padding-inline: 14px 21px;
+  }
+  .orfin[dir='rtl'] .launcher[data-open] {
+    padding: 0;
+  }
+  .preferences select {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
   }
   .orfin[data-theme='midnight'] {
     --accent: var(--orfin-accent, #a7b8ff);
@@ -237,7 +259,7 @@ export const widgetStyles = css`
     color: var(--text);
     padding: 12px;
     border-radius: 11px;
-    text-align: left;
+    text-align: start;
     justify-content: flex-start;
     transition:
       border-color 0.15s,
@@ -275,7 +297,7 @@ export const widgetStyles = css`
     margin-top: 10px;
   }
   .message ul {
-    padding-left: 18px;
+    padding-inline-start: 18px;
     margin: 8px 0;
   }
   .message code {
@@ -288,10 +310,10 @@ export const widgetStyles = css`
     background: var(--soft);
     padding: 11px 14px;
     border-radius: 14px 14px 3px 14px;
-    margin-left: 35px;
+    margin-inline-start: 35px;
   }
   .message.assistant {
-    padding-right: 6px;
+    padding-inline-end: 6px;
   }
   .message-label {
     display: flex;
@@ -515,7 +537,7 @@ export const widgetStyles = css`
     background: var(--soft);
   }
   .popover-actions > .primary {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
   .tour-progress {
     display: flex;
@@ -575,7 +597,7 @@ export const widgetStyles = css`
   }
   .section-list button {
     display: flex;
-    text-align: left;
+    text-align: start;
     justify-content: flex-start;
     width: 100%;
     border: 0;
@@ -676,7 +698,7 @@ export const widgetStyles = css`
     font-size: 11px;
   }
   .tour-inline > span {
-    margin-right: auto;
+    margin-inline-end: auto;
     color: var(--muted);
   }
   @keyframes orfin-enter {

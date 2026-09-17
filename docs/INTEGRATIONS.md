@@ -79,6 +79,10 @@ Inject `ORFIN` to access the controller. It is `null` during SSR. The environmen
 
 Import `createOrfin` in a browser mount callback and call `destroy()` during cleanup. The widget uses native DOM APIs and Lit templates; it does not depend on React. Web frameworks that provide a mount/unmount lifecycle can use the same API.
 
+## Reactive language settings
+
+Language can be supplied in `options.locale`, changed in widget preferences, or controlled at runtime. React provides `OrfinProvider` and `useOrfin()`; Vue provides a `useOrfin()` composable with a writable locale ref; Angular provides `injectOrfin()` with signals and a reactive options getter. These APIs stay synchronized with widget changes and preserve the active tour and conversation. See the [complete localization recipes](LOCALIZATION.md).
+
 ## Providers
 
 ### OpenAI-compatible API

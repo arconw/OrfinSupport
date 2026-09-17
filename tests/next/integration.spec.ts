@@ -30,7 +30,7 @@ test('server route returns an event stream without requiring browser credentials
           content: 'Say hello and name the framework used by this example in one short sentence.',
         },
       ],
-      page: { url: 'http://127.0.0.1:4175/', title: 'Next example', sections: [] },
+      page: { url: 'http://127.0.0.1:4177/', title: 'Next example', sections: [] },
       features: {
         chat: true,
         tour: true,
@@ -49,4 +49,19 @@ test('server route returns an event stream without requiring browser credentials
   expect(text).toContain('"type":"delta"');
   expect(text).toContain('"type":"done"');
   expect(text).not.toContain('"type":"error"');
+});
+
+test('SSR locale hook remains reactive after hydration', async ({ page, request }) => {
+  const html = await (await request.get('/')).text();
+  expect(html).toContain('Example language');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.locator('[data-orfin-root] .panel')).toBeVisible();
+  await page.getByLabel('Example language').selectOption('fr');
+  await expect(page.locator('[data-orfin-root] .welcome h3')).toHaveText('Bonjour, je suis Orfin.');
+  await page.getByRole('button', { name: 'Préférences de l’assistant', exact: true }).click();
+  await page.locator('[data-orfin-root] #orfin-language').selectOption('ja');
+  await expect(page.getByLabel('Example language')).toHaveValue('ja');
+  expect(errors).toEqual([]);
 });

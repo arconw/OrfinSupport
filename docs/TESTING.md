@@ -2,6 +2,8 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
+Latest localization validation: **51 unit/integration tests, 28 Chromium browser tests, 3 Next.js production tests and 8 live gateway scenarios**.
+
 ## Automated coverage
 
 | Suite              | Scope                                                                                                                                                                                                                                                                                                       |
@@ -13,6 +15,8 @@ Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, C
 | Navigation/privacy | SPA navigation, destination highlighting after a full document load, disallowed/external paths, private subtree and input exclusion, optional unmarked section discovery                                                                                                                                    |
 | Accessibility      | Keyboard section selection, reduced motion, mobile layout and tour controls, automated axe checks against the complete demo overview and assistant                                                                                                                                                          |
 | Next.js            | Production build, SSR output, browser hydration from the built package, router navigation while touring, and SSE from the actual server Route Handler                                                                                                                                                       |
+
+Localization checks exercise every built-in locale, regional and custom fallback, translated errors after a language change, localized section extraction, hover/picker content, switching language during a tour, Arabic mobile layout, and two-way React/Vue/Angular state. Next tests build a fresh production application on port 4177 rather than reusing a previously built server.
 
 ## Live model checks
 
@@ -26,7 +30,7 @@ The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks 
 | Retrieval                | The Studio plan document was returned as a source and used in the streamed response                                  |
 | Next.js backend          | The production Route Handler returned a successful SSE reply through the gateway                                     |
 
-The first four checks completed in approximately 3.1, 5.4, 6.6 and 3.2 seconds respectively. These are observations from one local run, not performance guarantees. `npm run test:live` regenerates a machine-readable local report under `.artifacts/` without saving message contents or credentials.
+Additional live checks verify Spanish, Japanese and Arabic replies to English questions, and English as the default for a Russian question. The first four checks in the latest run completed in approximately 3.1, 7.1, 5.5 and 3.1 seconds respectively. These are observations from one local run, not performance guarantees. `npm run test:live` regenerates a machine-readable local report under `.artifacts/` without saving message contents or credentials.
 
 ## Reproducing
 

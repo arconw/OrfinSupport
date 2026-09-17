@@ -2,10 +2,20 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { createHttpTransport } from '../src/core/transport';
 import { defaultSettings } from '../src/core/settings';
 import { sections } from '../demo/data';
-import type { AgentEvent } from '../src/core/types';
+import type { AgentEvent, Locale } from '../src/core/types';
 
 const transport = createHttpTransport({ endpoint: 'http://127.0.0.1:4174/api/orfin' });
-const cases = [
+const replyText = (events: AgentEvent[]) =>
+  events
+    .filter((event) => event.type === 'delta')
+    .map((event) => event.text)
+    .join('');
+const cases: {
+  name: string;
+  query: string;
+  locale?: Locale;
+  check: (events: AgentEvent[]) => boolean;
+}[] = [
   {
     name: 'streaming project context',
     query: 'Describe Northstar in two short sentences.',
@@ -43,6 +53,29 @@ const cases = [
         (event) => event.type === 'sources' && event.sources.some((source) => source.id === 'plan'),
       ),
   },
+  {
+    name: 'selected Spanish despite English input',
+    locale: 'es-MX',
+    query: 'Describe Northstar in one short sentence.',
+    check: (events) => /\b(es|equipo|proyectos|espacio|trabajo)\b/iu.test(replyText(events)),
+  },
+  {
+    name: 'selected Japanese despite English input',
+    locale: 'ja',
+    query: 'Describe Northstar in one short sentence.',
+    check: (events) => /[ぁ-んァ-ン一-龯]/u.test(replyText(events)),
+  },
+  {
+    name: 'selected Arabic despite English input',
+    locale: 'ar',
+    query: 'Describe Northstar in one short sentence.',
+    check: (events) => /[\u0600-\u06ff]/u.test(replyText(events)),
+  },
+  {
+    name: 'English default despite Russian input',
+    query: 'Расскажи о Northstar одним коротким предложением.',
+    check: (events) => /Northstar/u.test(replyText(events)) && !/[А-Яа-я]/u.test(replyText(events)),
+  },
 ];
 const results = [];
 for (const item of cases) {
@@ -54,10 +87,12 @@ for (const item of cases) {
       page: {
         url: 'http://127.0.0.1:4173/',
         title: 'Northstar',
-        sections: sections.map(({ prompt: _prompt, ...section }) => section),
+        sections: sections.map(
+          ({ prompt: _prompt, translations: _translations, ...section }) => section,
+        ),
       },
       features: { ...defaultSettings.features },
-      locale: 'en',
+      locale: item.locale ?? 'en',
     },
     AbortSignal.timeout(120000),
   ))

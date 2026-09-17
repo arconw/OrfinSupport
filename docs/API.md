@@ -9,9 +9,9 @@
 | `orfinsupport/server`    | `createOrfinHandler`, `runAgent`, `createDirectTransport`, providers and retrieval helpers |
 | `orfinsupport/providers` | `createOpenAICompatible`, `createAnthropic`, provider contract                             |
 | `orfinsupport/mcp`       | `connectMCP`, `toolsFromMCP`                                                               |
-| `orfinsupport/react`     | `OrfinSupport` client component                                                            |
-| `orfinsupport/vue`       | `OrfinSupport` Vue component                                                               |
-| `orfinsupport/angular`   | `provideOrfin`, `ORFIN` injection token                                                    |
+| `orfinsupport/react`     | `OrfinSupport`, `OrfinProvider`, `useOrfin`                                                |
+| `orfinsupport/vue`       | `OrfinSupport`, `useOrfin` composable                                                      |
+| `orfinsupport/angular`   | `provideOrfin`, `ORFIN`, `injectOrfin`                                                     |
 
 The package ships ESM and TypeScript declarations. Frameworks and the MCP SDK are optional peers. Import only the adapters you use.
 
@@ -51,6 +51,10 @@ const orfin = createOrfin({
 
 Mount one controller per page in a browser lifecycle hook. `createOrfin` deliberately throws during SSR; framework adapters handle the lifecycle. Configuration that changes identity, catalog, transport or routing requires a remount. Feature, theme, locale, memory and timing changes use `updateSettings`.
 
+## Localization
+
+`locale` defaults to `en`. There are 16 complete built-in catalogs, with regional fallback, additional custom languages and Arabic RTL layout. `translations` accepts a locale-keyed map of partial `TranslationMessages` overrides and can be replaced through `updateSettings`. `supportedLocales` and `resolveTranslations` are exported for host integrations. See [localization](LOCALIZATION.md) for hooks, composables, signals, section translations and response-language behavior.
+
 ## Controller
 
 | Method                                        | Purpose                                                                                                |
@@ -67,11 +71,12 @@ Mount one controller per page in a browser lifecycle hook. `createOrfin` deliber
 | `highlight(sectionId, persistent?)`           | Scroll and spotlight a catalog section                                                                 |
 | `navigate(path, sectionId?)`                  | Navigate to an allowed same-origin path                                                                |
 | `updateSettings(partial)`                     | Merge runtime preferences                                                                              |
+| `setLocale(locale)`                           | Change the UI and the language of subsequent model replies without remounting                          |
 | `forget()`                                    | Clear persisted and in-memory section choices                                                          |
 | `subscribe(listener)`                         | Observe state updates; returns an unsubscribe function                                                 |
 | `destroy()`                                   | Abort work, disconnect observers, remove listeners, clean generated annotations and unmount the widget |
 
-`state` includes messages, busy status, current section, hover, spotlight, picker and tour state. Prefer methods to direct mutation. `settings` contains resolved preferences. Interaction event types include `open`, `close`, `message`, `reply`, `settings`, `highlight`, `navigate`, `hover`, `pick-start`, `tour-step`, `tour-end`, `clear`, and `memory-cleared`.
+`state.error` is a stable `OrfinErrorCode`; `errorMessage` exposes the current localized text and `state.errorStatus` optionally contains an HTTP status. `state` also includes messages, busy status, current section, hover, spotlight, picker and tour state. Prefer methods to direct mutation. `settings` contains resolved preferences. Interaction event types include `open`, `close`, `message`, `reply`, `settings`, `highlight`, `navigate`, `hover`, `pick-start`, `tour-step`, `tour-end`, `clear`, and `memory-cleared`.
 
 ## Sections
 
@@ -83,6 +88,7 @@ interface Section {
   path?: string;
   prompt?: string;
   tourOrder?: number;
+  translations?: Record<string, Partial<Pick<Section, 'title' | 'description'>>>;
 }
 ```
 

@@ -1,6 +1,26 @@
+import type { TranslationOverrides } from '../locales/types';
+import type { OrfinErrorCode } from './errors';
+
 export type JsonSchema = Record<string, unknown>;
 export type ThemePreset = 'cloud' | 'midnight' | 'iris';
-export type Locale = 'en' | 'ru';
+export type BuiltInLocale =
+  | 'en'
+  | 'es'
+  | 'fr'
+  | 'de'
+  | 'pt'
+  | 'it'
+  | 'nl'
+  | 'pl'
+  | 'uk'
+  | 'ru'
+  | 'tr'
+  | 'ar'
+  | 'hi'
+  | 'zh'
+  | 'ja'
+  | 'ko';
+export type Locale = BuiltInLocale | (string & {});
 
 export interface Section {
   id: string;
@@ -9,6 +29,7 @@ export interface Section {
   path?: string;
   prompt?: string;
   tourOrder?: number;
+  translations?: Record<string, Partial<Pick<Section, 'title' | 'description'>>>;
 }
 
 export interface Features {
@@ -37,6 +58,7 @@ export interface AssistantSettings {
   highlightDuration: number;
   theme: ThemePreset;
   locale: Locale;
+  translations: TranslationOverrides;
 }
 
 export type SettingsInput = Partial<Omit<AssistantSettings, 'features' | 'memory'>> & {
@@ -48,6 +70,7 @@ export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  locale?: Locale;
   sources?: Source[];
   tools?: ToolActivity[];
   status?: 'streaming' | 'complete' | 'cancelled' | 'error';
@@ -92,7 +115,7 @@ export type AgentEvent =
   | { type: 'sources'; sources: Source[] }
   | { type: 'tool'; tool: ToolActivity }
   | { type: 'action'; action: BrowserAction }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: string; code?: OrfinErrorCode }
   | { type: 'done' };
 
 export interface ChatTransport {

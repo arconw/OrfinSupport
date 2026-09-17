@@ -74,6 +74,7 @@ export function createOrfinHandler(
             controller.enqueue(
               encodeSSE({
                 type: 'error',
+                code: signal.aborted ? 'timeout' : 'reply',
                 message: signal.aborted
                   ? 'The response timed out. Please try again.'
                   : 'The assistant could not complete this reply. Please try again.',

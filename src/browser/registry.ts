@@ -1,4 +1,5 @@
 import type { PageContext, Section } from '../core/types';
+import { localizeSection } from '../core/locale';
 
 const excluded =
   'script,style,noscript,input,textarea,select,[contenteditable],[data-orfin-private],[data-orfin-root],[hidden],[aria-hidden="true"]';
@@ -115,11 +116,18 @@ export class SectionRegistry {
     return this.discover(mode).find((section) => section.id === element.dataset.orfinSection);
   }
 
-  page(mode: 'sections' | 'page', selectedSectionId?: string): PageContext {
+  page(mode: 'sections' | 'page', selectedSectionId?: string, locale = 'en'): PageContext {
     return {
       url: `${location.origin}${location.pathname}`,
       title: document.title.slice(0, 300),
-      sections: this.discover(mode).map(({ prompt: _prompt, ...section }) => section),
+      sections: this.discover(mode).map((source) => {
+        const {
+          prompt: _prompt,
+          translations: _translations,
+          ...section
+        } = localizeSection(source, locale);
+        return section;
+      }),
       ...(selectedSectionId ? { selectedSectionId } : {}),
       ...(mode === 'page'
         ? { text: visibleText(document.querySelector('main') ?? document.body) }

@@ -1,6 +1,7 @@
 import { Check, CheckCheck, Code2, Copy, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import type { AssistantSettings, Features, SettingsInput, ThemePreset } from '../../src/core/types';
+import { supportedLocales } from '../../src/core/locale';
 import { defaultSettings } from '../../src/core/settings';
 import type { OrfinController } from '../../src/index';
 
@@ -106,10 +107,13 @@ export function SettingsPage({
               <select
                 aria-label="Language"
                 value={settings.locale}
-                onChange={(event) => update({ locale: event.target.value as 'en' | 'ru' })}
+                onChange={(event) => update({ locale: event.target.value })}
               >
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
+                {supportedLocales.map((locale) => (
+                  <option key={locale.code} value={locale.code}>
+                    {locale.label}
+                  </option>
+                ))}
               </select>
             </label>
           </section>

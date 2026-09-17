@@ -1,4 +1,5 @@
 import type { Section, Source } from '../src/core/types';
+import { sectionTranslations } from './locales';
 
 export const sections: Section[] = [
   {
@@ -65,7 +66,7 @@ export const sections: Section[] = [
       'Make Orfin feel at home. Change the theme, enable features, choose what it remembers, and try the assistant in your own language.',
     path: '/settings',
   },
-];
+].map((section) => ({ ...section, translations: sectionTranslations(section.id) }));
 
 export const projectContext =
   'Northstar is a fictional project workspace for a small creative studio. The current visitor is Alex Morgan, the workspace owner. There are 12 team members, 8 active projects, 24 completed tasks this week and 92% on-time delivery. Brand refresh is 72% complete (September 28); Website experience is 48% complete (October 4); Mobile companion is 24% complete (October 12). The demo plan is Studio at $24 per member monthly with unlimited projects, guest access, and 100 GB storage. These are fictional demo data, not a commercial offer. Navigation paths: / overview, /projects project board, /knowledge team documentation, /settings assistant settings. OrfinSupport is an open-source embeddable assistant by arconw; the agent name is Orfin. The assistant has a guided tour, section picker, hover help, page navigation, retrieval and custom/MCP tools. Never imply that a mock project is a real production service.';

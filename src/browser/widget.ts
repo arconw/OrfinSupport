@@ -7,6 +7,8 @@ import { formattedText, safeURL } from './format';
 import { popoverPosition } from './geometry';
 import { icon, orfinMark } from './icons';
 import { widgetStyles } from './styles';
+import { localeDirection, formatMessage } from '../core/locale';
+import { localeOptions } from './i18n';
 
 export function mountWidget(controller: OrfinController): HTMLElement {
   const host = document.createElement('div');
@@ -61,9 +63,13 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     </button>`;
 
   const message = (message: ChatMessage) =>
-    html`<article class="message ${message.role}">
+    html`<article
+      class="message ${message.role}"
+      lang=${message.locale ?? controller.settings.locale}
+      dir=${message.role === 'assistant' ? localeDirection(message.locale ?? controller.settings.locale) : 'auto'}
+    >
       ${message.role === 'assistant' ? html`<div class="message-label">${orfinMark(17)} Orfin</div>` : nothing}
-      ${message.tools?.map((tool) => html`<div class="tool">${icon(tool.status === 'complete' ? 'check' : 'settings', 13)}${tool.name.replace(/_/g, ' ')} · ${tool.status === 'complete' ? controller.text.complete : tool.status === 'error' ? controller.text.error : controller.text.thinking}</div>`)}
+      ${message.tools?.map((tool) => html`<div class="tool">${icon(tool.status === 'complete' ? 'check' : 'settings', 13)}${tool.name === 'highlight_section' ? controller.text.highlightTool : tool.name === 'navigate' ? controller.text.navigateTool : tool.name === 'start_tour' ? controller.text.tourTool : tool.name.replace(/_/g, ' ')} · ${tool.status === 'complete' ? controller.text.complete : tool.status === 'error' ? controller.text.error : controller.text.thinking}</div>`)}
       ${formattedText(message.content)}
       ${message.status === 'streaming' && !message.content ? html`<div class="thinking" aria-label=${controller.text.thinking}><i></i><i></i><i></i></div>` : nothing}
       ${message.sources?.length ? html`<div class="sources" aria-label=${controller.text.sources}>${message.sources.map((source) => (safeURL(source.url) ? html`<a class="source" href=${safeURL(source.url)!} target="_blank" rel="noopener noreferrer">${source.title}</a>` : html`<span class="source">${source.title}</span>`))}</div>` : nothing}
@@ -75,7 +81,16 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     const atBottom =
       !conversation ||
       conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 70;
-    const currentSection = state.tour?.sections[state.tour.index];
+    const step = state.tour?.sections[state.tour.index];
+    const currentSection = step ? controller.sectionText(step) : undefined;
+    const progress = state.tour
+      ? formatMessage(text.stepProgress, {
+          current: new Intl.NumberFormat(settings.locale).format(state.tour.index + 1),
+          total: new Intl.NumberFormat(settings.locale).format(state.tour.sections.length),
+        })
+      : '';
+    host.lang = settings.locale;
+    host.dir = localeDirection(settings.locale);
     const panelRect = state.open
       ? shadow.querySelector('.panel')?.getBoundingClientRect()
       : undefined;
@@ -85,8 +100,13 @@ export function mountWidget(controller: OrfinController): HTMLElement {
         ? popoverPosition(state.highlight.rect, 300, 244, panelRect)
         : undefined;
     render(
-      html`<div class="orfin" data-theme=${settings.theme} lang=${settings.locale}>
-        ${state.highlight ? html`<div class="spotlight" data-testid="spotlight" style=${styleMap({ top: `${state.highlight.rect.top}px`, left: `${state.highlight.rect.left}px`, width: `${state.highlight.rect.width}px`, height: `${state.highlight.rect.height}px` })}><span class="spot-label">${state.highlight.section.title}</span></div>` : nothing}
+      html`<div
+        class="orfin"
+        data-theme=${settings.theme}
+        lang=${settings.locale}
+        dir=${localeDirection(settings.locale)}
+      >
+        ${state.highlight ? html`<div class="spotlight" data-testid="spotlight" style=${styleMap({ top: `${state.highlight.rect.top}px`, left: `${state.highlight.rect.left}px`, width: `${state.highlight.rect.width}px`, height: `${state.highlight.rect.height}px` })}><span class="spot-label">${controller.sectionText(state.highlight.section).title}</span></div>` : nothing}
         ${
           state.picking
             ? html`<div class="picker-bar" role="status">
@@ -101,7 +121,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 </div>
                 <details class="section-list">
                   <summary>${text.pick}</summary>
-                  ${controller.registry.discover(settings.features.pageContext).map((section) => html`<button @click=${() => void controller.explain(section)}>${section.title}</button>`)}
+                  ${controller.registry.discover(settings.features.pageContext).map((section) => html`<button @click=${() => void controller.explain(section)}>${controller.sectionText(section).title}</button>`)}
                 </details>`
             : nothing
         }
@@ -142,12 +162,11 @@ export function mountWidget(controller: OrfinController): HTMLElement {
             ? html`<section
                 class="popover tour-popover"
                 role="dialog"
-                aria-label="Guided tour"
+                aria-label=${text.guidedTour}
                 style=${styleMap({ top: `${tourPosition.top}px`, left: `${tourPosition.left}px`, maxHeight: `${innerHeight - tourPosition.top - 12}px` })}
               >
                 <div class="popover-top">
-                  ${orfinMark(20)}<span
-                    >Orfin · ${state.tour.index + 1} / ${state.tour.sections.length}</span
+                  ${orfinMark(20)}<span>Orfin · ${progress}</span
                   ><button
                     class="icon-button"
                     aria-label=${text.exit}
@@ -218,7 +237,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 </header>
                 ${
                   state.tour && innerWidth <= 600
-                    ? html`<nav class="tour-inline" aria-label="Tour controls">
+                    ? html`<nav class="tour-inline" aria-label=${text.tourControls}>
                         <button
                           class="icon-button"
                           aria-label=${text.back}
@@ -226,7 +245,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                           @click=${() => void controller.tourStep(state.tour!.index - 1)}
                         >
                           ${icon('back', 15)}</button
-                        ><span>${state.tour.index + 1} / ${state.tour.sections.length}</span
+                        ><span>${progress}</span
                         ><button
                           class="secondary"
                           @click=${() => {
@@ -248,9 +267,19 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                     ? html`<div class="conversation preferences">
                         <h3>${text.settings}</h3>
                         <div class="field">
+                          <label for="orfin-language">${text.language}</label>
+                          <select
+                            id="orfin-language"
+                            .value=${settings.locale}
+                            @change=${(event: Event) => controller.setLocale((event.target as HTMLSelectElement).value)}
+                          >
+                            ${localeOptions(settings.locale, settings.translations).map((locale) => html`<option value=${locale.code} ?selected=${locale.code === settings.locale}>${locale.label}</option>`)}
+                          </select>
+                        </div>
+                        <div class="field">
                           <label>${text.theme}</label>
                           <div class="themes">
-                            ${(['cloud', 'midnight', 'iris'] as ThemePreset[]).map((theme) => html`<button class="theme" aria-pressed=${settings.theme === theme} @click=${() => controller.updateSettings({ theme })}>${theme[0]!.toUpperCase() + theme.slice(1)}</button>`)}
+                            ${(['cloud', 'midnight', 'iris'] as ThemePreset[]).map((theme) => html`<button class="theme" aria-pressed=${settings.theme === theme} @click=${() => controller.updateSettings({ theme })}>${text[theme]}</button>`)}
                           </div>
                         </div>
                         <div class="toggle-row">
@@ -283,7 +312,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         role="log"
                         aria-live="polite"
                         aria-relevant="additions text"
-                        aria-label="Conversation"
+                        aria-label=${text.conversation}
                         aria-busy=${state.busy}
                       >
                         ${
@@ -298,7 +327,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                               </div>`
                             : repeat(state.messages, (message) => message.id, message)
                         }
-                        ${state.error ? html`<div class="error" role="alert">${state.error}<br /><button @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
+                        ${state.error ? html`<div class="error" role="alert">${controller.errorMessage}<br /><button @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
                       </div>`
                 }
                 ${
@@ -307,10 +336,11 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         ${
                           state.selectedSection
                             ? html`<div class="context">
-                                ${icon('pick', 12)}<span>${state.selectedSection.title}</span
+                                ${icon('pick', 12)}<span
+                                  >${controller.sectionText(state.selectedSection).title}</span
                                 ><button
                                   class="icon-button"
-                                  aria-label="Clear section context"
+                                  aria-label=${text.clearContext}
                                   @click=${() => {
                                     state.selectedSection = undefined;
                                     update();

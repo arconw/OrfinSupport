@@ -5,12 +5,16 @@ import type {
   BrowserAction,
   ChatMessage,
   ChatTransport,
+  Locale,
   Section,
   SettingsInput,
 } from '../core/types';
 import { spotlightRect } from './geometry';
 import type { Rect } from './geometry';
-import { translations } from './i18n';
+import { resolveTranslations } from './i18n';
+import { formatMessage, localizeSection } from '../core/locale';
+import { OrfinError, errorMessages, isOrfinErrorCode } from '../core/errors';
+import type { OrfinErrorCode } from '../core/errors';
 import { SectionMemory } from './memory';
 import { SectionRegistry } from './registry';
 import { navigatePage, pendingSection } from './navigation';
@@ -39,7 +43,8 @@ export interface AssistantState {
   highlight?: { section: Section; rect: Rect };
   hover?: { section: Section; rect: Rect };
   tour?: { index: number; sections: Section[] };
-  error?: string;
+  error?: OrfinErrorCode;
+  errorStatus?: number;
 }
 
 export class OrfinController {
@@ -86,7 +91,20 @@ export class OrfinController {
   }
 
   get text() {
-    return translations[this.settings.locale];
+    return resolveTranslations(this.settings.locale, this.settings.translations);
+  }
+  get errorMessage() {
+    const code = this.state.error;
+    return code
+      ? this.text[errorMessages[code]] +
+          (this.state.errorStatus ? ` (${this.state.errorStatus})` : '')
+      : undefined;
+  }
+  sectionText(section: Section) {
+    return localizeSection(section, this.settings.locale);
+  }
+  setLocale(locale: Locale) {
+    this.updateSettings({ locale });
   }
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -138,6 +156,7 @@ export class OrfinController {
     this.stop();
     this.state.messages = [];
     this.state.error = undefined;
+    this.state.errorStatus = undefined;
     this.state.selectedSection = undefined;
     this.emit('clear');
   }
@@ -158,6 +177,7 @@ export class OrfinController {
     if (!text || this.state.busy || !this.settings.features.chat || this.destroyed) return;
     this.open();
     this.state.error = undefined;
+    this.state.errorStatus = undefined;
     this.state.busy = true;
     this.state.messages.push({ id: crypto.randomUUID(), role: 'user', content: text });
     const messages = this.state.messages
@@ -167,6 +187,7 @@ export class OrfinController {
     const reply: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'assistant',
+      locale: this.settings.locale,
       content: '',
       status: 'streaming',
       tools: [],
@@ -183,6 +204,7 @@ export class OrfinController {
           page: this.registry.page(
             this.settings.features.pageContext,
             this.state.selectedSection?.id,
+            this.settings.locale,
           ),
           features: this.settings.features,
           locale: this.settings.locale,
@@ -199,15 +221,17 @@ export class OrfinController {
           ];
         }
         if (event.type === 'action') await this.perform(event.action);
-        if (event.type === 'error') throw new Error(event.message);
+        if (event.type === 'error')
+          throw new OrfinError(isOrfinErrorCode(event.code) ? event.code : 'reply', event.message);
         this.emit();
       }
       reply.status = abort.signal.aborted ? 'cancelled' : 'complete';
     } catch (error) {
       reply.status = abort.signal.aborted ? 'cancelled' : 'error';
-      if (!abort.signal.aborted)
-        this.state.error =
-          error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      if (!abort.signal.aborted) {
+        this.state.error = error instanceof OrfinError ? error.code : 'reply';
+        this.state.errorStatus = error instanceof OrfinError ? error.status : undefined;
+      }
     } finally {
       if (this.abort === abort) {
         this.state.busy = false;
@@ -231,7 +255,7 @@ export class OrfinController {
     this.dismissHover();
     this.cancelPick();
     await this.highlight(section.id);
-    await this.send(`${this.text.explain} “${section.title}”.`);
+    await this.send(formatMessage(this.text.explain, { title: this.sectionText(section).title }));
   }
 
   pick() {

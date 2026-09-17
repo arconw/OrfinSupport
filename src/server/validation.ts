@@ -22,7 +22,7 @@ const schema = {
         },
       },
     },
-    locale: { enum: ['en', 'ru'] },
+    locale: { type: 'string', maxLength: 48, pattern: '^[a-zA-Z]{2,3}(?:-[a-zA-Z0-9]{2,8}){0,5}$' },
     features: {
       type: 'object',
       additionalProperties: false,

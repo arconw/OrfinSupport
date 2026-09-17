@@ -15,3 +15,5 @@ export function createOrfin(options: OrfinOptions = {}): OrfinController {
 export { OrfinController };
 export type { OrfinOptions, AssistantState } from './browser/controller';
 export * from './core/index';
+
+export { resolveTranslations } from './browser/i18n';

@@ -1,86 +1,62 @@
-export const translations = {
-  en: {
-    assistant: 'Your guide to this workspace',
-    open: 'Ask Orfin',
-    close: 'Close assistant',
-    title: 'Hey, I’m Orfin.',
-    intro: 'A little lost? A little curious? I’m here to help you find your way.',
-    greeting: 'What would you like to explore?',
-    tour: 'Show me around',
-    pick: 'Ask about a section',
-    page: 'Explain this page',
-    placeholder: 'Ask me anything about this workspace…',
-    send: 'Send message',
-    stop: 'Stop response',
-    clear: 'Clear conversation',
-    next: 'Next',
-    back: 'Back',
-    ask: 'Ask',
-    finish: 'Finish',
-    exit: 'End tour',
-    yes: 'Yes, please',
-    no: 'No, thanks',
-    hover: 'Need a hand with this section?',
-    select: 'Choose a section to ask about',
-    escape: 'Esc to cancel',
-    settings: 'Assistant preferences',
-    theme: 'Appearance',
-    autoHelp: 'Suggest help on hover',
-    memory: 'Remember my choices',
-    reset: 'Forget section history',
-    online: 'Here to help',
-    thinking: 'Thinking',
-    powered: 'Guidance by OrfinSupport',
-    disabled: 'Chat is turned off in this workspace.',
-    explain: 'Tell me about',
-    pagePrompt: 'What can I do on this page? Explain the main sections.',
-    retry: 'Try again',
-    sources: 'Sources',
-    tool: 'Using',
-    complete: 'Done',
-    error: 'Unable to complete',
-    waiting: 'Write a question about this section below.',
-  },
-  ru: {
-    assistant: 'Ваш помощник в этом проекте',
-    open: 'Спросить Orfin',
-    close: 'Закрыть помощника',
-    title: 'Привет, я Orfin.',
-    intro: 'Помогу освоиться, найти нужное и разобраться в деталях.',
-    greeting: 'Что хотите узнать?',
-    tour: 'Покажи проект',
-    pick: 'Спросить про секцию',
-    page: 'Объясни страницу',
-    placeholder: 'Спросите меня об этом проекте…',
-    send: 'Отправить',
-    stop: 'Остановить ответ',
-    clear: 'Очистить чат',
-    next: 'Далее',
-    back: 'Назад',
-    ask: 'Спросить',
-    finish: 'Завершить',
-    exit: 'Закрыть экскурсию',
-    yes: 'Да, пожалуйста',
-    no: 'Нет, спасибо',
-    hover: 'Помочь разобраться с этой секцией?',
-    select: 'Выберите секцию для вопроса',
-    escape: 'Esc — отмена',
-    settings: 'Настройки помощника',
-    theme: 'Оформление',
-    autoHelp: 'Предлагать помощь при наведении',
-    memory: 'Запоминать мои ответы',
-    reset: 'Забыть историю секций',
-    online: 'Готов помочь',
-    thinking: 'Думаю',
-    powered: 'Помощник OrfinSupport',
-    disabled: 'Чат отключён в этом проекте.',
-    explain: 'Расскажи про',
-    pagePrompt: 'Что можно делать на этой странице? Объясни основные секции.',
-    retry: 'Повторить',
-    sources: 'Источники',
-    tool: 'Использую',
-    complete: 'Готово',
-    error: 'Не удалось выполнить',
-    waiting: 'Введите вопрос об этой секции ниже.',
-  },
-} as const;
+import { en } from '../locales/en';
+import { es } from '../locales/es';
+import { fr } from '../locales/fr';
+import { de } from '../locales/de';
+import { pt } from '../locales/pt';
+import { it } from '../locales/it';
+import { nl } from '../locales/nl';
+import { pl } from '../locales/pl';
+import { uk } from '../locales/uk';
+import { ru } from '../locales/ru';
+import { tr } from '../locales/tr';
+import { ar } from '../locales/ar';
+import { hi } from '../locales/hi';
+import { zh } from '../locales/zh';
+import { ja } from '../locales/ja';
+import { ko } from '../locales/ko';
+import type { TranslationKey, TranslationMessages, TranslationOverrides } from '../locales/types';
+import { languageName, localeChain, normalizeLocale, supportedLocales } from '../core/locale';
+
+export const translations: Record<string, TranslationMessages> = {
+  en,
+  es,
+  fr,
+  de,
+  pt,
+  it,
+  nl,
+  pl,
+  uk,
+  ru,
+  tr,
+  ar,
+  hi,
+  zh,
+  ja,
+  ko,
+};
+
+export function resolveTranslations(
+  locale: string,
+  overrides: TranslationOverrides = {},
+): TranslationMessages {
+  const resolved: TranslationMessages = { ...en };
+  for (const language of localeChain(locale)) {
+    if (Object.hasOwn(translations, language)) Object.assign(resolved, translations[language]);
+    const custom = Object.hasOwn(overrides, language) ? overrides[language] : undefined;
+    for (const key of Object.keys(en) as TranslationKey[]) {
+      const value = custom?.[key];
+      if (typeof value === 'string' && value.trim()) resolved[key] = value;
+    }
+  }
+  return resolved;
+}
+
+export function localeOptions(locale: string, overrides: TranslationOverrides) {
+  const options: { code: string; label: string }[] = [...supportedLocales];
+  for (const code of [...Object.keys(overrides), locale].map(normalizeLocale)) {
+    if (!options.some((option) => option.code === code))
+      options.push({ code, label: languageName(code, code) });
+  }
+  return options;
+}
