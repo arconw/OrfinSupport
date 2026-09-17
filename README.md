@@ -13,7 +13,7 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-4361ee?style=flat-square" alt="MIT license" /></a>
     <img src="https://img.shields.io/badge/TypeScript-strict-4361ee?style=flat-square" alt="Strict TypeScript" />
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
-    <a href="https://github.com/arconw/OrfinSupport/actions/workflows/ci.yml"><img src="https://github.com/arconw/OrfinSupport/actions/workflows/ci.yml/badge.svg" alt="Continuous integration" /></a>
+    <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
   <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin guides a visitor through Northstar, answers during a tour, and explains a selected section" />
   <p><sub>Recorded from the working playground. Demo replies are labeled; live mode uses your local LLM gateway.</sub></p>
@@ -284,8 +284,10 @@ The automated suite covers fragmented SSE and Unicode, tool argument validation,
 ## Repository and release
 
 - **`main`** — library source, tests, documentation, examples and demo source.
-- **`demo`** — deployable playground branch. Its workflow publishes the static demo to GitHub Pages.
+- **`demo`** — built static playground, served by GitHub Pages. The editable demo source lives on `main`.
 - **npm** — publication is deliberately separate from repository builds. No workflow publishes a package automatically.
+
+Ready-to-enable CI templates are in `.github/workflow-templates/`. Move them into `.github/workflows/` with a GitHub credential that has the `workflow` scope. The initial publication uses branch-based Pages because the available credential cannot create workflows.
 
 The supported baseline is modern browsers with Shadow DOM, Fetch streams, ResizeObserver and `Element.checkVisibility`; the server baseline is Node.js 20.19+. Tests currently run in Chromium. The public static playground uses sample replies; real AI needs your backend. Cross-origin navigation is not enabled. Authentication, rate limiting, tool authorization, provider billing and production data policies belong to the host application.
 
