@@ -24,7 +24,7 @@ The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks 
 
 | Scenario                 | Observed behavior                                                                                                    |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| Project context          | A real response streamed across 29 text deltas                                                                       |
+| Project context          | A real response streamed across multiple text deltas                                                                 |
 | Model-directed spotlight | The model requested `highlight_section` for `projects`; the server emitted the corresponding browser action          |
 | MCP tool round trip      | The model called `team_capacity`; the official SDK client completed the tool call and the model continued its answer |
 | Retrieval                | The Studio plan document was returned as a source and used in the streamed response                                  |
