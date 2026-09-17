@@ -1,0 +1,16 @@
+{
+  "name": "orfinsupport-next-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack -p 4175",
+    "build": "next build --webpack",
+    "start": "next start -p 4175"
+  },
+  "dependencies": {
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "orfinsupport": "file:../.."
+  }
+}

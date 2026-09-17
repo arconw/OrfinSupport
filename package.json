@@ -1,0 +1,152 @@
+{
+  "name": "orfinsupport",
+  "version": "0.1.0",
+  "description": "Orfin, the context-aware assistant that guides people through your product.",
+  "type": "module",
+  "license": "MIT",
+  "author": "arconw",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arconw/OrfinSupport.git"
+  },
+  "homepage": "https://github.com/arconw/OrfinSupport#readme",
+  "bugs": {
+    "url": "https://github.com/arconw/OrfinSupport/issues"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "chat",
+    "tour",
+    "react",
+    "nextjs",
+    "vue",
+    "angular",
+    "mcp",
+    "web-component"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js"
+    },
+    "./providers": {
+      "types": "./dist/providers/index.d.ts",
+      "import": "./dist/providers/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp/index.d.ts",
+      "import": "./dist/mcp/index.js"
+    },
+    "./react": {
+      "types": "./dist/adapters/react.d.ts",
+      "import": "./dist/adapters/react.js"
+    },
+    "./vue": {
+      "types": "./dist/adapters/vue.d.ts",
+      "import": "./dist/adapters/vue.js"
+    },
+    "./angular": {
+      "types": "./dist/adapters/angular.d.ts",
+      "import": "./dist/adapters/angular.js"
+    }
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web 'tsx watch demo/server.ts' 'vite --host 127.0.0.1'",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "tsup",
+    "build:demo": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:live": "tsx scripts/live-check.ts",
+    "check": "npm run typecheck && npm test && npm run build && npm run build:demo",
+    "prepack": "npm run build",
+    "format": "prettier --write src demo tests scripts docs examples *.json *.ts *.md .github",
+    "format:check": "prettier --check src demo tests scripts docs examples *.json *.ts *.md .github",
+    "test:next": "playwright test --config playwright.next.config.ts",
+    "capture:demo": "node scripts/capture-demo.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "lit": "^3.3.3"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=19",
+    "@angular/core": ">=19",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "react": ">=18",
+    "vue": ">=3.3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/common": {
+      "optional": true
+    },
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@angular/common": "^22.1.7",
+    "@angular/compiler": "^22.1.7",
+    "@angular/core": "^22.1.7",
+    "@angular/platform-browser": "^22.1.7",
+    "@axe-core/playwright": "^4.10.2",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/manrope": "^5.2.8",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "concurrently": "^9.2.0",
+    "gifenc": "^1.0.3",
+    "lucide-react": "^0.577.0",
+    "next": "^16.3.5",
+    "prettier": "^3.6.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "rxjs": "^7.8.2",
+    "sharp": "^0.35.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1",
+    "vue": "^3.5.43",
+    "zod": "^4.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
+  }
+}

@@ -1,0 +1,230 @@
+import { Check, CheckCheck, Code2, Copy, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import type { AssistantSettings, Features, SettingsInput, ThemePreset } from '../../src/core/types';
+import { defaultSettings } from '../../src/core/settings';
+import type { OrfinController } from '../../src/index';
+
+export function SettingsPage({
+  orfin,
+  settings,
+  update,
+}: {
+  orfin: OrfinController | null;
+  settings: AssistantSettings;
+  update: (settings: SettingsInput) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const features: {
+    key: Exclude<keyof Features, 'pageContext'>;
+    title: string;
+    description: string;
+  }[] = [
+    {
+      key: 'chat',
+      title: 'Conversations',
+      description: 'Let visitors ask questions about your product.',
+    },
+    {
+      key: 'tour',
+      title: 'Guided tours',
+      description: 'A step-by-step introduction, with room for questions.',
+    },
+    {
+      key: 'sectionPicker',
+      title: 'Section selection',
+      description: 'Point at anything you want to understand.',
+    },
+    {
+      key: 'hoverHelp',
+      title: 'Thoughtful nudges',
+      description: 'Offer a little help after a visitor lingers.',
+    },
+    {
+      key: 'navigation',
+      title: 'Find the way',
+      description: 'Open a page and highlight the right section.',
+    },
+    {
+      key: 'tools',
+      title: 'Connected tools',
+      description: 'Use workspace tools and connected MCP services.',
+    },
+  ];
+  const config = JSON.stringify(
+    {
+      endpoint: '/api/orfin',
+      theme: settings.theme,
+      features: settings.features,
+      memory: settings.memory,
+      hoverDelay: settings.hoverDelay,
+      locale: settings.locale,
+    },
+    null,
+    2,
+  );
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <h1>Your product. Your Orfin.</h1>
+          <p>Make a change. Try it out. Find what feels right.</p>
+        </div>
+        <button className="button" onClick={() => update(defaultSettings)}>
+          <RotateCcw size={14} />
+          Reset defaults
+        </button>
+      </div>
+      <section className="settings-layout" data-orfin-section="settings">
+        <div className="settings-column">
+          <section className="settings-card">
+            <div className="section-heading">
+              <h2>Make it feel at home</h2>
+              <SlidersHorizontal size={17} />
+            </div>
+            <p className="card-description">Three starting points. Every detail can be yours.</p>
+            <div className="theme-previews">
+              {(['cloud', 'midnight', 'iris'] as ThemePreset[]).map((theme) => (
+                <button
+                  className={`theme-preview ${theme} ${settings.theme === theme ? 'selected' : ''}`}
+                  key={theme}
+                  aria-pressed={settings.theme === theme}
+                  onClick={() => update({ theme })}
+                >
+                  <span className="preview-window">
+                    <i />
+                    <i />
+                    <i />
+                    <span />
+                  </span>
+                  <strong>{theme[0]!.toUpperCase() + theme.slice(1)}</strong>
+                  {settings.theme === theme && <Check size={14} />}
+                </button>
+              ))}
+            </div>
+            <label className="setting-field">
+              <span>Language</span>
+              <select
+                aria-label="Language"
+                value={settings.locale}
+                onChange={(event) => update({ locale: event.target.value as 'en' | 'ru' })}
+              >
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+              </select>
+            </label>
+          </section>
+          <section className="settings-card">
+            <h2>A helpful memory</h2>
+            <p className="card-description">Decide what Orfin remembers between visits.</p>
+            <label className="setting-field">
+              <span>Remember choices</span>
+              <select
+                value={settings.memory.storage}
+                onChange={(event) =>
+                  update({
+                    memory: { storage: event.target.value as 'local' | 'session' | 'none' },
+                  })
+                }
+              >
+                <option value="session">This session</option>
+                <option value="local">Between visits</option>
+                <option value="none">In memory only</option>
+              </select>
+            </label>
+            {(['rememberVisited', 'rememberDismissed'] as const).map((key) => (
+              <div className="setting-row" key={key}>
+                <span>
+                  {key === 'rememberVisited'
+                    ? 'Remember explained sections'
+                    : 'Remember “No, thanks”'}
+                </span>
+                <button
+                  className="switch"
+                  role="switch"
+                  aria-label={
+                    key === 'rememberVisited'
+                      ? 'Remember explained sections'
+                      : 'Remember declined help'
+                  }
+                  aria-checked={settings.memory[key]}
+                  onClick={() => update({ memory: { [key]: !settings.memory[key] } })}
+                />
+              </div>
+            ))}
+            <label className="setting-field">
+              <span>Wait before offering help</span>
+              <select
+                value={settings.hoverDelay}
+                onChange={(event) => update({ hoverDelay: Number(event.target.value) })}
+              >
+                <option value={1200}>1.2 seconds</option>
+                <option value={2200}>2.2 seconds</option>
+                <option value={4000}>4 seconds</option>
+              </select>
+            </label>
+            <button className="text-button" onClick={() => orfin?.forget()}>
+              Clear section history
+              <RotateCcw size={12} />
+            </button>
+          </section>
+        </div>
+        <div className="settings-column">
+          <section className="settings-card">
+            <h2>A little more, or a little less</h2>
+            <p className="card-description">Turn on the capabilities your visitors need.</p>
+            {features.map((feature) => (
+              <div className="feature-row" key={feature.key}>
+                <div>
+                  <strong>{feature.title}</strong>
+                  <p>{feature.description}</p>
+                </div>
+                <button
+                  className="switch"
+                  role="switch"
+                  aria-label={feature.title}
+                  aria-checked={settings.features[feature.key]}
+                  onClick={() =>
+                    update({ features: { [feature.key]: !settings.features[feature.key] } })
+                  }
+                />
+              </div>
+            ))}
+            <label className="setting-field context-field">
+              <span>Page context</span>
+              <select
+                value={settings.features.pageContext}
+                onChange={(event) =>
+                  update({ features: { pageContext: event.target.value as 'sections' | 'page' } })
+                }
+              >
+                <option value="sections">Marked sections only</option>
+                <option value="page">Visible page content</option>
+              </select>
+            </label>
+          </section>
+          <section className="config-card">
+            <div className="section-heading">
+              <h2>
+                <Code2 size={17} />
+                Bring this to your project
+              </h2>
+              <button
+                className="icon-btn"
+                aria-label="Copy configuration"
+                onClick={() => {
+                  void navigator.clipboard.writeText(config).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+                }}
+              >
+                {copied ? <CheckCheck size={17} /> : <Copy size={17} />}
+              </button>
+            </div>
+            <pre>{config}</pre>
+          </section>
+        </div>
+      </section>
+    </>
+  );
+}

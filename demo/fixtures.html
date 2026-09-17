@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Framework integration fixture</title>
+    <style>
+      body {
+        font-family: system-ui;
+        padding: 30px;
+        background: #f0f4fa;
+        color: #23344d;
+      }
+      main {
+        max-width: 850px;
+      }
+      section {
+        padding: 35px;
+        background: white;
+        margin-bottom: 20px;
+        border: 1px solid #d5deed;
+        border-radius: 14px;
+      }
+      button {
+        font-size: 18px;
+        background: tomato;
+        color: black;
+        border: 8px dotted magenta;
+        padding: 20px;
+      }
+      textarea {
+        background: red;
+        font-size: 50px;
+      }
+      h1 {
+        font-size: 30px;
+      }
+      input {
+        width: 250px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Host application fixture</h1>
+      <div id="framework-root"></div>
+      <section
+        data-orfin-section="fixture-intro"
+        data-orfin-title="Fixture introduction"
+        data-orfin-description="This is the integration fixture with aggressively styled host controls."
+        data-orfin-order="0"
+      >
+        <h2>Fixture introduction</h2>
+        <p>The widget must remain readable under hostile host styles.</p>
+      </section>
+      <section
+        data-orfin-section="fixture-tools"
+        data-orfin-title="Fixture tools"
+        data-orfin-description="Ask about this section while keeping your place in the tour."
+        data-orfin-order="1"
+      >
+        <h2>Fixture tools</h2>
+        <input aria-label="Private host input" value="PRIVATE_INPUT_SENTINEL" />
+        <div data-orfin-private>PRIVATE_SECTION_SENTINEL</div>
+        <p>Public fixture information.</p>
+      </section>
+      <section>
+        <h2>Unmarked area</h2>
+        <p>This appears only in page context mode.</p>
+      </section>
+      <button id="unmount">Unmount integration</button>
+    </main>
+    <script type="module" src="/fixtures.tsx"></script>
+  </body>
+</html>
