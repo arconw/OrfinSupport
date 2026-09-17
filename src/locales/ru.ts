@@ -60,4 +60,5 @@ export const ru = {
   navigateTool: 'Открыть страницу',
   tourTool: 'Начать экскурсию',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Вернуться к туру',
 } satisfies TranslationMessages;

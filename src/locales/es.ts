@@ -61,4 +61,5 @@ export const es = {
   navigateTool: 'Abrir página',
   tourTool: 'Iniciar recorrido',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Volver al recorrido',
 } satisfies TranslationMessages;

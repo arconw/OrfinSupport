@@ -52,6 +52,15 @@ for (let i = 0; i < 8; i++) {
 await page.getByRole('button', { name: 'Send message', exact: true }).waitFor();
 await capture(1900);
 await page
+  .getByRole('navigation', { name: 'Tour controls' })
+  .getByRole('button', { name: 'Next', exact: true })
+  .click();
+await capture(1200);
+await page
+  .getByRole('navigation', { name: 'Tour controls' })
+  .getByRole('button', { name: 'Return to tour', exact: true })
+  .click();
+await page
   .getByRole('dialog', { name: 'Guided tour' })
   .getByRole('button', { name: 'End tour', exact: true })
   .click();

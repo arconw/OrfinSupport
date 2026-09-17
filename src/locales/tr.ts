@@ -60,4 +60,5 @@ export const tr = {
   navigateTool: 'Sayfayı aç',
   tourTool: 'Turu başlat',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Tura dön',
 } satisfies TranslationMessages;

@@ -61,4 +61,5 @@ export const nl = {
   navigateTool: 'Pagina openen',
   tourTool: 'Rondleiding starten',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Terug naar de rondleiding',
 } satisfies TranslationMessages;

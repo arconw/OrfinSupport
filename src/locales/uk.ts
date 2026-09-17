@@ -61,4 +61,5 @@ export const uk = {
   navigateTool: 'Відкрити сторінку',
   tourTool: 'Почати екскурсію',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Повернутися до туру',
 } satisfies TranslationMessages;

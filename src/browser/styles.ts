@@ -691,6 +691,7 @@ export const widgetStyles = css`
   }
   .tour-inline {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
@@ -700,6 +701,7 @@ export const widgetStyles = css`
   .tour-inline > span {
     margin-inline-end: auto;
     color: var(--muted);
+    white-space: nowrap;
   }
   @keyframes orfin-enter {
     from {

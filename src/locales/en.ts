@@ -59,4 +59,5 @@ export const en = {
   navigateTool: 'Open page',
   tourTool: 'Start tour',
   stepProgress: '{current} / {total}',
+  returnToTour: 'Return to tour',
 } as const;

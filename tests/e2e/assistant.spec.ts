@@ -31,11 +31,13 @@ test('keeps the current tour step when asking a question', async ({ page }) => {
     .fill('Which project is closest to done?');
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect(page.locator('[data-orfin-root] .message.assistant')).toContainText('Brand refresh');
-  await expect(tour).toContainText('2 / 4');
-  await tour.getByRole('button', { name: 'Next', exact: true }).click();
-  await expect(tour).toContainText('3 / 4');
-  await tour.getByRole('button', { name: 'Next', exact: true }).click();
-  await expect(tour).toContainText('4 / 4');
+  const controls = page.getByRole('navigation', { name: 'Tour controls', exact: true });
+  await expect(tour).toHaveCount(0);
+  await expect(controls).toContainText('2 / 4');
+  await controls.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(controls).toContainText('3 / 4');
+  await controls.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(controls).toContainText('4 / 4');
   await page.keyboard.press('Escape');
   await expect(tour).toHaveCount(0);
   await expect(page.locator('[data-orfin-root] .spotlight')).toHaveCount(0);

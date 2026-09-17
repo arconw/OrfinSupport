@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Latest localization validation: **51 unit/integration tests, 28 Chromium browser tests, 3 Next.js production tests and 8 live gateway scenarios**.
+Latest validation: **51 unit/integration tests, 32 Chromium browser tests, 3 Next.js production tests and 8 live gateway scenarios**.
 
 ## Automated coverage
 
@@ -17,6 +17,8 @@ Latest localization validation: **51 unit/integration tests, 28 Chromium browser
 | Next.js            | Production build, SSR output, browser hydration from the built package, router navigation while touring, and SSE from the actual server Route Handler                                                                                                                                                       |
 
 Localization checks exercise every built-in locale, regional and custom fallback, translated errors after a language change, localized section extraction, hover/picker content, switching language during a tour, Arabic mobile layout, and two-way React/Vue/Angular state. Next tests build a fresh production application on port 4177 rather than reusing a previously built server.
+
+Acceptance regressions cover Ask → reply → Next at 1440×1000 and 390×844, returning to the same tour step, clearing submissions from both Enter and the Send button, and preserving a new draft through response updates. The composer regression failed against the previous implementation before the fix. A separate layout check verified the inline tour controls in all 16 languages at widths of 320, 390 and 1440 pixels.
 
 ## Live model checks
 

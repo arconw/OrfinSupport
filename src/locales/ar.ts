@@ -60,4 +60,5 @@ export const ar = {
   navigateTool: 'فتح الصفحة',
   tourTool: 'بدء الجولة',
   stepProgress: '{current} / {total}',
+  returnToTour: 'العودة إلى الجولة',
 } satisfies TranslationMessages;

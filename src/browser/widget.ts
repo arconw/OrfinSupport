@@ -1,6 +1,7 @@
 import { html, render, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { live } from 'lit/directives/live.js';
 import type { ChatMessage, ThemePreset } from '../core/types';
 import { OrfinController } from './controller';
 import { formattedText, safeURL } from './format';
@@ -91,13 +92,10 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       : '';
     host.lang = settings.locale;
     host.dir = localeDirection(settings.locale);
-    const panelRect = state.open
-      ? shadow.querySelector('.panel')?.getBoundingClientRect()
-      : undefined;
     const hoverPosition = state.hover ? popoverPosition(state.hover.rect, 300, 158) : undefined;
     const tourPosition =
-      state.highlight && state.tour && !(state.open && innerWidth <= 600)
-        ? popoverPosition(state.highlight.rect, 300, 244, panelRect)
+      state.highlight && state.tour && !state.open
+        ? popoverPosition(state.highlight.rect, 300, 244)
         : undefined;
     render(
       html`<div
@@ -236,7 +234,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   </button>
                 </header>
                 ${
-                  state.tour && innerWidth <= 600
+                  state.tour
                     ? html`<nav class="tour-inline" aria-label=${text.tourControls}>
                         <button
                           class="icon-button"
@@ -252,7 +250,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                             controller.close();
                           }}
                         >
-                          ${text.tour}</button
+                          ${text.returnToTour}</button
                         ><button
                           class="primary"
                           @click=${() => void controller.tourStep(state.tour!.index + 1)}
@@ -357,7 +355,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                             placeholder=${text.placeholder}
                             maxlength="12000"
                             rows="2"
-                            .value=${draft}
+                            .value=${live(draft)}
                             @input=${(event: Event) => {
                               draft = (event.target as HTMLTextAreaElement).value;
                             }}
@@ -407,7 +405,6 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     }
     if (state.open && !wasOpen) {
       focusInput();
-      if (state.tour) queueMicrotask(update);
     }
     if (!state.open && wasOpen)
       shadow.querySelector<HTMLButtonElement>('.launcher')?.focus({ preventScroll: true });

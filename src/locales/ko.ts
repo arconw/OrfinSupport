@@ -60,4 +60,5 @@ export const ko = {
   navigateTool: '페이지 열기',
   tourTool: '둘러보기 시작',
   stepProgress: '{current} / {total}',
+  returnToTour: '둘러보기로 돌아가기',
 } satisfies TranslationMessages;

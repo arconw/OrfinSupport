@@ -60,4 +60,5 @@ export const zh = {
   navigateTool: '打开页面',
   tourTool: '开始导览',
   stepProgress: '{current} / {total}',
+  returnToTour: '返回导览',
 } satisfies TranslationMessages;

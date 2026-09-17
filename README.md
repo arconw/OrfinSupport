@@ -25,7 +25,7 @@ Your visitors can ask a question, take a tour, or point at the part of the inter
 
 | Capability                   | What it does                                                                                                                          |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Questions keep the current step and section context.                          |
+| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Continue from inside the chat or return to the current tour step.             |
 | **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.         |
 | **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.               |
 | **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and shades the surrounding viewport at 70% for two seconds.           |

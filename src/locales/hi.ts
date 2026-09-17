@@ -61,4 +61,5 @@ export const hi = {
   navigateTool: 'पेज खोलें',
   tourTool: 'परिचय शुरू करें',
   stepProgress: '{current} / {total}',
+  returnToTour: 'परिचय पर वापस जाएँ',
 } satisfies TranslationMessages;

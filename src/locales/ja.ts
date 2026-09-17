@@ -61,4 +61,5 @@ export const ja = {
   navigateTool: 'ページを開く',
   tourTool: 'ツアーを開始',
   stepProgress: '{current} / {total}',
+  returnToTour: 'ツアーに戻る',
 } satisfies TranslationMessages;
