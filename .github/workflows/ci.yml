@@ -18,6 +18,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run check
       - run: npm run test:e2e
+      - run: npm ci --prefix examples/next
+      - run: npx playwright test --config playwright.next.config.ts -g 'SSR page'
       - run: npm pack --dry-run --ignore-scripts
       - uses: actions/upload-artifact@v4
         if: failure()
