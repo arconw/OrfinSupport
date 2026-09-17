@@ -1,7 +1,7 @@
 name: Deploy playground
 on:
   push:
-    branches: [demo]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
