@@ -6,7 +6,7 @@ Built static demo for [OrfinSupport](https://github.com/arconw/OrfinSupport).
 
 ![Orfin guides a tour, explains a section and compares products](https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif)
 
-The README animation is recorded continuously at 25 fps, preserving transitions and streamed answers. See the [recording instructions](https://github.com/arconw/OrfinSupport#development).
+The README animation is recorded continuously at 25 fps, preserving transitions and streamed answers. See the [recording instructions](https://github.com/arconw/OrfinSupport#verification).
 
 Library and editable demo source: [`main`](https://github.com/arconw/OrfinSupport/tree/main).
 
