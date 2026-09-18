@@ -6,7 +6,7 @@ Built static demo for [OrfinSupport](https://github.com/arconw/OrfinSupport).
 
 Library and editable demo source: [`main`](https://github.com/arconw/OrfinSupport/tree/main).
 
-Source revision: `5cf00eb18585842418a7bdb320f89e5601e9d0b6`.
+Source revision: `00ac0bd580f39b3b182f52362c947478aecf265f`.
 
 This public playground uses sample replies. Run the source locally to connect Orfin to your LLM backend.
 
