@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Latest validation: **54 unit/integration tests, 46 Chromium browser tests, 2 static production demo tests, 3 Next.js production tests, 12 live gateway scenarios and 2 live browser scenarios**. Each live browser scenario also passed twice in fresh contexts against the frozen production preview.
+Expansion validation: **62 unit/integration tests, 56 Chromium browser tests, 2 static production demo tests, 3 Next.js production tests, 12 live gateway scenarios and 3 new live browser workflows**. The accepted baseline also includes two real MCP browser scenarios. The new live workflows cover cart mutations, Russian comparison/review retrieval and numeric analysis through the actual gateway.
 
 ## Automated coverage
 
@@ -10,7 +10,7 @@ Latest validation: **54 unit/integration tests, 46 Chromium browser tests, 2 sta
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit/integration   | SSE fragmentation, CRLF and Unicode; OpenAI native/prompt tools; Anthropic Messages protocol; malformed streams; provider errors; schema validation; tool allowlists and loops; retrieval; request authorization, origins, size limits and cancellation; feature intersections; memory TTL/storage failures |
 | MCP                | Official SDK initialization, tool discovery and execution over both in-memory and a real local Streamable HTTP server; allowlists, prefixes and error results                                                                                                                                               |
-| Browser            | Streaming chat and citations, tour questions without losing the step, 70% spotlight, selection, hover Yes/No memory, outside dismissal, navigation, themes, Russian UI, runtime feature switches, cancellation, retry and escaped model output                                                              |
+| Browser            | Streaming chat and citations, tour questions without losing the step, soft 15% spotlight with configurable opacity, selection, hover Yes/No memory, outside dismissal, navigation, themes, Russian UI, runtime feature switches, cancellation, retry and escaped model output                               |
 | Frameworks         | Real React, Vue and Angular apps plus plain JavaScript; mount, chat, hostile host CSS and unmount cleanup                                                                                                                                                                                                   |
 | Navigation/privacy | SPA navigation, destination highlighting after a full document load, disallowed/external paths, private subtree and input exclusion, optional unmarked section discovery                                                                                                                                    |
 | Accessibility      | Keyboard section selection, reduced motion, mobile layout and tour controls, automated axe checks against the complete demo overview and assistant                                                                                                                                                          |
@@ -27,6 +27,12 @@ Page-context regressions cover ending the tour on Team pulse and navigating to P
 Compact welcome checks use Iris and Russian at 320×568 and 390×844. Opening, reopening, resizing and clearing a completed conversation leave the greeting at `scrollTop=0` with its icon inside the log. Before the fix, clearing a long reply retained a scroll offset and clipped the greeting. Automatic following applies to the message log; it does not scroll assistant preferences.
 
 Static production tests build the actual demo with Live AI disabled, then use Chromium at 1440×1000 and 320×568. They verify the disabled local-only option, its accessible explanation, keyboard selection, a complete sample reply without API requests, all 16 language choices, a French language change preserving history, and no horizontal overflow or browser errors. The local production preview explicitly enables Live AI when it builds its frontend alongside the API.
+
+## Expanded demo coverage
+
+The expanded workspace shares catalog, cart and delivery-ledger data between UI and tools. Tests reconcile chart and segment totals, enforce stock/quantity limits, isolate server-side visitor carts, discard stale cart snapshots, and verify successful tool events before interface updates. Browser scenarios open a product and add two items, change quantity, remove an item, compare the displays, retrieve the actual three-star review, analyze the ledger with evidence references, and verify an explicit language override.
+
+Appearance checks cover ten presets (five light/five dark), token contrast, widget and Playground selection, custom logo replacement/failure fallback, Arabic at 320×568, reduced motion and retention of one spotlight mask between tour steps. The new report, shop, product, comparison and settings pages are also scanned with axe; contrast and review-star semantics were corrected based on those results. New pages fit a 320-pixel viewport; dense report tables scroll within their container.
 
 ## Live model checks
 

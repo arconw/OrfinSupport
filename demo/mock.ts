@@ -3,11 +3,15 @@ import { knowledge, sections } from './data';
 import { demoCopy } from './locales';
 import { resolveTranslations } from '../src/browser/i18n';
 import { localizeSection } from '../src/core/locale';
+import { DemoCartStore } from './cart-store';
+import { responseLocale, studioScenario } from './studio-mock';
 
-export function createDemoTransport(): ChatTransport {
+export function createDemoTransport(store = new DemoCartStore()): ChatTransport {
   return {
     async *stream(request, signal) {
       const query = request.messages.at(-1)?.content.toLowerCase() ?? '';
+      request = { ...request, locale: responseLocale(query, request.locale) };
+      if (yield* studioScenario(request, signal, store)) return;
       const ru = request.locale === 'ru';
       const localized = demoCopy(request.locale);
       const ui = resolveTranslations(request.locale);

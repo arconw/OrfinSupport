@@ -1,5 +1,6 @@
 import type { Section, Source } from '../src/core/types';
 import { sectionTranslations } from './locales';
+import { products } from './catalog';
 
 export const workspaceStatistics = {
   plan: 'Studio',
@@ -77,8 +78,72 @@ export const sections: Section[] = [
   },
 ].map((section) => ({ ...section, translations: sectionTranslations(section.id) }));
 
+sections.push(
+  {
+    id: 'delivery-chart',
+    title: 'Delivery, with the evidence',
+    description:
+      'Compare six weeks of delivered and planned tasks. Orfin reads the delivery ledger to calculate changes and explain what supports each conclusion.',
+    path: '/reports',
+    prompt:
+      'Call get_delivery_report for analysis. Separate observations from causal hypotheses. Show calculations, comparison periods and evidence IDs.',
+  },
+  {
+    id: 'delivery-segments',
+    title: 'Two disciplines, different momentum',
+    description:
+      'Compare Brand and Web on delivered tasks, lead time and rework across equal three-week windows.',
+    path: '/reports',
+  },
+  {
+    id: 'delivery-evidence',
+    title: 'Behind the numbers',
+    description:
+      'Read dated observations DL-041 and DL-052. A checklist and documented feedback delays provide context; the report does not prove causation.',
+    path: '/reports',
+  },
+  {
+    id: 'equipment-catalog',
+    title: 'Tools for thoughtful work',
+    description:
+      'Browse four fictional studio products, inspect actual specifications and reviews, or ask Orfin to compare displays and add an item to your demonstration cart.',
+    path: '/shop',
+  },
+  {
+    id: 'demo-cart',
+    title: 'Your equipment shortlist',
+    description:
+      'A working demo cart with quantities, removal and a calculated total. No checkout or real purchases. Ask Orfin to add a product, then see the change here.',
+    path: '/shop',
+  },
+  {
+    id: 'product-comparison',
+    title: 'Find your kind of screen',
+    description:
+      'Compare Luma 27 at $349 and Luma 32 Pro at $599. See size, color coverage, power delivery, desk footprint and limitations side by side.',
+    path: '/compare',
+  },
+  ...products.flatMap((product) => [
+    {
+      id: `product-${product.id}`,
+      title: product.name,
+      description: product.description,
+      path: `/shop/${product.id}`,
+      prompt:
+        'Use open_product or browse_products for up-to-date details. Prices in the catalog are cents; convert to USD. Use update_cart for requested cart changes, never claim a change without a tool.',
+    },
+    {
+      id: `reviews-${product.id}`,
+      title: `${product.name} customer reviews`,
+      description:
+        'Read the actual fictional customer reviews and their reasons. Use product_reviews to retrieve a specific rating, and quote only the supplied text.',
+      path: `/shop/${product.id}`,
+    },
+  ]),
+);
+
 export const projectContext =
-  'Northstar is a fictional project workspace for a small creative studio. The current visitor is Alex Morgan, the workspace owner. Current workspace metrics, including completed task counts, come from the workspace_statistics MCP tool. Brand refresh is 72% complete (September 28); Website experience is 48% complete (October 4); Mobile companion is 24% complete (October 12). The demo plan is Studio at $24 per member monthly with unlimited projects, guest access, and 100 GB storage. These are fictional demo data, not a commercial offer. Navigation paths: / overview, /projects project board, /knowledge team documentation, /settings assistant settings. OrfinSupport is an open-source embeddable assistant by arconw; the agent name is Orfin. The assistant has a guided tour, section picker, hover help, page navigation, retrieval and custom/MCP tools. Never imply that a mock project is a real production service.';
+  'Northstar is a fictional project workspace for a small creative studio. The current visitor is Alex Morgan, the workspace owner. Current workspace metrics, including completed task counts, come from the workspace_statistics MCP tool. Brand refresh is 72% complete (September 28); Website experience is 48% complete (October 4); Mobile companion is 24% complete (October 12). The demo plan is Studio at $24 per member monthly with unlimited projects, guest access, and 100 GB storage. These are fictional demo data, not a commercial offer. Navigation paths: / overview, /projects project board, /knowledge team documentation, /settings assistant settings. OrfinSupport is an open-source embeddable assistant by arconw; the agent name is Orfin. The assistant has a guided tour, section picker, hover help, page navigation, retrieval and custom/MCP tools. Never imply that a mock project is a real production service. Additional pages: /reports studio delivery analysis, /shop equipment catalog and demo cart, /compare Luma 27 versus Luma 32 Pro, /shop/luma-27, /shop/luma-32-pro, /shop/arc-light, /shop/field-carry product details. For analytical questions call get_delivery_report and explain numeric changes, supporting evidence, and uncertainty about causes. For product facts call browse_products/open_product/compare_products/product_reviews. The second display means Luma 32 Pro. For requested cart mutations ALWAYS call update_cart; get_cart reads current state. Cart contents are per visitor and must never be inferred from history. No payments or checkout exist. If asked to open AND add, call open_product and update_cart. If only asked to compare or read reviews, do not change the cart. Respect the selected response locale.';
 
 export const knowledge: Source[] = [
   {

@@ -24,7 +24,7 @@ test('keeps the current tour step when asking a question', async ({ page }) => {
   await expect(tour).toContainText('1 / 4');
   await tour.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(tour).toContainText('2 / 4');
-  await expect(page.locator('[data-orfin-root] .spotlight')).toHaveCSS('box-shadow', /0\.7/);
+  await expect(page.locator('[data-orfin-root] .spotlight')).toHaveCSS('box-shadow', /0\.15/);
   await tour.getByRole('button', { name: 'Ask', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Ask me anything' })

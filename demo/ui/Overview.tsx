@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import type { OrfinController } from '../../src/index';
 import { workspaceStatistics, type Project } from '../data';
+import { dailyDelivery } from '../analytics';
 import { OrfinLogo, WelcomeArt } from './Brand';
 import { Avatars, ProjectCard } from './Projects';
 
@@ -29,7 +30,7 @@ export function Overview({
 }) {
   const [completed, setCompleted] = useState<string[]>([]);
   const [week, setWeek] = useState('This week');
-  const chart = week === 'This week' ? [42, 69, 54, 92, 73, 30, 18] : [32, 58, 81, 64, 52, 24, 13];
+  const chart = week === 'This week' ? dailyDelivery.current : dailyDelivery.previous;
   return (
     <>
       <div className="page-heading">
@@ -87,26 +88,26 @@ export function Overview({
           </div>
           <div className="pulse-stat">
             <strong>
-              {workspaceStatistics.completedTasks}
+              {chart.reduce((sum, count) => sum + count, 0)}
               <span>tasks completed</span>
             </strong>
             <span className="positive">
               <ArrowUpRight size={13} />
-              18%
+              9.1%
             </span>
           </div>
           <div
             className="chart"
             role="img"
-            aria-label="Completed tasks by day: Monday 4, Tuesday 6, Wednesday 5, Thursday 8, Friday 7, Saturday 3, Sunday 2"
+            aria-label={`Completed tasks by day: ${chart.map((count, index) => `${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][index]} ${count}`).join(', ')}`}
           >
             {chart.map((height, index) => (
               <div className="chart-column" key={index}>
                 <div
                   className={`bar ${index === 3 ? 'current' : ''}`}
-                  style={{ height: `${height}%` }}
+                  style={{ height: `${(height / 7) * 100}%` }}
                 >
-                  <span>{Math.round(height / 11)}</span>
+                  <span>{height}</span>
                 </div>
                 <small>{['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}</small>
               </div>

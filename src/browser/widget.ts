@@ -2,11 +2,13 @@ import { html, render, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { live } from 'lit/directives/live.js';
-import type { ChatMessage, ThemePreset } from '../core/types';
+import type { ChatMessage } from '../core/types';
 import { OrfinController } from './controller';
 import { formattedText, safeURL } from './format';
 import { popoverPosition } from './geometry';
-import { icon, orfinMark } from './icons';
+import { icon } from './icons';
+import { createLogoRenderer } from './logo';
+import { supportedThemes, themePresets } from '../core/themes';
 import { widgetStyles } from './styles';
 import { localeDirection, formatMessage } from '../core/locale';
 import { localeOptions } from './i18n';
@@ -45,6 +47,11 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   } catch {
     host.removeAttribute('popover');
   }
+  const logo = createLogoRenderer(() => update());
+  let renderedHighlight = controller.state.highlight;
+  let highlightVisible = false;
+  let highlightExit: ReturnType<typeof setTimeout> | undefined;
+  let highlightFrame = 0;
   let draft = '';
   let wasOpen = false;
   let wasTourVisible = false;
@@ -70,7 +77,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       lang=${message.locale ?? controller.settings.locale}
       dir=${message.role === 'assistant' ? localeDirection(message.locale ?? controller.settings.locale) : 'auto'}
     >
-      ${message.role === 'assistant' ? html`<div class="message-label">${orfinMark(17)} Orfin</div>` : nothing}
+      ${message.role === 'assistant' ? html`<div class="message-label">${logo(controller.settings.logo, 17)} Orfin</div>` : nothing}
       ${message.tools?.map((tool) => html`<div class="tool">${icon(tool.status === 'complete' ? 'check' : 'settings', 13)}${tool.name === 'highlight_section' ? controller.text.highlightTool : tool.name === 'navigate' ? controller.text.navigateTool : tool.name === 'start_tour' ? controller.text.tourTool : tool.name.replace(/_/g, ' ')} · ${tool.status === 'complete' ? controller.text.complete : tool.status === 'error' ? controller.text.error : controller.text.thinking}</div>`)}
       ${formattedText(message.content)}
       ${message.status === 'streaming' && !message.content ? html`<div class="thinking" aria-label=${controller.text.thinking}><i></i><i></i><i></i></div>` : nothing}
@@ -79,6 +86,32 @@ export function mountWidget(controller: OrfinController): HTMLElement {
 
   const update = () => {
     const { state, settings, text } = controller;
+    const theme = themePresets[settings.theme];
+    if (state.highlight) {
+      clearTimeout(highlightExit);
+      highlightExit = undefined;
+      const entering = !renderedHighlight;
+      renderedHighlight = state.highlight;
+      if (entering) {
+        highlightVisible = false;
+        cancelAnimationFrame(highlightFrame);
+        highlightFrame = requestAnimationFrame(() => {
+          highlightFrame = 0;
+          highlightVisible = !!controller.state.highlight;
+          update();
+        });
+      } else if (!highlightFrame) highlightVisible = true;
+    } else if (renderedHighlight && !highlightExit) {
+      highlightVisible = false;
+      const duration = matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 0
+        : settings.highlightTransition;
+      highlightExit = setTimeout(() => {
+        renderedHighlight = undefined;
+        highlightExit = undefined;
+        update();
+      }, duration);
+    }
     const conversation = shadow.querySelector('[role="log"]');
     const atBottom =
       !conversation ||
@@ -102,10 +135,24 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       html`<div
         class="orfin"
         data-theme=${settings.theme}
+        data-header=${theme.header}
+        style=${styleMap({
+          ...Object.fromEntries(
+            ['accent', 'surface', 'soft', 'text', 'muted', 'border', 'radius', 'shadow'].map(
+              (key) => [
+                `--${key === 'border' ? 'line' : key}`,
+                `var(--orfin-${key}, ${theme[key as keyof typeof theme]})`,
+              ],
+            ),
+          ),
+          colorScheme: theme.scheme,
+          '--spotlight-opacity': String(settings.highlightOpacity),
+          '--spotlight-transition': `${settings.highlightTransition}ms`,
+        })}
         lang=${settings.locale}
         dir=${localeDirection(settings.locale)}
       >
-        ${state.highlight ? html`<div class="spotlight" data-testid="spotlight" style=${styleMap({ top: `${state.highlight.rect.top}px`, left: `${state.highlight.rect.left}px`, width: `${state.highlight.rect.width}px`, height: `${state.highlight.rect.height}px` })}><span class="spot-label">${controller.sectionText(state.highlight.section).title}</span></div>` : nothing}
+        ${renderedHighlight ? html`<div class="spotlight" data-visible=${highlightVisible} data-testid="spotlight" style=${styleMap({ top: `${renderedHighlight.rect.top}px`, left: `${renderedHighlight.rect.left}px`, width: `${renderedHighlight.rect.width}px`, height: `${renderedHighlight.rect.height}px` })}><span class="spot-label">${controller.sectionText(renderedHighlight.section).title}</span></div>` : nothing}
         ${
           state.picking
             ? html`<div class="picker-bar" role="status">
@@ -141,7 +188,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 style=${styleMap({ top: `${hoverPosition.top}px`, left: `${hoverPosition.left}px`, maxHeight: `${innerHeight - hoverPosition.top - 12}px` })}
               >
                 <div class="popover-top">
-                  ${orfinMark(20)}<span>Orfin</span
+                  ${logo(controller.settings.logo, 20)}<span>Orfin</span
                   ><button
                     class="icon-button"
                     aria-label=${text.close}
@@ -173,7 +220,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 style=${styleMap({ top: `${tourPosition.top}px`, left: `${tourPosition.left}px`, maxHeight: `${innerHeight - tourPosition.top - 12}px` })}
               >
                 <div class="popover-top">
-                  ${orfinMark(20)}<span>Orfin · ${progress}</span
+                  ${logo(controller.settings.logo, 20)}<span>Orfin · ${progress}</span
                   ><button
                     class="icon-button"
                     aria-label=${text.exit}
@@ -223,7 +270,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 aria-modal="false"
               >
                 <header class="header" part="header" role="presentation">
-                  <div class="avatar">${orfinMark(30)}</div>
+                  <div class="avatar">${logo(controller.settings.logo, 30)}</div>
                   <div class="heading">
                     <h2>Orfin</h2>
                     <div class="status"><i></i>${state.busy ? text.thinking : text.online}</div>
@@ -286,7 +333,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         <div class="field">
                           <label>${text.theme}</label>
                           <div class="themes">
-                            ${(['cloud', 'midnight', 'iris'] as ThemePreset[]).map((theme) => html`<button class="theme" aria-pressed=${settings.theme === theme} @click=${() => controller.updateSettings({ theme })}>${text[theme]}</button>`)}
+                            ${supportedThemes.map((theme) => html`<button class="theme" aria-pressed=${settings.theme === theme} @click=${() => controller.updateSettings({ theme })}>${text[theme]}</button>`)}
                           </div>
                         </div>
                         <div class="toggle-row">
@@ -325,7 +372,9 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         ${
                           !state.messages.length
                             ? html`<div class="welcome">
-                                <div class="welcome-mark">${orfinMark(49)}</div>
+                                <div class="welcome-mark">
+                                  ${logo(controller.settings.logo, 49)}
+                                </div>
                                 <h3>${controller.options.title ?? text.title}</h3>
                                 <p>${controller.options.welcome ?? text.intro}</p>
                                 <div class="suggestions">
@@ -404,7 +453,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
               </section>`
             : nothing
         }
-        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : orfinMark(30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
+        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : logo(controller.settings.logo, 30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
       </div>`,
       container,
     );
@@ -430,6 +479,8 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   const unsubscribe = controller.subscribe(update);
   controller.onCleanup(() => {
     unsubscribe();
+    clearTimeout(highlightExit);
+    cancelAnimationFrame(highlightFrame);
     render(nothing, container);
     host.remove();
   });

@@ -12,7 +12,8 @@ const context = await browser.newContext({
   reducedMotion: 'reduce',
 });
 const page = await context.newPage();
-await page.goto(process.env.ORFIN_CAPTURE_URL ?? 'http://127.0.0.1:4173');
+const baseURL = process.env.ORFIN_CAPTURE_URL ?? 'http://127.0.0.1:4173';
+await page.goto(baseURL);
 await page.waitForLoadState('networkidle');
 await page.locator('[data-orfin-root] textarea').blur();
 await page.screenshot({ path: 'docs/assets/playground.png', animations: 'disabled' });
@@ -77,12 +78,84 @@ await page.evaluate(() => {
   window.__orfin.updateSettings({ theme: 'midnight' });
 });
 await capture(1400);
+await page.evaluate(() => {
+  window.__orfin.clear();
+  window.__orfin.clearHighlight();
+  window.__orfin.updateSettings({ theme: 'cloud' });
+});
+const ask = async (query) => {
+  await page.evaluate(() => window.__orfin.open());
+  await page.locator('[data-orfin-root] textarea').fill(query);
+  await capture(900);
+  await page.locator('[data-orfin-root] .send').click();
+  for (let index = 0; index < 4; index++) {
+    await page.waitForTimeout(260);
+    await capture(260);
+  }
+  await page.locator('[data-orfin-root] [role="log"][aria-busy="false"]').waitFor();
+  await page.locator('[data-orfin-root] textarea').blur();
+  await capture(2200);
+};
+await page.goto(`${baseURL}/#/reports`);
+await page.evaluate(() => window.__orfin.close());
+await page.screenshot({ path: 'docs/assets/report.png', animations: 'disabled' });
+await capture(1400);
+await ask('Analyze delivery. Compare Brand and Web and cite the evidence.');
+await page.goto(`${baseURL}/#/shop`);
+await page.evaluate(() => window.__orfin.close());
+await page.screenshot({ path: 'docs/assets/shop.png', animations: 'disabled' });
+await capture(1400);
+await ask('Compare Luma 27 and Luma 32 Pro for a small desk.');
+await ask('Find the 3-star review for the second product. Why that rating?');
+await page.evaluate(() => window.__orfin.clear());
+await ask('Open Luma 27 and add two to my cart.');
+await page.screenshot({ path: 'docs/assets/commerce.png', animations: 'disabled' });
+await page.evaluate(() =>
+  window.__orfin.updateSettings({
+    theme: 'forest',
+    logo: { src: './northstar-mark.svg', alt: 'Northstar assistant' },
+  }),
+);
+await capture(1500);
+const themeImages = [];
+for (const theme of [
+  'cloud',
+  'iris',
+  'lagoon',
+  'sand',
+  'rose',
+  'midnight',
+  'graphite',
+  'forest',
+  'plum',
+  'espresso',
+]) {
+  await page.evaluate((theme) => {
+    window.__orfin.clear();
+    window.__orfin.updateSettings({ theme, logo: null });
+    window.__orfin.open();
+  }, theme);
+  const panel = await page
+    .locator('[data-orfin-root] .panel')
+    .screenshot({ animations: 'disabled' });
+  themeImages.push(await sharp(panel).resize(189, 310).toBuffer());
+}
+await sharp({ create: { width: 1025, height: 665, channels: 4, background: '#eef2f8' } })
+  .composite(
+    themeImages.map((input, index) => ({
+      input,
+      left: 16 + (index % 5) * 202,
+      top: 15 + Math.floor(index / 5) * 325,
+    })),
+  )
+  .png()
+  .toFile('docs/assets/themes.png');
 gif.finish();
 await writeFile('docs/assets/demo.gif', gif.bytes());
 await page.evaluate(() => {
   window.__orfin.clear();
   window.__orfin.clearHighlight();
-  window.__orfin.updateSettings({ theme: 'cloud' });
+  window.__orfin.updateSettings({ theme: 'cloud', logo: null });
 });
 await page.setViewportSize({ width: 390, height: 844 });
 await page.screenshot({ path: 'docs/assets/mobile.png', animations: 'disabled' });

@@ -1,7 +1,7 @@
-import { Check, CheckCheck, Code2, Copy, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { CheckCheck, Code2, Copy, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
-import type { AssistantSettings, Features, SettingsInput, ThemePreset } from '../../src/core/types';
-import { supportedLocales } from '../../src/core/locale';
+import type { AssistantSettings, Features, SettingsInput } from '../../src/core/types';
+import { Appearance } from './Appearance';
 import { defaultSettings } from '../../src/core/settings';
 import type { OrfinController } from '../../src/index';
 
@@ -48,13 +48,17 @@ export function SettingsPage({
     {
       key: 'tools',
       title: 'Connected tools',
-      description: 'In Live AI, fetch workspace statistics and team capacity through MCP.',
+      description:
+        'Read workspace metrics, interpret results, compare equipment and update your demo cart.',
     },
   ];
   const config = JSON.stringify(
     {
       endpoint: '/api/orfin',
       theme: settings.theme,
+      logo: settings.logo,
+      highlightOpacity: settings.highlightOpacity,
+      highlightTransition: settings.highlightTransition,
       features: settings.features,
       memory: settings.memory,
       hoverDelay: settings.hoverDelay,
@@ -77,46 +81,7 @@ export function SettingsPage({
       </div>
       <section className="settings-layout" data-orfin-section="settings">
         <div className="settings-column">
-          <section className="settings-card">
-            <div className="section-heading">
-              <h2>Make it feel at home</h2>
-              <SlidersHorizontal size={17} />
-            </div>
-            <p className="card-description">Three starting points. Every detail can be yours.</p>
-            <div className="theme-previews">
-              {(['cloud', 'midnight', 'iris'] as ThemePreset[]).map((theme) => (
-                <button
-                  className={`theme-preview ${theme} ${settings.theme === theme ? 'selected' : ''}`}
-                  key={theme}
-                  aria-pressed={settings.theme === theme}
-                  onClick={() => update({ theme })}
-                >
-                  <span className="preview-window">
-                    <i />
-                    <i />
-                    <i />
-                    <span />
-                  </span>
-                  <strong>{theme[0]!.toUpperCase() + theme.slice(1)}</strong>
-                  {settings.theme === theme && <Check size={14} />}
-                </button>
-              ))}
-            </div>
-            <label className="setting-field">
-              <span>Language</span>
-              <select
-                aria-label="Language"
-                value={settings.locale}
-                onChange={(event) => update({ locale: event.target.value })}
-              >
-                {supportedLocales.map((locale) => (
-                  <option key={locale.code} value={locale.code}>
-                    {locale.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </section>
+          <Appearance settings={settings} update={update} />
           <section className="settings-card">
             <h2>A helpful memory</h2>
             <p className="card-description">Decide what Orfin remembers between visits.</p>
@@ -225,7 +190,9 @@ export function SettingsPage({
                 {copied ? <CheckCheck size={17} /> : <Copy size={17} />}
               </button>
             </div>
-            <pre>{config}</pre>
+            <pre tabIndex={0} aria-label="Integration configuration">
+              {config}
+            </pre>
           </section>
         </div>
       </section>

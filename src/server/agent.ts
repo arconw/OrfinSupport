@@ -189,7 +189,30 @@ export async function* runAgent(
         executed.add(signature);
         const action = actions.get(call.name)?.(args as Record<string, unknown>);
         if (action) yield { type: 'action', action };
-        result = await tool.execute(args as Record<string, unknown>, context);
+        const emitted: BrowserAction[] = [];
+        let accepting = true;
+        try {
+          result = await tool.execute(args as Record<string, unknown>, {
+            ...context,
+            emitAction: (event) => {
+              signal.throwIfAborted();
+              if (!accepting || emitted.length >= 16) throw new Error('Action limit exceeded.');
+              emitted.push(event);
+            },
+          });
+        } finally {
+          accepting = false;
+        }
+        signal.throwIfAborted();
+        for (const event of emitted) {
+          if (
+            (event.type === 'custom' && features.tools) ||
+            (event.type === 'navigate' && features.navigation) ||
+            (event.type === 'highlight' && features.sectionPicker) ||
+            (event.type === 'tour' && features.tour)
+          )
+            yield { type: 'action', action: event };
+        }
       } catch {
         signal.throwIfAborted();
         failed = true;

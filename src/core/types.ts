@@ -2,7 +2,21 @@ import type { TranslationOverrides } from '../locales/types';
 import type { OrfinErrorCode } from './errors';
 
 export type JsonSchema = Record<string, unknown>;
-export type ThemePreset = 'cloud' | 'midnight' | 'iris';
+export type ThemePreset =
+  | 'cloud'
+  | 'iris'
+  | 'lagoon'
+  | 'sand'
+  | 'rose'
+  | 'midnight'
+  | 'graphite'
+  | 'forest'
+  | 'plum'
+  | 'espresso';
+export interface AssistantLogo {
+  src: string;
+  alt?: string;
+}
 export type BuiltInLocale =
   | 'en'
   | 'es'
@@ -56,6 +70,9 @@ export interface AssistantSettings {
   hoverDelay: number;
   hoverCooldown: number;
   highlightDuration: number;
+  highlightOpacity: number;
+  highlightTransition: number;
+  logo: AssistantLogo | null;
   theme: ThemePreset;
   locale: Locale;
   translations: TranslationOverrides;
@@ -108,7 +125,8 @@ export interface ChatRequest {
 export type BrowserAction =
   | { type: 'highlight'; sectionId: string }
   | { type: 'navigate'; path: string; sectionId?: string }
-  | { type: 'tour' };
+  | { type: 'tour' }
+  | { type: 'custom'; name: string; payload: Record<string, unknown> };
 
 export type AgentEvent =
   | { type: 'delta'; text: string }
@@ -157,6 +175,7 @@ export interface ToolContext {
   signal: AbortSignal;
   request: ChatRequest;
   identity?: unknown;
+  emitAction?: (action: BrowserAction) => void;
 }
 
 export interface Tool extends ToolDefinition {

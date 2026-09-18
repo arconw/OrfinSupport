@@ -10,6 +10,7 @@ import '@fontsource/manrope/700.css';
 import '@fontsource/manrope/800.css';
 import { App } from './ui/App';
 import './styles.css';
+import './rich.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

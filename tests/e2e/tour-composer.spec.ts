@@ -24,7 +24,7 @@ for (const viewport of [
     await expect(controls).toContainText(`2 / ${total}`);
     await expect(page.locator('[data-orfin-root] .context')).toContainText('Active projects');
     await expect(page.locator('[data-orfin-root] .panel')).toBeVisible();
-    await expect(page.locator('[data-orfin-root] .spotlight')).toHaveCSS('box-shadow', /0\.7/);
+    await expect(page.locator('[data-orfin-root] .spotlight')).toHaveCSS('box-shadow', /0\.15/);
     await controls.getByRole('button', { name: 'Back', exact: true }).click();
     await expect(controls).toContainText(`1 / ${total}`);
     await controls.getByRole('button', { name: 'Return to tour', exact: true }).click();

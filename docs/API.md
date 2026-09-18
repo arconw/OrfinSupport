@@ -28,6 +28,9 @@ const orfin = createOrfin({
   hoverDelay: 2200,
   hoverCooldown: 30000,
   highlightDuration: 2000,
+  highlightOpacity: 0.15,
+  highlightTransition: 280,
+  logo: null,
   features: {
     chat: true,
     tour: true,
@@ -49,7 +52,7 @@ const orfin = createOrfin({
 
 `transport` overrides `endpoint`. `title` and `welcome` customize the empty state. `sections` supplies the public catalog. `allowedPaths` restricts navigation; without it, allowed paths come from the section catalog. `navigate` plugs into the host router. `themeVariables` accepts `--orfin-*` CSS custom properties. `nonce` is applied to the injected style element. `onEvent({ type, detail })` observes interaction events without receiving message content.
 
-Mount one controller per page in a browser lifecycle hook. `createOrfin` deliberately throws during SSR; framework adapters handle the lifecycle. Configuration that changes identity, catalog, transport or routing requires a remount. Feature, theme, locale, memory and timing changes use `updateSettings`.
+Mount one controller per page in a browser lifecycle hook. `createOrfin` deliberately throws during SSR; framework adapters handle the lifecycle. Configuration that changes identity, catalog, transport or routing requires a remount. Feature, theme, logo, locale, memory and timing changes use `updateSettings`. Logo images use `{ src, alt? }`, or `null` for Orfin. `highlightOpacity` is clamped to 0–1 and `highlightTransition` to 0–1500 ms; non-finite values preserve the previous setting.
 
 ## Localization
 
@@ -122,7 +125,7 @@ Each request includes only the available sections of the current document. A sel
 | `--orfin-border`  | Preset border                           |
 | `--orfin-font`    | DM Sans if present, otherwise system UI |
 | `--orfin-width`   | `378px`                                 |
-| `--orfin-radius`  | `22px`                                  |
+| `--orfin-radius`  | Preset radius                           |
 | `--orfin-offset`  | `24px`                                  |
 
 ```css
@@ -137,6 +140,10 @@ Each request includes only the available sections of the current document. A sel
 
 External CSS needs to target the host or exposed shadow parts. The widget does not load remote fonts. Mobile rules fit the viewport, use dynamic viewport height and respect safe-area insets. Motion respects `prefers-reduced-motion`.
 
+The ten `ThemePreset` values are `cloud`, `iris`, `lagoon`, `sand`, `rose`, `midnight`, `graphite`, `forest`, `plum` and `espresso`. `themePresets` exports their tokens; `supportedThemes` exports the names. The first five are light and the last five are dark. `--orfin-shadow` overrides the preset panel shadow.
+
+The same `logo` appears throughout the widget. Use meaningful alternative text. Missing/failed images fall back to Orfin; `logo: null` restores the default. This setting updates through every framework’s existing reactive settings API.
+
 ## HTTP transport
 
 `createHttpTransport({ endpoint, headers?, credentials?, fetch? })` posts the typed request and consumes SSE. `headers` can be a callback to supply session headers. Cookies use `same-origin` credentials by default. Custom transports implement:
@@ -147,7 +154,7 @@ interface ChatTransport {
 }
 ```
 
-The protocol consists of JSON SSE frames with `type` equal to `delta`, `sources`, `tool`, `action`, `error` or `done`. Actions are `highlight`, `navigate`, or `tour`; arbitrary JavaScript and selectors are never part of the action protocol. A successful stream ends with `done`. Provider errors become safe, recoverable errors without upstream diagnostics. Cancellation propagates to the provider, custom tools and MCP calls.
+The protocol consists of JSON SSE frames with `type` equal to `delta`, `sources`, `tool`, `action`, `error` or `done`. Actions are `highlight`, `navigate`, `tour`, or `custom` with a registered name and data payload; arbitrary JavaScript and selectors are never part of the action protocol. `actions: Record<string, (payload, { signal, controller }) => void | Promise<void>>` registers project handlers. Unregistered or invalid custom actions fail with a localized error. The `tools` feature gates custom actions. Validate each payload in host code. A successful stream ends with `done`. Provider errors become safe, recoverable errors without upstream diagnostics. Cancellation propagates to the provider, custom tools and MCP calls.
 
 ## Handler options
 
@@ -168,3 +175,11 @@ The protocol consists of JSON SSE frames with `type` equal to `delta`, `sources`
 Client feature preferences are intersected with server features. A disabled server capability cannot be enabled by a client request. Tool arguments are validated against their JSON Schema. Unknown tools, invalid arguments, repeated calls and failures return tool errors to the model rather than executing unchecked actions. Tool definitions must have unique names.
 
 `authorize(request)` returns `false` or `{ identity }`. The latter becomes `ToolContext.identity` for both tools and retrieval. Same-origin validation is enabled by default for requests that supply `Origin`. To support a separate backend, configure allowed origins and provide CORS/OPTIONS handling in the host application. Server-to-server requests without an Origin still require application authentication where appropriate.
+
+## Tool-driven interface updates
+
+Within `Tool.execute`, `context.emitAction?.(action)` queues an action for the current stream. The agent sends at most 16 actions per tool, only after the tool succeeds and only when its corresponding capability is enabled. The callback is valid only during that execution. Exceptions or cancellation discard queued actions; they do not undo server-side changes already performed by your tool.
+
+Built-in navigation still passes through the browser path allowlist. A custom action looks like `{ type: 'custom', name: 'cart_changed', payload: { cart } }`; only an own property in the mount-time `actions` map can handle it. The handler receives the response abort signal and controller. It should validate the payload, update authorized host state, and honor cancellation. Failure ends the reply with a localized error and marks pending tool activities as failed.
+
+This stream is one-way. The model receives the server tool result, not a browser acknowledgement. Return committed server facts, and use navigation results such as “requested” rather than claiming the browser necessarily completed them. Production hosts own session isolation, transactional updates, idempotency and retry policy. See the main README’s cart example.

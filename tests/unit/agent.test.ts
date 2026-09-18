@@ -11,6 +11,39 @@ const call = (name: string, args: unknown, id = 'call-1') => ({
 });
 
 describe('agent execution boundaries', () => {
+  it('delivers project UI actions only after a successful tool and respects feature gates', async () => {
+    const emitted = { type: 'custom' as const, name: 'cart_changed', payload: { count: 2 } };
+    const make = (fail: boolean) => ({
+      context: 'Test',
+      provider: provider([[call('cart', {})]]),
+      features: { navigation: false },
+      tools: [
+        {
+          name: 'cart',
+          description: 'Update a cart',
+          parameters: { type: 'object' },
+          execute: (_args: Record<string, unknown>, context: ToolContext) => {
+            context.emitAction?.(emitted);
+            context.emitAction?.({ type: 'navigate', path: '/projects' });
+            if (fail) throw new Error('No cart update');
+            return { count: 2 };
+          },
+        },
+      ],
+    });
+    const success = await collect(runAgent(make(false), request(), signal));
+    expect(success.filter((event) => event.type === 'action')).toEqual([
+      { type: 'action', action: emitted },
+    ]);
+    expect(success.findIndex((event) => event.type === 'action')).toBeLessThan(
+      success.findIndex((event) => event.type === 'tool' && event.tool.status === 'complete'),
+    );
+    const failure = await collect(runAgent(make(true), request(), signal));
+    expect(failure.filter((event) => event.type === 'action')).toEqual([]);
+    expect(failure).toContainEqual(
+      expect.objectContaining({ type: 'tool', tool: expect.objectContaining({ status: 'error' }) }),
+    );
+  });
   it('executes a schema-validated custom tool and continues the answer', async () => {
     const execute = vi.fn(() => ({ count: 3 }));
     const tool: Tool = {

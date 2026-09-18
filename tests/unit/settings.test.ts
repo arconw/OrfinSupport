@@ -1,6 +1,7 @@
 import { describe, expect, it, afterEach, vi } from 'vitest';
 import { defaultSettings, resolveSettings } from '../../src/core/settings';
 import { SectionMemory } from '../../src/browser/memory';
+import { supportedThemes, themePresets } from '../../src/core/themes';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -8,6 +9,43 @@ afterEach(() => {
 });
 
 describe('settings and memory', () => {
+  it('provides five light and five dark accessible theme palettes', () => {
+    const luminance = (hex: string) => {
+      const rgb = hex
+        .slice(1)
+        .match(/../g)!
+        .map((channel) => parseInt(channel, 16) / 255)
+        .map((channel) =>
+          channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+        );
+      return rgb[0]! * 0.2126 + rgb[1]! * 0.7152 + rgb[2]! * 0.0722;
+    };
+    const contrast = (a: string, b: string) =>
+      (Math.max(luminance(a), luminance(b)) + 0.05) / (Math.min(luminance(a), luminance(b)) + 0.05);
+    expect(supportedThemes.filter((name) => themePresets[name].scheme === 'light')).toHaveLength(5);
+    expect(supportedThemes.filter((name) => themePresets[name].scheme === 'dark')).toHaveLength(5);
+    for (const theme of Object.values(themePresets)) {
+      for (const surface of [theme.surface, theme.soft])
+        for (const ink of [theme.text, theme.muted, theme.accent])
+          expect(contrast(ink, surface)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  it('updates and resets the logo while bounding spotlight opacity and motion', () => {
+    const configured = resolveSettings({
+      logo: { src: '/logo.svg', alt: 'Studio' },
+      highlightOpacity: 4,
+      highlightTransition: -1,
+    });
+    expect(configured).toMatchObject({
+      logo: { src: '/logo.svg', alt: 'Studio' },
+      highlightOpacity: 1,
+      highlightTransition: 0,
+    });
+    expect(resolveSettings({ logo: null, highlightOpacity: NaN }, configured)).toMatchObject({
+      logo: null,
+      highlightOpacity: 1,
+    });
+  });
   it('merges nested settings without leaking provider or callback fields', () => {
     const config = {
       features: { hoverHelp: false },

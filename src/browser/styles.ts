@@ -36,7 +36,7 @@ export const widgetStyles = css`
   textarea:focus-visible,
   select:focus-visible,
   a:focus-visible {
-    outline: 3px solid var(--orfin-accent, #4361ee);
+    outline: 3px solid var(--accent, #4361ee);
   }
   button {
     display: inline-flex;
@@ -90,22 +90,24 @@ export const widgetStyles = css`
     background: var(--surface);
     color: var(--text);
   }
-  .orfin[data-theme='midnight'] {
-    --accent: var(--orfin-accent, #a7b8ff);
-    --surface: var(--orfin-surface, #1b2436);
-    --soft: var(--orfin-soft, #253149);
-    --text: var(--orfin-text, #f0f3ff);
-    --muted: var(--orfin-muted, #b3bfd5);
-    --line: var(--orfin-border, #36435d);
-    color-scheme: dark;
+  .orfin-logo,
+  .orfin-logo > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .orfin[data-theme='iris'] {
-    --accent: var(--orfin-accent, #7451bb);
-    --surface: var(--orfin-surface, #fdfbff);
-    --soft: var(--orfin-soft, #f0eafa);
-    --text: var(--orfin-text, #362947);
-    --muted: var(--orfin-muted, #7c6c8f);
-    --line: var(--orfin-border, #e8dff3);
+  .orfin-logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .orfin[data-header='tinted'] .header {
+    background: var(--soft);
+  }
+  .orfin[data-header='lined'] .header {
+    border-bottom: 3px solid var(--accent);
   }
   .launcher {
     position: fixed;
@@ -150,10 +152,8 @@ export const widgetStyles = css`
     pointer-events: auto;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: var(--orfin-radius, 22px);
-    box-shadow:
-      0 18px 70px #24376322,
-      0 2px 8px #2437630a;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     overflow: hidden;
     z-index: 4;
     animation: orfin-enter 0.22s ease-out;
@@ -457,14 +457,19 @@ export const widgetStyles = css`
     position: fixed;
     border-radius: 12px;
     border: 2px solid var(--accent);
-    box-shadow: 0 0 0 150vmax rgb(0 0 0 / 0.7);
+    box-shadow: 0 0 0 150vmax rgb(0 0 0 / var(--spotlight-opacity));
+    opacity: 0;
     pointer-events: none;
     z-index: 1;
     transition:
-      top 0.18s,
-      left 0.18s,
-      width 0.18s,
-      height 0.18s;
+      opacity var(--spotlight-transition) ease,
+      top var(--spotlight-transition) ease,
+      left var(--spotlight-transition) ease,
+      width var(--spotlight-transition) ease,
+      height var(--spotlight-transition) ease;
+  }
+  .spotlight[data-visible='true'] {
+    opacity: 1;
   }
   .spot-label {
     position: absolute;
@@ -626,6 +631,7 @@ export const widgetStyles = css`
     margin-bottom: 8px;
   }
   .themes {
+    flex-wrap: wrap;
     display: flex;
     gap: 8px;
   }

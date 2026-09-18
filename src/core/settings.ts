@@ -1,5 +1,6 @@
 import type { AssistantSettings, SettingsInput } from './types';
 import { normalizeLocale } from './locale';
+import { themePresets } from './themes';
 
 export const defaultSettings: AssistantSettings = {
   features: {
@@ -21,6 +22,9 @@ export const defaultSettings: AssistantSettings = {
   hoverDelay: 2200,
   hoverCooldown: 30000,
   highlightDuration: 2000,
+  highlightOpacity: 0.15,
+  highlightTransition: 280,
+  logo: null,
   theme: 'cloud',
   locale: 'en',
   translations: {},
@@ -31,7 +35,14 @@ export function resolveSettings(
   previous = defaultSettings,
 ): AssistantSettings {
   return {
-    theme: input.theme ?? previous.theme,
+    theme: input.theme && Object.hasOwn(themePresets, input.theme) ? input.theme : previous.theme,
+    logo: input.logo === undefined ? previous.logo : input.logo,
+    highlightOpacity: Number.isFinite(input.highlightOpacity)
+      ? Math.min(1, Math.max(0, input.highlightOpacity!))
+      : previous.highlightOpacity,
+    highlightTransition: Number.isFinite(input.highlightTransition)
+      ? Math.min(1500, Math.max(0, input.highlightTransition!))
+      : previous.highlightTransition,
     locale: normalizeLocale(input.locale ?? previous.locale),
     translations: input.translations ?? previous.translations,
     features: { ...previous.features, ...input.features },

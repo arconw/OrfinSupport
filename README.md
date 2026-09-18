@@ -15,26 +15,28 @@
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
-  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin guides a visitor through Northstar, answers during a tour, and explains a selected section" />
+  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin answers during a tour, analyzes delivery results, compares displays, reads a three-star review and updates the demo cart" />
   <p><sub>Recorded from the working playground. Demo replies are labeled; live mode uses your local LLM gateway.</sub></p>
 </div>
+
+**Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
 
 ## A guide that can point
 
 Your visitors can ask a question, take a tour, or point at the part of the interface they want to understand. Orfin connects the conversation to the page in front of them.
 
-| Capability                   | What it does                                                                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Continue from inside the chat or return to the current tour step.             |
-| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.         |
-| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.               |
-| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and shades the surrounding viewport at 70% for two seconds.           |
-| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                  |
-| **Your tools and MCP**       | Calls schema-validated server tools and explicitly allowed MCP tools, then continues the answer.                                      |
-| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                  |
-| **Your product’s style**     | Cloud, Midnight and Iris presets; CSS variables and shadow parts. Shadow DOM protects the interface from host styles.                 |
-| **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies. |
-| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.         |
+| Capability                   | What it does                                                                                                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Continue from inside the chat or return to the current tour step.                                                |
+| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.                                            |
+| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.                                                  |
+| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and softly dims the background by 15% for two seconds, with configurable opacity and smooth transitions. |
+| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                                                     |
+| **Your tools and MCP**       | Calls validated server and MCP tools, updates your interface through registered actions, and explains the result.                                                        |
+| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                                                     |
+| **Your product’s style**     | Ten complete presets (five light, five dark), a reactive custom logo, CSS variables and shadow parts. Shadow DOM protects the interface from host styles.                |
+| **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies.                                    |
+| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.                                            |
 
 The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](docs/LOCALIZATION.md).
 
@@ -47,13 +49,28 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with working project filters, project creation, tasks, knowledge articles and an assistant settings playground.
+Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with working projects, tasks, a delivery report, equipment catalog, product details, comparisons, customer reviews, a demo cart and assistant settings.
 
 **Demo replies** work without a backend or API credentials, including on GitHub Pages. The public static playground disables **Live AI** and links to local setup. **Live AI** in the local demo sends requests through its server to `http://127.0.0.1:8787/codex/v1`, using `gpt-5.6-sol` by default. The gateway must already be running. The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
 
-Try “Show me the active projects”, “What does the Studio plan cost?”, “Open the knowledge page”, or “What is our team capacity this week?”
+Try these in either mode:
+
+| Scenario          | Ask Orfin                                                                    | Visible result                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Interpret results | “Analyze our delivery results. Compare Brand and Web and cite the evidence.” | Opens the chart; explains 48 → 66 tasks (+37.5%), segment differences and the limits of causal inference. |
+| Act on a product  | “Open Luma 27 and add two to my cart.”                                       | Opens the real product page; the cart shows two displays and $698.                                        |
+| Compare           | “Compare Luma 27 and Luma 32 Pro for a small desk.”                          | Opens the specification table and explains the $250 difference and practical limitations.                 |
+| Read the evidence | “Find the 3-star review for Luma 32 Pro. Why that rating?”                   | Retrieves Maya Chen’s actual mock review: 90 W versus a 140 W laptop, plus the larger stand.              |
+| Adjust a decision | “Set Luma 27 quantity to 1.” Then “Remove Luma 27 from my cart.”             | Quantity and totals change through the cart tool. Manual quantity/removal controls also work.             |
+| Explore           | “Open the knowledge page”, or start a tour and choose Ask.                   | Page navigation, a soft spotlight and a conversation that keeps the current tour step.                    |
+
+Public **Demo replies** use deterministic scenario matching, localized answers and the same catalog/report/cart operations as Live AI. They perform actual local interface changes; they are not a general language model. Live AI chooses tools using your model through the real backend. Demo carts live in memory; Live AI carts are separate, browser-session-isolated server memory and expire after one hour of inactivity. No checkout, order or payment is available.
 
 To try MCP, select **Live AI** and ask: “Please call the connected MCP workspace statistics tool and tell me the completed task count. Use the tool, not the knowledge documents.” Orfin shows **workspace statistics · Done** and reports **24 tasks this week**, using the same fictional data as the overview. Demo replies simulate conversations; actual MCP calls require Live AI and the local backend. The answer follows the language selected in assistant preferences.
+
+<table>
+<tr><td><img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/report.png" alt="Northstar delivery report with weekly counts and a comparison of two three-week periods" width="540" /></td><td><img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/commerce.png" alt="Orfin opens Luma 27 and adds two displays to a working demo cart" width="540" /></td></tr>
+</table>
 
 For a stable production preview with both Demo replies and Live AI, run `npm run preview:demo` and open **http://127.0.0.1:4189**. It builds an isolated copy of the frontend and API; source edits and subsequent builds do not reload an ongoing review. Start a new snapshot on another port with `npm run preview:demo -- --port 4190`. The gateway is required only for Live AI.
 
@@ -182,6 +199,65 @@ Visitors can also choose a language in assistant preferences. React exposes `use
 
 ## Models and context
 
+**You choose the endpoint and model.** Native adapters cover two protocols; a different protocol needs a custom adapter. Model names are passed to the selected provider unchanged. The browser calls your `/api/orfin` route, and that route calls the provider.
+
+| Adapter / mode                                           | Streaming                                               | Tools and differences                                                                                                                                             |
+| -------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createOpenAICompatible`, `toolMode: 'native'` (default) | Chat Completions SSE text deltas                        | Requires compatible function-call deltas and tool-result messages. The adapter appends `/chat/completions` to `baseURL`.                                          |
+| `createOpenAICompatible`, `toolMode: 'prompt'`           | Text deltas; a tool envelope is buffered until complete | For gateways without native function calling. The model must follow the tool envelope; execution still uses JSON Schema validation and feature gates.             |
+| `createOpenAICompatible`, `toolMode: 'none'`             | Text deltas                                             | No model-selected tools. Disable tool/navigation features on the handler for a text-only deployment. User-operated tours and picking can still run in the widget. |
+| `createAnthropic`                                        | Native Messages SSE text deltas                         | Native `tool_use` / `tool_result`; configure `maxTokens`. Its base URL defaults to `https://api.anthropic.com/v1`.                                                |
+| Your `ModelProvider`                                     | You yield `delta` events                                | Yield complete `tool_call` events if the upstream supports tools. Translate its message and stream formats yourself.                                              |
+
+For a compatible API, the backend route above only needs your server environment values. A concrete configuration for the included local gateway is:
+
+```ts
+const provider = createOpenAICompatible({
+  baseURL: 'http://127.0.0.1:8787/codex/v1',
+  model: 'gpt-5.6-sol',
+  toolMode: 'prompt',
+});
+```
+
+For Anthropic, replace the provider in the same handler:
+
+```ts
+import { createAnthropic, createOrfinHandler } from 'orfinsupport/server';
+
+export const POST = createOrfinHandler({
+  provider: createAnthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY!,
+    model: process.env.ANTHROPIC_MODEL!,
+    maxTokens: 2048,
+  }),
+  context: 'Your trusted project description.',
+});
+```
+
+A minimal custom provider can adapt an existing streaming SDK. This example assumes `yourModel.streamText` accepts the message contract shown; translate messages for your own SDK if it differs:
+
+```ts
+import type { ModelProvider } from 'orfinsupport/core';
+import { createOrfinHandler } from 'orfinsupport/server';
+import { yourModel } from './your-server-model';
+
+const provider: ModelProvider = {
+  async *stream({ messages, signal }) {
+    for await (const text of yourModel.streamText({ messages, signal })) {
+      yield { type: 'delta', text };
+    }
+  },
+};
+
+export const POST = createOrfinHandler({
+  provider,
+  context: 'Your trusted project description.',
+  features: { tools: false, navigation: false, sectionPicker: false, tour: false },
+});
+```
+
+To support model-driven tools in your adapter, pass the provided `tools` definitions upstream and yield `{ type: 'tool_call', call: { id, name, arguments: JSON.stringify(args) } }` once the complete call is available. Orfin executes it, appends the result to the model messages and requests the next round. Provider-specific reasoning, multimodal input, hosted tools and arbitrary proprietary protocols are not automatically supported. Text and tool streaming follow the respective provider contracts; see the official [Chat Completions/function-calling guide](https://developers.openai.com/api/docs/guides/function-calling) and [streaming guide](https://developers.openai.com/api/docs/guides/streaming-responses).
+
 `createOpenAICompatible` speaks the Chat Completions streaming protocol. Use it with an OpenAI-compatible service, a local gateway, or your own endpoint. `createAnthropic` supports the native Anthropic Messages streaming protocol. Implement `ModelProvider` to add another provider; implement `ChatTransport` to own the entire browser/server conversation.
 
 For text-only gateways such as `llm-gate`, use `toolMode: 'prompt'`. The provider parses a dedicated tool-call envelope and routes it through the **same allowlist, argument validator and execution limits** as native function calling. Ordinary responses still stream. Model compliance with that envelope is required; malformed calls produce a recoverable error.
@@ -223,6 +299,42 @@ const projectStatus: Tool = {
 
 Pass tools to `createOrfinHandler`. `authorize` supplies request-scoped identity to tools and retrieval. Browser feature switches are UX controls; backend settings and application permissions are authoritative.
 
+A server tool can also synchronize your interface after an authorized change:
+
+```ts
+const updateCart: Tool = {
+  name: 'update_cart',
+  description: 'Change the visitor’s cart when requested.',
+  parameters: {
+    type: 'object',
+    properties: { productId: { type: 'string' }, quantity: { type: 'integer', minimum: 0 } },
+    required: ['productId', 'quantity'],
+    additionalProperties: false,
+  },
+  async execute(args, { identity, signal, emitAction }) {
+    const cart = await cartService.updateAuthorized(identity, args, signal);
+    emitAction?.({ type: 'custom', name: 'cart_changed', payload: { cart } });
+    return cart;
+  },
+};
+```
+
+Register the matching browser action at mount time. `cartService`, `isCart` and `cartStore` are your application’s authorization, validation and state layer:
+
+```ts
+createOrfin({
+  endpoint: '/api/orfin',
+  actions: {
+    cart_changed(payload) {
+      if (!isCart(payload.cart)) throw new Error('Invalid cart snapshot');
+      cartStore.set(payload.cart);
+    },
+  },
+});
+```
+
+Only explicitly registered action names execute. Payloads are data, not selectors or JavaScript. Events are sent after the tool resolves successfully, and the browser awaits its handler before displaying the subsequent Done status. Host code validates payloads and owns transactional updates and idempotency. A streamed UI event is not a browser acknowledgement to the model; return authoritative server data from the tool, and report navigation as requested rather than guaranteed. See the working [demo tools](demo/tools.ts) and [cart integration](demo/cart-store.ts).
+
 To connect a Streamable HTTP MCP server, install the optional SDK peer and allow only the tools the assistant should use:
 
 ```ts
@@ -239,12 +351,27 @@ Pass `workspace.tools` to the handler and call `workspace.close()` on shutdown. 
 
 ## A style that belongs
 
-Choose **Cloud**, **Midnight**, or **Iris**, then override individual tokens:
+Choose a complete preset, then override individual tokens:
+
+| Light  | Dark     |
+| ------ | -------- |
+| Cloud  | Midnight |
+| Iris   | Graphite |
+| Lagoon | Forest   |
+| Sand   | Plum     |
+| Rose   | Espresso |
+
+<img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/themes.png" alt="Five light Orfin themes above five dark themes: Cloud, Iris, Lagoon, Sand, Rose; Midnight, Graphite, Forest, Plum, Espresso" width="1025" />
+
+Presets include foreground/background colors, control contrast, panel shape, shadow and header treatment. `supportedThemes` and `themePresets` are exported. Switch in widget preferences, the Playground, or with `orfin.updateSettings({ theme: 'forest' })`.
 
 ```ts
 createOrfin({
   endpoint: '/api/orfin',
   theme: 'iris',
+  logo: { src: '/brand/assistant.svg', alt: 'Acme assistant' },
+  highlightOpacity: 0.15,
+  highlightTransition: 280,
   themeVariables: {
     '--orfin-accent': '#6951ad',
     '--orfin-font': 'YourBrandFont, system-ui, sans-serif',
@@ -253,6 +380,10 @@ createOrfin({
   },
 });
 ```
+
+Change the logo without remounting: `orfin.updateSettings({ logo: { src: '/brand/new.svg', alt: 'Acme' } })`; pass `logo: null` to restore Orfin. React’s `useOrfin().updateSettings`, Vue’s composable and Angular’s injected API accept the same setting. The launcher, header, messages, tour, hover prompt and empty state share it. Images retain their aspect ratio; unavailable or unsupported image URLs use the default mark. Relative/HTTP(S)/blob URLs and base64 PNG/JPEG/WebP/GIF/AVIF are supported. Provide an image allowed by your host’s `img-src` policy.
+
+The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background brightness), `highlightDuration: 2000` and `highlightTransition: 280` milliseconds. Set opacity to `0.7` for the former stronger mask. Reduced-motion preferences disable visual transitions.
 
 The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)` and `::part(launcher)`. A `nonce` option supports nonce-authorized style elements. CSS variables remain available for external theming. [Complete settings and style reference](docs/API.md).
 

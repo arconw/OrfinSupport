@@ -33,6 +33,13 @@ export interface OrfinOptions extends SettingsInput {
   themeVariables?: Record<`--orfin-${string}`, string>;
   nonce?: string;
   onEvent?: (event: { type: string; detail?: unknown }) => void;
+  actions?: Record<
+    string,
+    (
+      payload: Record<string, unknown>,
+      context: { signal: AbortSignal; controller: OrfinController },
+    ) => void | Promise<void>
+  >;
 }
 
 export interface AssistantState {
@@ -234,6 +241,9 @@ export class OrfinController {
       reply.status = abort.signal.aborted ? 'cancelled' : 'complete';
     } catch (error) {
       reply.status = abort.signal.aborted ? 'cancelled' : 'error';
+      reply.tools = reply.tools?.map((tool) =>
+        tool.status === 'running' ? { ...tool, status: 'error' } : tool,
+      );
       if (!abort.signal.aborted) {
         this.state.error = error instanceof OrfinError ? error.code : 'reply';
         this.state.errorStatus = error instanceof OrfinError ? error.status : undefined;
@@ -431,7 +441,7 @@ export class OrfinController {
     const section = tour.sections[tour.index]!;
     const revision = ++this.tourRevision;
     this.pendingTourStep = revision;
-    this.clearHighlight();
+    clearTimeout(this.highlightTimer);
     this.state.selectedSection = section;
     this.emit('tour-step', { index: tour.index, sectionId: section.id });
     let highlighted = false;
@@ -460,6 +470,24 @@ export class OrfinController {
   }
 
   private async perform(action: BrowserAction) {
+    if (action.type === 'custom') {
+      if (!this.settings.features.tools) return;
+      const handler = Object.hasOwn(this.options.actions ?? {}, action.name)
+        ? this.options.actions?.[action.name]
+        : undefined;
+      if (
+        !handler ||
+        !action.payload ||
+        typeof action.payload !== 'object' ||
+        Array.isArray(action.payload)
+      )
+        throw new OrfinError('reply', 'Project action unavailable or invalid.');
+      await handler(action.payload, {
+        signal: this.abort?.signal ?? this.lifecycle.signal,
+        controller: this,
+      });
+      this.emit('action', { name: action.name });
+    }
     if (action.type === 'highlight' && this.settings.features.sectionPicker)
       await this.highlight(action.sectionId);
     if (action.type === 'navigate' && this.settings.features.navigation) {

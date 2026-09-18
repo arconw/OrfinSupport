@@ -1,5 +1,7 @@
 import {
   ArrowUpRight,
+  ChartNoAxesCombined,
+  ShoppingBag,
   Bell,
   BookOpen,
   Check,
@@ -17,7 +19,7 @@ import {
   Settings2,
   X,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { OrfinSupport } from '../../src/adapters/react';
 import { createHttpTransport } from '../../src/core/transport';
 import { defaultSettings, resolveSettings } from '../../src/core/settings';
@@ -30,6 +32,12 @@ import { KnowledgePage } from './Knowledge';
 import { Overview } from './Overview';
 import { ProjectDialog, ProjectsPage } from './Projects';
 import { SettingsPage } from './Settings';
+import { ReportsPage } from './Reports';
+import { ShopPage } from './Shop';
+import { ProductPage } from './Product';
+import { ComparePage } from './Compare';
+import { DemoCartStore } from '../cart-store';
+import { productIds, validateCart } from '../catalog';
 
 declare global {
   interface Window {
@@ -40,6 +48,8 @@ declare global {
 const routes = [
   { path: '/', title: 'Overview', icon: LayoutDashboard },
   { path: '/projects', title: 'Projects', icon: FolderKanban },
+  { path: '/reports', title: 'Reports', icon: ChartNoAxesCombined },
+  { path: '/shop', title: 'Equipment', icon: ShoppingBag },
   { path: '/knowledge', title: 'Knowledge', icon: BookOpen },
   { path: '/settings', title: 'Playground', icon: Settings2 },
 ];
@@ -49,6 +59,8 @@ const liveAvailable = import.meta.env.DEV || import.meta.env.VITE_ORFIN_DEMO_LIV
 
 export function App() {
   const [path, setPath] = useState(routeFromURL);
+  const cartStore = useMemo(() => new DemoCartStore(), []);
+  const cart = useSyncExternalStore(cartStore.subscribe, cartStore.get);
   const [orfin, setOrfin] = useState<OrfinController | null>(null);
   const [settings, setSettings] = useState(defaultSettings);
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
@@ -86,15 +98,32 @@ export function App() {
   const options = useMemo<OrfinOptions>(
     () => ({
       transport:
-        mode === 'demo' ? createDemoTransport() : createHttpTransport({ endpoint: '/api/orfin' }),
+        mode === 'demo'
+          ? createDemoTransport(cartStore)
+          : {
+              async *stream(request, signal) {
+                await cartStore.whenReady();
+                yield* createHttpTransport({ endpoint: '/api/orfin' }).stream(request, signal);
+              },
+            },
       sections,
       initiallyOpen: true,
       navigate,
-      allowedPaths: routes.map((route) => route.path),
+      allowedPaths: [
+        ...routes.map((route) => route.path),
+        '/compare',
+        ...productIds.map((id) => `/shop/${id}`),
+      ],
+      actions: {
+        cart_changed: (payload) => {
+          if (!validateCart(payload.cart)) throw new Error('Invalid cart action.');
+          cartStore.accept(payload.cart);
+        },
+      },
       theme: 'cloud',
       memory: { key: 'orfin:northstar:v1' },
     }),
-    [mode, navigate],
+    [mode, navigate, cartStore],
   );
   const ready = useCallback((controller: OrfinController) => {
     setOrfin(controller);
@@ -115,7 +144,12 @@ export function App() {
     setSettings((previous) => resolveSettings(input, previous));
     orfin?.updateSettings(input);
   };
-  const active = routes.find((route) => route.path === path) ?? routes[0]!;
+  const active =
+    routes.find(
+      (route) =>
+        route.path === path ||
+        (route.path === '/shop' && (path.startsWith('/shop/') || path === '/compare')),
+    ) ?? routes[0]!;
   return (
     <>
       <div className="demo-bar" role="region" aria-label="OrfinSupport playground">
@@ -152,6 +186,9 @@ export function App() {
               value={mode}
               onChange={(event) => {
                 const nextMode = liveAvailable && event.target.value === 'live' ? 'live' : 'demo';
+                void cartStore
+                  .switchMode(nextMode)
+                  .catch((error: Error) => setToast(error.message));
                 setMode(nextMode);
                 setToast(
                   nextMode === 'live'
@@ -201,6 +238,11 @@ export function App() {
                 <route.icon size={17} />
                 <span>{route.title}</span>
                 {route.path === '/projects' && <small>{projects.length}</small>}
+                {route.path === '/shop' && !!cart.items.length && (
+                  <small role="status" aria-label="Equipment cart count">
+                    {cart.items.reduce((sum, item) => sum + item.quantity, 0)}
+                  </small>
+                )}
                 {route.path === '/settings' && <span className="nav-new">Try it</span>}
               </button>
             ))}
@@ -348,6 +390,20 @@ export function App() {
                 setToast('Your new project is ready.');
               }}
             />
+          )}
+          {path === '/reports' && <ReportsPage orfin={orfin} />}
+          {path === '/shop' && <ShopPage orfin={orfin} store={cartStore} navigate={navigate} />}
+          {path.startsWith('/shop/') && (
+            <ProductPage
+              key={path}
+              id={path.slice(6)}
+              orfin={orfin}
+              store={cartStore}
+              navigate={navigate}
+            />
+          )}
+          {path === '/compare' && (
+            <ComparePage orfin={orfin} store={cartStore} navigate={navigate} />
           )}
           {path === '/knowledge' && <KnowledgePage orfin={orfin} />}
           {path === '/settings' && (
