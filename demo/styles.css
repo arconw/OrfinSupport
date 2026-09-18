@@ -162,7 +162,7 @@ button:disabled {
   left: 0;
   top: 58px;
   bottom: 0;
-  width: 220px;
+  width: 260px;
   background: #fff;
   border-right: 1px solid var(--line);
   padding: 26px 17px 14px;
@@ -388,7 +388,7 @@ button:disabled {
   font-size: 13px;
 }
 .workspace {
-  margin-left: 220px;
+  margin-left: 260px;
 }
 .workspace-header {
   height: 66px;
@@ -1702,12 +1702,12 @@ button:disabled {
 }
 @media (max-width: 1200px) {
   .sidebar {
-    width: 196px;
+    width: 236px;
     padding-left: 12px;
     padding-right: 12px;
   }
   .workspace {
-    margin-left: 196px;
+    margin-left: 236px;
   }
   .workspace-brand > svg:last-child,
   .nav-new {
@@ -1780,10 +1780,10 @@ button:disabled {
 }
 @media (max-width: 980px) {
   .sidebar {
-    width: 176px;
+    width: 216px;
   }
   .workspace {
-    margin-left: 176px;
+    margin-left: 216px;
   }
   .workspace-brand {
     gap: 8px;
@@ -1902,7 +1902,7 @@ button:disabled {
   .sidebar {
     display: none;
     top: 54px;
-    width: 220px;
+    width: 260px;
     box-shadow: 10px 0 45px #283b6412;
   }
   .sidebar.visible {

@@ -12,12 +12,12 @@
 }
 
 [data-orfin-root]:not([data-theme='none'])::part(message) {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
 [data-orfin-root]:not([data-theme='none'])::part(input) {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 [data-orfin-root]:not([data-theme='none'])::part(actions-trigger),

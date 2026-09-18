@@ -15,13 +15,13 @@ Orfin is a small guide who belongs in the product. The demo is Northstar, a crea
 
 Manrope sets the workspace headings and Inter carries the interface and conversation text. Inter uses its text-size outlines at weight 450 for ordinary text; labels and actions use medium or semibold weights. Type is left aligned. The workspace uses `#162235` for primary text and has a 16px base with a 1.5 line height, 15–16px reading text and 12–14px compact labels. Secondary text uses `#354259` so navigation, dates and chart labels remain distinct against the pale canvas. Mobile layouts preserve readable type and wrap or scroll dense content instead of shrinking labels. Main content uses a generous 32px rhythm, and the assistant uses a softer 20px shell with tighter interior controls.
 
-The demo and Next example load the font locally. Their shared `demo/assistant-typography.css` uses the public CSS variable and shadow parts to give chat messages 15px type and the composer 16px type. Overrides apply only to preset themes; the project-owned serif appearance stays independent. The library itself does not bundle a font.
+The demo and Next example load the font locally. Their shared `demo/assistant-typography.css` uses the public CSS variable and shadow parts to give user messages, assistant replies and the composer 14px type. Overrides apply only to preset themes; the project-owned serif appearance stays independent. The library itself does not bundle a font.
 
 Documentation captures use the current demo styles. The GIF is recorded at its native 1080px width without resampling text; static screenshots retain their original browser pixels.
 
 ## Layout
 
-The product itself is the opening demonstration. A narrow library toolbar sits above a navigable workspace. The assistant floats at the lower right. A blue, illustrated welcome panel is the single expressive surface; the surrounding workspace stays quiet.
+The product itself is the opening demonstration. A narrow library toolbar sits above a navigable workspace. Its left navigation is 260px wide on large screens, with matching content offsets and narrower tablet variants. On mobile it opens as a 260px drawer. The assistant floats at the lower right. A blue, illustrated welcome panel is the single expressive surface; the surrounding workspace stays quiet.
 
 ```text
 ┌ OrfinSupport / interactive playground ───── controls ┐
