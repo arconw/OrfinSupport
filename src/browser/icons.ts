@@ -1,5 +1,14 @@
 import { html, svg } from 'lit';
-import { orfinSilhouette, orfinEyes } from '../core/brand';
+import {
+  orfinSilhouette,
+  orfinEyes,
+  orfinEyeY,
+  orfinEyeRadius,
+  orfinFaceStroke,
+  orfinSmile,
+  orfinClosedEyes,
+  orfinBusyMouth,
+} from '../core/brand';
 
 const paths = {
   close: 'M6 6l12 12M18 6 6 18',
@@ -23,11 +32,33 @@ export function icon(name: keyof typeof paths, size = 18) {
   return svg`<svg data-icon=${name} width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${paths[name]} /></svg>`;
 }
 
-export function orfinMark(size = 28) {
-  return html`<svg width=${size} height=${size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-    <path d=${orfinSilhouette} fill="currentColor" />
-    <g class="orfin-eyes" fill="var(--orfin-eye, var(--surface, white))">
-      ${orfinEyes.map((x) => svg`<ellipse cx=${x} cy="20" rx="1.85" ry="2.6" />`)}
+export function orfinMark(size = 28, busy = false) {
+  return html`<svg
+    class="orfin-mark"
+    part="logo-mark"
+    data-expression=${busy ? 'busy' : 'idle'}
+    width=${size}
+    height=${size}
+    viewBox="0 0 40 40"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path part="logo-body" d=${orfinSilhouette} fill="currentColor" />
+    <g
+      part="logo-face"
+      stroke="var(--orfin-eye, var(--surface, white))"
+      stroke-width=${orfinFaceStroke}
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <g class="orfin-face-idle" part="logo-idle">
+        ${orfinEyes.map((x) => svg`<circle cx=${x} cy=${orfinEyeY} r=${orfinEyeRadius} />`)}
+        <path d=${orfinSmile} stroke-width="1.25" />
+      </g>
+      <g class="orfin-face-busy" part="logo-busy">
+        ${orfinClosedEyes.map((path) => svg`<path d=${path} />`)}
+        <path d=${orfinBusyMouth} stroke-width="1.25" />
+      </g>
     </g>
   </svg>`;
 }

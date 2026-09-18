@@ -91,11 +91,11 @@ button:disabled {
   letter-spacing: -0.6px;
 }
 .brand-mark {
-  --orfin-eye: var(--cobalt);
+  --orfin-eye: #fff;
   display: grid;
   place-items: center;
-  color: #fff;
-  background: var(--cobalt);
+  color: var(--cobalt);
+  background: #edf1ff;
   width: 29px;
   height: 29px;
   border-radius: 9px;

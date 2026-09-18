@@ -70,11 +70,13 @@ await page
   .fill('Which project is closest to done?');
 await capture(700);
 await page.getByRole('button', { name: 'Send message', exact: true }).click();
+await transition(5);
 for (let i = 0; i < 8; i++) {
   await page.waitForTimeout(210);
   await capture(210);
 }
 await page.getByRole('button', { name: 'Send message', exact: true }).waitFor();
+await transition(5);
 await capture(1900);
 await page
   .getByRole('navigation', { name: 'Tour controls' })
@@ -118,11 +120,13 @@ const ask = async (query, command) => {
     await capture(900);
     await page.locator('[data-orfin-root] .send').click();
   }
+  await transition(4);
   for (let index = 0; index < 4; index++) {
     await page.waitForTimeout(260);
     await capture(260);
   }
   await page.locator('[data-orfin-root] [role="log"][aria-busy="false"]').waitFor();
+  await transition(4);
   await page.locator('[data-orfin-root] textarea').blur();
   await capture(2200);
 };

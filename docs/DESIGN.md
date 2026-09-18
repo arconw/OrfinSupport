@@ -60,11 +60,17 @@ Review: a grid of ten miniature dashboard cards would confuse theme selection wi
 
 Design process informed by [Anthropic's frontend-design skill](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-The default Orfin character is an asymmetric rounded companion with two tall eyes and a small side protrusion. There is no speech tail or four-point star. Three SVG silhouettes were compared at actual 16, 24 and 40 px: a geometric notch, the selected companion, and a soft clover. The companion keeps more character at small sizes without the clover's familiar flower outline. Body and eyes share one vector source across the widget and demo brand; inverted branding preserves eye contrast. This identity is separate from Northstar’s compass symbol. Custom logos retain a reserved, consistent footprint.
+## Orfin identity
 
-![Three Orfin silhouette candidates at 16, 24 and 40 pixels](assets/logo-study.svg)
+The current character follows the supplied visual reference: a rounded cobalt body with an organic, scalloped lower edge, large round eyes with white rims and body-colored pupils, and a small smile. Its second expression borrows only the happy closed eye arcs and short mouth from the expression reference. The body stays the same; neither grain nor a drawn outline is introduced.
 
-Motion follows a single rhythm: 140 ms control feedback, 240 ms content transitions, 300 ms panel arrival and 180 ms exit. The welcome gets one short stagger and blink; messages enter once and streaming changes only their text. Tool states, preferences, locale labels and theme surfaces acknowledge changes. No animation blocks typing. Panel and menu exits retain inert content briefly so closing feels as deliberate as opening. OS reduced motion and a reactive off switch stop animation immediately.
+![Orfin's idle and active expressions at 16, 24 and 40 pixels](assets/logo-expressions.svg)
+
+Body, eye positions, stroke widths and both expressions come from `src/core/brand.ts`. `npm run build:brand` updates the standalone SVG, favicon and expression sheet. Static branding always shows the open eyes and smile. The widget inherits its body color from the surrounding theme; `--orfin-eye` or the exported face part controls the contrasting features. The default demo branding uses a cobalt body and white face on a pale background. Northstar's compass remains a separate identity.
+
+Real controller activity changes the header, launcher and active message expression. Previous messages remain idle. The facial layers crossfade and gently compress over the existing 300 ms arrival timing; they reverse smoothly if a request is stopped quickly. A new text chunk does not recreate a face or restart an animation. Reduced motion changes the expression without movement. Supplied project images never receive facial animation, and failed image loads use the current default expression as fallback.
+
+Motion follows a single rhythm: 140 ms control feedback, 240 ms content transitions, 300 ms panel arrival and 180 ms exit. The welcome gets one short stagger; messages enter once and streaming changes only their text. Tool states, preferences, locale labels and theme surfaces acknowledge changes. No animation blocks typing. Panel and menu exits retain inert content briefly so closing feels as deliberate as opening. OS reduced motion and a reactive off switch stop animation immediately.
 
 The composer has a visibly labelled Actions menu with a 44 px target, tinted resting state and distinct expanded state. It remains available after welcome suggestions disappear. Tour, section and page commands respect feature flags; keyboard behavior follows a menu button, and closing returns focus predictably. Its appearance is fully replaceable through project CSS, like the rest of the assistant.
 

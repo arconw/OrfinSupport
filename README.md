@@ -15,8 +15,8 @@
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
-  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin opens with coordinated motion, reveals the Actions menu, answers during a tour, analyzes delivery, compares displays and updates the demo cart" />
-  <p><sub>Recorded from the working playground: chat motion, the Actions menu, guided tours, grounded analysis and a cart that actually changes.</sub></p>
+  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, analyzes delivery, compares displays and updates the demo cart" />
+  <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, grounded analysis and a cart that actually changes.</sub></p>
 </div>
 
 **Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
@@ -460,6 +460,8 @@ createOrfin({
 ```
 
 Change the logo without remounting: `orfin.updateSettings({ logo: { src: '/brand/new.svg', alt: 'Acme' } })`; pass `logo: null` to restore Orfin. React’s `useOrfin().updateSettings`, Vue’s composable and Angular’s injected API accept the same setting. The launcher, header, messages, tour, hover prompt and empty state share it. Images retain their aspect ratio; unavailable or unsupported image URLs use the default mark. Relative/HTTP(S)/blob URLs and base64 PNG/JPEG/WebP/GIF/AVIF are supported. Provide an image allowed by your host’s `img-src` policy.
+
+The built-in Orfin is a native SVG character with round eyes and a small smile. During an actual pending request, tool operation or streamed reply, its face smoothly changes to happy closed eyes and a small mouth, then returns when the reply ends, fails or is stopped. The body and SVG nodes stay in place; incoming chunks do not restart the transition. Reduced motion and `motion: 'none'` switch expressions immediately. Your supplied images stay unchanged. Static brand assets and the favicon use the smiling face. [Vector design and expressions](docs/DESIGN.md#orfin-identity).
 
 The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background brightness), `highlightDuration: 2000` and `highlightTransition: 280` milliseconds. Set opacity to `0.7` for the former stronger mask. Reduced-motion preferences disable visual transitions.
 

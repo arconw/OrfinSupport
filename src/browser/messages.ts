@@ -18,7 +18,7 @@ export function createMessageRenderer(
       lang=${message.locale ?? controller.settings.locale}
       dir=${message.role === 'assistant' ? localeDirection(message.locale ?? controller.settings.locale) : 'auto'}
     >
-      ${message.role === 'assistant' ? html`<div class="message-label" part="message-label">${logo(controller.settings.logo, 17)} Orfin</div>` : nothing}
+      ${message.role === 'assistant' ? html`<div class="message-label" part="message-label">${logo(controller.settings.logo, 17, message.status === 'streaming' && controller.state.busy)} Orfin</div>` : nothing}
       ${message.tools?.map((tool) => html`<div class="tool" part="tool" data-status=${tool.status}><span class="tool-icon" part="tool-icon">${icon(tool.status === 'complete' ? 'check' : tool.status === 'interrupted' ? 'stop' : 'settings', 13)}</span>${tool.name === 'highlight_section' ? controller.text.highlightTool : tool.name === 'navigate' ? controller.text.navigateTool : tool.name === 'start_tour' ? controller.text.tourTool : tool.name.replace(/_/g, ' ')} · ${tool.status === 'complete' ? controller.text.complete : tool.status === 'error' ? controller.text.error : tool.status === 'interrupted' ? controller.text.interrupted : controller.text.thinking}</div>`)}
       ${formattedText(message.content)}
       ${message.status === 'streaming' && message.content && controller.state.busy ? html`<span class="streaming-indicator" part="streaming-indicator" role="img" aria-label=${controller.text.replying}><i></i><i></i><i></i></span>` : nothing}

@@ -240,7 +240,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 style=${styleMap({ top: `${hoverFrame.position.top}px`, left: `${hoverFrame.position.left}px`, maxHeight: `${innerHeight - hoverFrame.position.top - 12}px` })}
               >
                 <div class="popover-top" part="popover-top">
-                  ${logo(controller.settings.logo, 20)}<span>Orfin</span
+                  ${logo(controller.settings.logo, 20, state.busy)}<span>Orfin</span
                   ><button
                     class="icon-button"
                     part="icon-button"
@@ -283,7 +283,8 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 style=${styleMap({ top: `${tourFrame.position.top}px`, left: `${tourFrame.position.left}px`, maxHeight: `${innerHeight - tourFrame.position.top - 12}px` })}
               >
                 <div class="popover-top" part="popover-top">
-                  ${logo(controller.settings.logo, 20)}<span>Orfin · ${tourFrame.progress}</span
+                  ${logo(controller.settings.logo, 20, state.busy)}<span
+                    >Orfin · ${tourFrame.progress}</span
                   ><button
                     class="icon-button"
                     part="icon-button"
@@ -347,7 +348,9 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 aria-modal="false"
               >
                 <header class="header" part="header" role="presentation">
-                  <div class="avatar" part="avatar">${logo(controller.settings.logo, 30)}</div>
+                  <div class="avatar" part="avatar">
+                    ${logo(controller.settings.logo, 30, state.busy)}
+                  </div>
                   <div class="heading" part="heading">
                     <h2>Orfin</h2>
                     <div class="status" part="status">
@@ -514,7 +517,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
               </section>`
             : nothing
         }
-        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} aria-controls="orfin-panel" ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : logo(controller.settings.logo, 30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
+        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} aria-controls="orfin-panel" ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : logo(controller.settings.logo, 30, state.busy)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
       </div>`,
       container,
     );

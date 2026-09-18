@@ -15,7 +15,7 @@ function imageURL(src: string): string | undefined {
 export function createLogoRenderer(refresh: () => void) {
   const failed = new Set<string>();
   let previous: AssistantLogo | null = null;
-  return (logo: AssistantLogo | null, size: number) => {
+  return (logo: AssistantLogo | null, size: number, busy = false) => {
     if (logo !== previous) {
       failed.clear();
       previous = logo;
@@ -36,7 +36,7 @@ export function createLogoRenderer(refresh: () => void) {
                 refresh();
               }}
             />`
-          : html`<span role="img" aria-label="Orfin">${orfinMark(size)}</span>`
+          : html`<span role="img" aria-label="Orfin">${orfinMark(size, busy)}</span>`
       }
     </span>`;
   };

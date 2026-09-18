@@ -160,6 +160,7 @@ React's `useOrfin().updateSettings`, Vue's `useOrfin().updateSettings` and Angul
 | ----------------------------- | ---------------------------------------------------------------------------------------------- |
 | Overall typography and layout | `orfin`, `panel`, `header`, `heading`, `conversation`, `composer`, `footer`                    |
 | Identity and launcher         | `launcher`, `avatar`, `logo`, `logo-image`, `welcome-mark`                                     |
+| Default vector identity       | `logo-mark`, `logo-body`, `logo-face`, `logo-idle`, `logo-busy`                                |
 | Messages and feedback         | `message`, `user`, `assistant`, `message-label`, `tool`, `source`, `error`, `retry`            |
 | Inputs and settings           | `input-wrap`, `input`, `send`, `language`, `theme`, `toggle`, `preferences`, `suggestion`      |
 | Tours and hover help          | `popover`, `tour-popover`, `popover-top`, `tour-inline`, `primary`, `secondary`, `icon-button` |
@@ -170,6 +171,8 @@ Use `styles` for attribute states and descendants not individually exposed as pa
 The project owns contrast, typography and visual state design in no-preset mode. Check the replacement on narrow screens, keyboard focus, loading/disabled/error states and RTL. Orfin retains its accessible labels, runtime locale changes, responsive placement and reduced-motion handling. See [the API reference](API.md#style-tokens) for token defaults when using a preset.
 
 ## Motion and actions
+
+The default SVG face follows real response activity. Idle uses round eyes and a smile; waiting, tools and streamed text use happy closed eyes and a small mouth. The body uses `currentColor`, while `--orfin-eye` controls the face color. Host CSS can also style `::part(logo-body)` and `::part(logo-face)` directly. Facial transitions share `--orfin-motion-enter` and `--orfin-motion-ease`; reduced motion switches expressions immediately. Supplied image logos are not transformed into facial states. Static brand assets always use the idle face.
 
 Motion is independent of the palette. The layout layer keeps panel/menu presence, short content entrances, control feedback and tool progress active in no-preset mode; it adds no surface colors, borders or fonts. Use `motion: 'none'` to disable this behavior entirely, or `'auto'` to follow the device preference. Both settings work at creation and through `updateSettings`. OS reduced motion always wins.
 

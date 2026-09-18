@@ -1,13 +1,21 @@
-import { orfinSilhouette, orfinEyes } from '../../src/core/brand';
+import {
+  orfinSilhouette,
+  orfinEyes,
+  orfinEyeY,
+  orfinEyeRadius,
+  orfinFaceStroke,
+  orfinSmile,
+} from '../../src/core/brand';
 
 export function OrfinLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <path d={orfinSilhouette} fill="currentColor" />
-      <g fill="var(--orfin-eye, white)">
+      <g stroke="var(--orfin-eye, white)" strokeWidth={orfinFaceStroke} strokeLinecap="round">
         {orfinEyes.map((x) => (
-          <ellipse key={x} cx={x} cy="20" rx="1.85" ry="2.6" />
+          <circle key={x} cx={x} cy={orfinEyeY} r={orfinEyeRadius} />
         ))}
+        <path d={orfinSmile} strokeWidth="1.25" />
       </g>
     </svg>
   );

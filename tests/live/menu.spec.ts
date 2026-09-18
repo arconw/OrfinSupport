@@ -20,6 +20,18 @@ for (const scenario of [
     await page.goto(`/#${scenario.path}`);
     await page.getByLabel('Assistant provider').selectOption('live');
     const root = page.locator('[data-orfin-root]');
+    const face = root.locator('.header .orfin-mark');
+    await expect(face).toHaveAttribute('data-expression', 'idle');
+    const originalFace = await face.elementHandle();
+    await face.evaluate((element) => {
+      element.setAttribute('data-expression-changes', '0');
+      new MutationObserver((records) => {
+        element.setAttribute(
+          'data-expression-changes',
+          String(Number(element.getAttribute('data-expression-changes')) + records.length),
+        );
+      }).observe(element, { attributes: true, attributeFilter: ['data-expression'] });
+    });
     await root.locator('textarea').fill('A separate unfinished draft');
     await root.locator('.actions-trigger').click();
     const ready = page.waitForResponse(
@@ -27,6 +39,7 @@ for (const scenario of [
         new URL(response.url()).pathname === '/api/orfin' && response.request().method() === 'POST',
     );
     await page.getByRole('menuitem', { name: scenario.command, exact: true }).click();
+    await expect(face).toHaveAttribute('data-expression', 'busy');
     const response = await ready;
     expect(response.status()).toBe(200);
     const events = (await response.text())
@@ -45,5 +58,17 @@ for (const scenario of [
       await expect(root.locator('.message.assistant')).toContainText(value);
     await expect(root.locator('textarea')).toHaveValue('A separate unfinished draft');
     await expect(root.locator('.streaming-indicator')).toHaveCount(0);
+    await expect(face).toHaveAttribute('data-expression', 'idle');
+    await expect(face).toHaveAttribute('data-expression-changes', '2');
+    await expect(face.locator('.orfin-face-idle')).toHaveCSS('opacity', '1');
+    expect(
+      await originalFace!.evaluate(
+        (element) =>
+          element ===
+          document
+            .querySelector('[data-orfin-root]')!
+            .shadowRoot!.querySelector('.header .orfin-mark'),
+      ),
+    ).toBe(true);
   });
 }

@@ -121,10 +121,29 @@ export const motionStyles = css`
   .welcome-mark {
     animation: orfin-greet 440ms var(--motion-ease) both;
   }
-  .welcome .orfin-eyes {
+  .orfin-face-idle,
+  .orfin-face-busy {
     transform-box: fill-box;
     transform-origin: center;
-    animation: orfin-blink 220ms ease 500ms;
+    transition:
+      opacity var(--motion-enter) var(--motion-ease),
+      transform var(--motion-enter) var(--motion-ease);
+  }
+  .orfin-face-idle {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  .orfin-face-busy {
+    opacity: 0;
+    transform: scaleY(0.65);
+  }
+  .orfin-mark[data-expression='busy'] .orfin-face-idle {
+    opacity: 0;
+    transform: scaleY(0.65);
+  }
+  .orfin-mark[data-expression='busy'] .orfin-face-busy {
+    opacity: 1;
+    transform: scaleY(1);
   }
   .welcome h3,
   .welcome > p,
@@ -255,15 +274,6 @@ export const motionStyles = css`
       opacity: 1;
       scale: 1;
       rotate: 0deg;
-    }
-  }
-  @keyframes orfin-blink {
-    0%,
-    100% {
-      scale: 1 1;
-    }
-    45% {
-      scale: 1 0.12;
     }
   }
   @keyframes orfin-tool {
