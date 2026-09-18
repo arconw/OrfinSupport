@@ -331,7 +331,11 @@ export function App() {
             <strong>{active.title}</strong>
           </div>
           <div className="header-actions">
-            <button className="search-trigger" onClick={() => setSearchOpen(true)}>
+            <button
+              className="search-trigger"
+              aria-label="Quick find"
+              onClick={() => setSearchOpen(true)}
+            >
               <Search size={16} />
               <span>Quick find</span>
               <kbd>

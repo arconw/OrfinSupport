@@ -100,6 +100,10 @@ const provider = createOpenAICompatible({
 
 `baseURL` is the base ending before `/chat/completions`, usually `/v1`. Optional `headers`, `parameters` and `fetch` support gateways and application middleware. Core request fields are managed by the provider. SSE parsing handles CRLF, multiline frames and Unicode split across network chunks. Native tool name/argument fragments are reassembled before execution.
 
+### Local development provider
+
+The included demo defaults to the development endpoint used during validation. Override `ORFIN_API_URL`, `ORFIN_MODEL`, `ORFIN_API_KEY` (if required) and `ORFIN_TOOL_MODE` to use your own service. Credentials stay in the server environment.
+
 For local `llm-gate`, use `baseURL: 'http://127.0.0.1:8787/codex/v1'`, an installed model ID, and `toolMode: 'prompt'`. The local gateway used in validation does not require a key. Set `toolMode: 'none'` for text-only model deployments that should never request tools.
 
 ### Anthropic

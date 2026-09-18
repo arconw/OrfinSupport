@@ -51,7 +51,7 @@ npm run dev
 
 Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with working projects, tasks, a delivery report, equipment catalog, product details, comparisons, customer reviews, a demo cart and assistant settings.
 
-**Demo replies** work without a backend or API credentials, including on GitHub Pages. The public static playground disables **Live AI** and links to local setup. **Live AI** in the local demo sends requests through its server to `http://127.0.0.1:8787/codex/v1`, using `gpt-5.6-sol` by default. The gateway must already be running. The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
+**Demo replies** work without a backend or API credentials, including on GitHub Pages. The public static playground disables **Live AI** and links to local setup. **Live AI** sends requests through the demo server to your configured model provider. Set `ORFIN_API_URL`, `ORFIN_MODEL`, `ORFIN_API_KEY` (when required) and `ORFIN_TOOL_MODE` in the server environment. Use `native` for compatible function calling or `prompt` for text-only endpoints. The development defaults and validation setup are described in [Integrations](docs/INTEGRATIONS.md#local-development-provider). The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
 
 Try these in either mode:
 
@@ -72,7 +72,7 @@ To try MCP, select **Live AI** and ask: “Please call the connected MCP workspa
 <tr><td><img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/report.png" alt="Northstar delivery report with weekly counts and a comparison of two three-week periods" width="540" /></td><td><img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/commerce.png" alt="Orfin opens Luma 27 and adds two displays to a working demo cart" width="540" /></td></tr>
 </table>
 
-For a stable production preview with both Demo replies and Live AI, run `npm run preview:demo` and open **http://127.0.0.1:4189**. It builds an isolated copy of the frontend and API; source edits and subsequent builds do not reload an ongoing review. Start a new snapshot on another port with `npm run preview:demo -- --port 4190`. The gateway is required only for Live AI.
+For a stable production preview with both Demo replies and Live AI, run `npm run preview:demo` and open **http://127.0.0.1:4189**. It builds an isolated copy of the frontend and API; source edits and subsequent builds do not reload an ongoing review. Start a new snapshot on another port with `npm run preview:demo -- --port 4190`. A configured model endpoint is required only for Live AI.
 
 `npm run build:demo` produces the static playground with Live AI disabled. `npm run dev` and `npm run preview:demo` enable it automatically. For a custom demo deployment with a same-origin `/api/orfin` backend, build with `VITE_ORFIN_DEMO_LIVE=true npm run build:demo`.
 
@@ -209,13 +209,16 @@ Visitors can also choose a language in assistant preferences. React exposes `use
 | `createAnthropic`                                        | Native Messages SSE text deltas                         | Native `tool_use` / `tool_result`; configure `maxTokens`. Its base URL defaults to `https://api.anthropic.com/v1`.                                                |
 | Your `ModelProvider`                                     | You yield `delta` events                                | Yield complete `tool_call` events if the upstream supports tools. Translate its message and stream formats yourself.                                              |
 
-For a compatible API, the backend route above only needs your server environment values. A concrete configuration for the included local gateway is:
+For any compatible API, set your service’s base URL and model ID on the server:
+
+For example, set `ORFIN_API_URL=https://your-provider.example/v1` and `ORFIN_MODEL=your-model-id` to the values supplied by your service. Keep its key in the server’s `ORFIN_API_KEY` environment variable.
 
 ```ts
 const provider = createOpenAICompatible({
-  baseURL: 'http://127.0.0.1:8787/codex/v1',
-  model: 'gpt-5.6-sol',
-  toolMode: 'prompt',
+  baseURL: process.env.ORFIN_API_URL!,
+  model: process.env.ORFIN_MODEL!,
+  apiKey: process.env.ORFIN_API_KEY,
+  toolMode: 'native',
 });
 ```
 
@@ -260,7 +263,9 @@ To support model-driven tools in your adapter, pass the provided `tools` definit
 
 `createOpenAICompatible` speaks the Chat Completions streaming protocol. Use it with an OpenAI-compatible service, a local gateway, or your own endpoint. `createAnthropic` supports the native Anthropic Messages streaming protocol. Implement `ModelProvider` to add another provider; implement `ChatTransport` to own the entire browser/server conversation.
 
-For text-only gateways such as `llm-gate`, use `toolMode: 'prompt'`. The provider parses a dedicated tool-call envelope and routes it through the **same allowlist, argument validator and execution limits** as native function calling. Ordinary responses still stream. Model compliance with that envelope is required; malformed calls produce a recoverable error.
+For text-only compatible endpoints, use `toolMode: 'prompt'`. The provider parses a dedicated tool-call envelope and routes it through the **same allowlist, argument validator and execution limits** as native function calling. Ordinary responses still stream. Model compliance with that envelope is required; malformed calls produce a recoverable error.
+
+The handler retries a temporarily unavailable model up to two times **within the current model step**, before that step emits text or tool calls. Previously completed tools stay completed; the agent does not restart the conversation or replay cart changes. Partial replies and permanent request/authentication errors are not automatically retried. Configure `providerRetries: 0` to disable recovery, or observe attempts with `onProviderRetry`. Custom adapters can throw `ProviderError` from `orfinsupport/providers` with `{ retryable: true }` for a transient failure. [Recovery limits](docs/API.md#handler-options).
 
 For retrieval, use `createTextRetriever` for small document sets or `createVectorRetriever({ embed, search })` to connect your vector database. Your search callback owns tenant filters and access control. [Vector search example](docs/INTEGRATIONS.md#retrieval-and-vector-databases).
 
@@ -443,7 +448,7 @@ npm install --prefix examples/next
 npm run test:next
 ```
 
-The automated suite covers fragmented SSE and Unicode, tool argument validation, feature gates, origin/auth/body limits, tool failures, cancellation, retrieval, a real MCP connection, storage behavior, tours with follow-up questions, section picking, full-page navigation, mobile layout, accessibility and framework lifecycles. Live checks require the local gateway; ordinary CI does not. See [the validation record](docs/TESTING.md) for the tested scope and limitations.
+The automated suite covers fragmented SSE and Unicode, tool argument validation, feature gates, origin/auth/body limits, tool failures, cancellation, retrieval, a real MCP connection, storage behavior, tours with follow-up questions, section picking, full-page navigation, mobile layout, accessibility and framework lifecycles. Live checks require a configured model endpoint; ordinary CI does not. See [the validation record](docs/TESTING.md) for the tested scope and limitations.
 
 `npm run capture:demo` regenerates the GIF and screenshots from a running playground. `npm run build:demo` builds the static site.
 

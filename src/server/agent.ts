@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import { defaultSettings } from '../core/settings';
 import { languageName, localizeSection, normalizeLocale } from '../core/locale';
+import { streamProvider } from './provider-stream';
 import type {
   AgentEvent,
   AgentOptions,
@@ -149,7 +150,7 @@ export async function* runAgent(
     signal.throwIfAborted();
     const calls: ToolCall[] = [];
     let content = '';
-    for await (const event of options.provider.stream({
+    for await (const event of streamProvider(options, {
       messages,
       tools: round < maxRounds ? tools : [],
       signal,

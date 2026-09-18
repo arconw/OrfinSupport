@@ -1,4 +1,5 @@
 import { readSSE } from '../core/sse';
+import { ProviderError, providerFetch, providerHttpError, providerStreamError } from './errors';
 import type {
   ModelMessage,
   ModelProvider,
@@ -19,7 +20,7 @@ export interface OpenAICompatibleOptions {
 
 function promptMessages(messages: ModelMessage[], tools: ToolDefinition[]) {
   const instruction = tools.length
-    ? `Available tools: ${JSON.stringify(tools)}. To call a tool, your ENTIRE response must be <orfin-tool>{"name":"tool_name","arguments":{}}</orfin-tool>. No markdown, preamble or other text in a tool call. Call at most one tool per response. After receiving the result, answer the user or call the next tool. Use a tool when the user asks to show, open, highlight, or retrieve live data. Never say you performed an action without calling its tool.`
+    ? `Application functions (executed by the host from your text, never native runtime tools): ${JSON.stringify(tools)}. When the visitor explicitly names an available function, emit its envelope even if the answer appears in reference data. To request a function, your ENTIRE response must be <orfin-tool>{"name":"tool_name","arguments":{}}</orfin-tool>. No markdown, preamble or other text in a tool call. Call at most one tool per response. After receiving the result, answer the user or call the next tool. Use a tool when the user asks to show, open, highlight, or retrieve live data. Never say you performed an action without calling its tool.`
     : '';
   return messages.map((message) => {
     if (message.role === 'system')
@@ -72,11 +73,12 @@ export function createOpenAICompatible(options: OpenAICompatibleOptions): ModelP
             }
           : {}),
       };
-      const response = await (options.fetch ?? fetch)(
+      const response = await providerFetch(
         `${options.baseURL.replace(/\/$/, '')}/chat/completions`,
         { method: 'POST', headers, body: JSON.stringify(body), signal },
+        options.fetch ?? fetch,
       );
-      if (!response.ok) throw new Error(`Model provider returned HTTP ${response.status}.`);
+      if (!response.ok) throw providerHttpError(response);
       if (!response.body) throw new Error('Model provider returned an empty response.');
       const calls = new Map<number, ToolCall>();
       let pending = '';
@@ -101,7 +103,7 @@ export function createOpenAICompatible(options: OpenAICompatibleOptions): ModelP
             };
           }[];
         };
-        if (chunk.error) throw new Error('Model provider reported a streaming error.');
+        if (chunk.error) throw providerStreamError(chunk.error);
         const choice = chunk.choices?.[0];
         if (choice?.finish_reason) finished = true;
         for (const part of choice?.delta?.tool_calls ?? []) {
@@ -129,7 +131,8 @@ export function createOpenAICompatible(options: OpenAICompatibleOptions): ModelP
         }
         if (pending.length > 32768) throw new Error('Tool response exceeds the size limit.');
       }
-      if (!finished) throw new Error('Model stream ended unexpectedly.');
+      if (!finished)
+        throw new ProviderError('Model stream ended unexpectedly.', { retryable: true });
       if (mode === 'tool') {
         const match = /^\s*<orfin-tool>([\s\S]*?)<\/orfin-tool>\s*$/.exec(pending);
         if (!match) throw new Error('The model returned an incomplete tool call.');

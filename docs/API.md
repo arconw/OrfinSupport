@@ -183,6 +183,7 @@ The protocol consists of JSON SSE frames with `type` equal to `delta`, `sources`
 | `maxBodyBytes`        | 131,072 actual received bytes                                  |
 | `timeoutMs`           | 120,000 ms                                                     |
 | `maxToolRounds`       | 5; clamped to 1–12                                             |
+| `providerRetries`     | 2 per model step; integer clamped to 0–3                       |
 | `maxOutputCharacters` | 40,000                                                         |
 | Accepted conversation | Up to 40 user/assistant messages, each up to 12,000 characters |
 | Accepted page content | Up to 12,000 characters                                        |
@@ -191,6 +192,10 @@ The protocol consists of JSON SSE frames with `type` equal to `delta`, `sources`
 | Tool result context   | Up to 16,000 serialized characters per result                  |
 
 Client feature preferences are intersected with server features. A disabled server capability cannot be enabled by a client request. Tool arguments are validated against their JSON Schema. Unknown tools, invalid arguments, repeated calls and failures return tool errors to the model rather than executing unchecked actions. Tool definitions must have unique names.
+
+Transient provider failures are retried only before the current model step emits nonempty text or a tool call. OpenAI-compatible and Anthropic adapters classify HTTP 408/409/429/5xx, network connection failures and supported upstream overload/error events. Authentication, invalid-request, explicit quota and unknown custom errors are not treated as transient stream events. Backoff starts at 500 ms, doubles per attempt and honors `Retry-After` up to 5 seconds. The overall handler timeout still applies, and cancellation interrupts the wait. Previously executed tools and their results remain in the same agent loop; neither their side effects nor their browser actions are replayed. Once output has started, a failure remains visible with the partial reply.
+
+`onProviderRetry({ attempt, delayMs, status? })` observes recovery without receiving message content, credentials or upstream error text. A custom `ModelProvider` opts in by throwing `new ProviderError('Temporarily unavailable', { retryable: true, retryAfterMs: 1000 })`, imported from `orfinsupport/providers` or `orfinsupport/server`. A bare custom error is not retried. `providerRetries: 0` disables recovery. This policy applies inside `runAgent`, `createDirectTransport` and the HTTP handler; calling a provider’s `stream()` directly performs one attempt.
 
 `authorize(request)` returns `false` or `{ identity }`. The latter becomes `ToolContext.identity` for both tools and retrieval. Same-origin validation is enabled by default for requests that supply `Origin`. To support a separate backend, configure allowed origins and provide CORS/OPTIONS handling in the host application. Server-to-server requests without an Origin still require application authentication where appropriate.
 

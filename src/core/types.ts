@@ -197,6 +197,8 @@ export interface AgentOptions {
   retriever?: Retriever;
   features?: Partial<Features>;
   maxToolRounds?: number;
+  providerRetries?: number;
+  onProviderRetry?: (event: { attempt: number; delayMs: number; status?: number }) => void;
   maxOutputCharacters?: number;
   allowedPaths?: string[];
 }

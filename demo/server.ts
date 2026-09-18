@@ -50,6 +50,23 @@ const handler = createOrfinHandler({
     },
   ],
   features: { pageContext: 'page' },
+  onProviderRetry({ attempt, delayMs, status }) {
+    console.info(
+      `[Orfin demo] Model retry ${attempt}, delay ${delayMs}ms, status ${status ?? 'stream'}`,
+    );
+  },
+  onError(error) {
+    const message = error instanceof Error ? error.message : '';
+    const reason =
+      error instanceof SyntaxError
+        ? 'Invalid provider JSON'
+        : /^(Model provider|Model stream|The model returned|Tool response|The assistant reached|The response exceeded|Too many tool)/.test(
+              message,
+            )
+          ? message
+          : 'Transport or request failure';
+    console.error(`[Orfin demo] ${reason}`);
+  },
   allowedOrigins: [
     'http://127.0.0.1:4173',
     'http://localhost:4173',

@@ -1,4 +1,5 @@
 import { readSSE } from '../core/sse';
+import { ProviderError, providerFetch, providerHttpError, providerStreamError } from './errors';
 import type { ModelProvider, ToolCall } from '../core/types';
 
 export interface AnthropicOptions {
@@ -12,7 +13,7 @@ export interface AnthropicOptions {
 export function createAnthropic(options: AnthropicOptions): ModelProvider {
   return {
     async *stream({ messages, tools, signal }) {
-      const response = await (options.fetch ?? fetch)(
+      const response = await providerFetch(
         `${(options.baseURL ?? 'https://api.anthropic.com/v1').replace(/\/$/, '')}/messages`,
         {
           method: 'POST',
@@ -70,19 +71,21 @@ export function createAnthropic(options: AnthropicOptions): ModelProvider {
               : {}),
           }),
         },
+        options.fetch ?? fetch,
       );
-      if (!response.ok || !response.body)
-        throw new Error(`Model provider returned HTTP ${response.status}.`);
+      if (!response.ok) throw providerHttpError(response);
+      if (!response.body) throw new ProviderError('Model provider returned an empty response.');
       const calls = new Map<number, ToolCall>();
       let completed = false;
       for await (const frame of readSSE(response.body, signal)) {
         const event = JSON.parse(frame.data) as {
           type: string;
+          error?: unknown;
           index?: number;
           content_block?: { type: string; id: string; name: string };
           delta?: { type: string; text?: string; partial_json?: string };
         };
-        if (event.type === 'error') throw new Error('Model provider reported a streaming error.');
+        if (event.type === 'error') throw providerStreamError(event.error);
         if (event.type === 'message_stop') completed = true;
         if (event.type === 'content_block_start' && event.content_block?.type === 'tool_use')
           calls.set(event.index!, {
@@ -100,7 +103,8 @@ export function createAnthropic(options: AnthropicOptions): ModelProvider {
           }
         }
       }
-      if (!completed) throw new Error('Model stream ended unexpectedly.');
+      if (!completed)
+        throw new ProviderError('Model stream ended unexpectedly.', { retryable: true });
       for (const call of calls.values())
         yield { type: 'tool_call', call: { ...call, arguments: call.arguments || '{}' } };
     },
