@@ -29,6 +29,7 @@ function LanguagePicker() {
     <label>
       Example language{' '}
       <select
+        style={{ font: 'inherit', maxWidth: '100%' }}
         aria-label="Example language"
         value={locale}
         onChange={(event) => setLocale(event.target.value)}

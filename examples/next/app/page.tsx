@@ -5,7 +5,12 @@ export default function Page() {
     <main>
       <section
         data-orfin-section="next-welcome"
-        style={{ maxWidth: 700, padding: 32, background: 'white', borderRadius: 20 }}
+        style={{
+          maxWidth: 700,
+          padding: 'clamp(20px, 4vw, 32px)',
+          background: 'white',
+          borderRadius: 20,
+        }}
       >
         <h1>Orfin, at home in Next.js.</h1>
         <p>

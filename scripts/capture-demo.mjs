@@ -18,10 +18,17 @@ await page.waitForLoadState('networkidle');
 await page.waitForTimeout(800);
 await page.locator('[data-orfin-root] textarea').blur();
 await page.screenshot({ path: 'docs/assets/playground.png', animations: 'disabled' });
+await page.setViewportSize({ width: 1080, height: 800 });
 const gif = GIFEncoder();
 const frames = [];
 const capture = async (delay) => {
   frames.push({ screenshot: await page.screenshot(), delay });
+};
+const captureStill = async (path) => {
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path, animations: 'disabled' });
+  await page.setViewportSize(viewport);
 };
 const transition = async (count = 6) => {
   for (let index = 0; index < count; index++) {
@@ -38,7 +45,7 @@ await page.evaluate(() => window.__orfin.open());
 await transition(9);
 await page.locator('[data-orfin-root] .actions-trigger').evaluate((button) => button.click());
 await transition();
-await page.screenshot({ path: 'docs/assets/actions.png' });
+await captureStill('docs/assets/actions.png');
 await capture(1300);
 await page.keyboard.press('Escape');
 await transition(4);
@@ -132,18 +139,18 @@ const ask = async (query, command) => {
 };
 await page.goto(`${baseURL}/#/reports`);
 await page.evaluate(() => window.__orfin.close());
-await page.screenshot({ path: 'docs/assets/report.png', animations: 'disabled' });
+await captureStill('docs/assets/report.png');
 await capture(1400);
 await ask('Analyze delivery. Compare Brand and Web and cite the evidence.');
 await page.goto(`${baseURL}/#/shop`);
 await page.evaluate(() => window.__orfin.close());
-await page.screenshot({ path: 'docs/assets/shop.png', animations: 'disabled' });
+await captureStill('docs/assets/shop.png');
 await capture(1400);
 await ask('Compare Luma 27 and Luma 32 Pro for a small desk.', 'Compare products');
 await ask('Find the 3-star review for the second product. Why that rating?');
 await page.evaluate(() => window.__orfin.clear());
 await ask('Open Luma 27 and add two to my cart.');
-await page.screenshot({ path: 'docs/assets/commerce.png', animations: 'disabled' });
+await captureStill('docs/assets/commerce.png');
 await page.evaluate(() =>
   window.__orfin.updateSettings({
     theme: 'forest',
@@ -189,11 +196,10 @@ await page.evaluate(() => window.__orfin.close());
 await page.getByRole('button', { name: /Northstar appearance/ }).click();
 await page.locator('[data-orfin-root] .launcher').click();
 await page.locator('[data-orfin-root] textarea').blur();
-await page.screenshot({ path: 'docs/assets/host-appearance.png', animations: 'disabled' });
+await captureStill('docs/assets/host-appearance.png');
 await capture(2000);
 for (const { screenshot, delay } of frames) {
   const { data, info } = await sharp(screenshot)
-    .resize(1080, 750)
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
