@@ -64,6 +64,8 @@ Design process informed by [Anthropic's frontend-design skill](https://github.co
 
 The current character follows the supplied visual reference: a rounded cobalt body with an organic, scalloped lower edge, large round eyes with white rims and body-colored pupils, and a small smile. Its second expression borrows only the happy closed eye arcs and short mouth from the expression reference. The body stays the same; neither grain nor a drawn outline is introduced.
 
+The facial features and their spacing are optically enlarged by approximately 25% for miniature use, with slightly stronger mouth strokes. Both expressions are checked at native 16, 24 and 40 pixels at DPR 1 on light and dark surfaces. The eye openings stay separate, the smile retains its curve, and the original body path and overall mark size are preserved.
+
 ![Orfin's idle and active expressions at 16, 24 and 40 pixels](assets/logo-expressions.svg)
 
 Body, eye positions, stroke widths and both expressions come from `src/core/brand.ts`. `npm run build:brand` updates the standalone SVG, favicon and expression sheet. Static branding always shows the open eyes and smile. The widget inherits its body color from the surrounding theme; `--orfin-eye` or the exported face part controls the contrasting features. The default demo branding uses a cobalt body and white face on a pale background. Northstar's compass remains a separate identity.

@@ -5,6 +5,7 @@ import {
   orfinEyeY,
   orfinEyeRadius,
   orfinFaceStroke,
+  orfinMouthStroke,
   orfinSmile,
   orfinClosedEyes,
   orfinBusyMouth,
@@ -53,11 +54,11 @@ export function orfinMark(size = 28, busy = false) {
     >
       <g class="orfin-face-idle" part="logo-idle">
         ${orfinEyes.map((x) => svg`<circle cx=${x} cy=${orfinEyeY} r=${orfinEyeRadius} />`)}
-        <path d=${orfinSmile} stroke-width="1.25" />
+        <path d=${orfinSmile} stroke-width=${orfinMouthStroke} />
       </g>
       <g class="orfin-face-busy" part="logo-busy">
         ${orfinClosedEyes.map((path) => svg`<path d=${path} />`)}
-        <path d=${orfinBusyMouth} stroke-width="1.25" />
+        <path d=${orfinBusyMouth} stroke-width=${orfinMouthStroke} />
       </g>
     </g>
   </svg>`;

@@ -4,6 +4,7 @@ import {
   orfinEyeY,
   orfinEyeRadius,
   orfinFaceStroke,
+  orfinMouthStroke,
   orfinSmile,
 } from '../../src/core/brand';
 
@@ -15,7 +16,7 @@ export function OrfinLogo({ size = 28 }: { size?: number }) {
         {orfinEyes.map((x) => (
           <circle key={x} cx={x} cy={orfinEyeY} r={orfinEyeRadius} />
         ))}
-        <path d={orfinSmile} strokeWidth="1.25" />
+        <path d={orfinSmile} strokeWidth={orfinMouthStroke} />
       </g>
     </svg>
   );

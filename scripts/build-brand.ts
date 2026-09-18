@@ -5,6 +5,7 @@ import {
   orfinEyeY,
   orfinEyeRadius,
   orfinFaceStroke,
+  orfinMouthStroke,
   orfinSmile,
   orfinClosedEyes,
   orfinBusyMouth,
@@ -14,7 +15,7 @@ const mark = (size: number, busy = false, body = '#4361ee', face = '#ffffff') =>
   const eyes = busy
     ? orfinClosedEyes.map((path) => `<path d="${path}"/>`).join('')
     : orfinEyes.map((x) => `<circle cx="${x}" cy="${orfinEyeY}" r="${orfinEyeRadius}"/>`).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><path d="${orfinSilhouette}" fill="${body}"/><g stroke="${face}" stroke-width="${orfinFaceStroke}" stroke-linecap="round" stroke-linejoin="round">${eyes}<path d="${busy ? orfinBusyMouth : orfinSmile}" stroke-width="1.25"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><path d="${orfinSilhouette}" fill="${body}"/><g stroke="${face}" stroke-width="${orfinFaceStroke}" stroke-linecap="round" stroke-linejoin="round">${eyes}<path d="${busy ? orfinBusyMouth : orfinSmile}" stroke-width="${orfinMouthStroke}"/></g></svg>`;
 };
 
 await mkdir('docs/assets', { recursive: true });
