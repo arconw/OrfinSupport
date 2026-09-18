@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OrfinSupport — Make it feel like your product.</title>
+    <link rel="stylesheet" href="./page.css" />
+  </head>
+  <body>
+    <main>
+      <nav aria-label="Examples">
+        <a href="./index.html">Offline demo</a><a href="./backend.html">Your backend</a
+        ><a href="./custom-theme.html">Custom appearance</a>
+      </nav>
+      <p class="eyebrow">OrfinSupport · Plain HTML</p>
+      <h1>Make it feel like your product.</h1>
+      <p>
+        A local tour with project-owned styles. Chat is disabled, so no backend is needed. Open
+        Actions to explore the page.
+      </p>
+      <section
+        data-orfin-section="overview"
+        data-orfin-title="Overview"
+        data-orfin-description="A framework-free assistant loaded from a single JavaScript file."
+        data-orfin-tour-order="0"
+      >
+        <h2>Fits an ordinary website.</h2>
+        <p>
+          Copy the standalone bundle and a configuration file to your site. Styles and browser
+          dependencies are already included.
+        </p>
+        <p class="note">
+          This page loads <code>../../dist/standalone/orfinsupport.min.js</code> and
+          <code>custom-theme.config.js</code>.
+        </p>
+      </section>
+      <section
+        data-orfin-section="plans"
+        data-orfin-title="Plans"
+        data-orfin-description="Starter is for personal projects; Team adds shared workspaces. These are fictional demonstration plans."
+        data-orfin-tour-order="1"
+      >
+        <h2>A page the assistant understands.</h2>
+        <div class="plans">
+          <div>
+            <strong>Starter</strong>
+            <p>One workspace for your own projects.</p>
+          </div>
+          <div>
+            <strong>Team</strong>
+            <p>Shared workspaces for collaborating with your team.</p>
+          </div>
+        </div>
+      </section>
+      <p class="note">
+        These are fictional plans, not an offer. The sample configuration is a separate editable
+        JavaScript file.
+      </p>
+    </main>
+    <script src="../../dist/standalone/orfinsupport.min.js"></script>
+    <script src="./custom-theme.config.js"></script>
+  </body>
+</html>

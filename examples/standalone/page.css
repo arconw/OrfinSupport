@@ -1,0 +1,74 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #f5f4ef;
+  color: #233a32;
+  font:
+    17px/1.65 system-ui,
+    sans-serif;
+}
+main {
+  max-width: 960px;
+  padding: 56px 24px 180px;
+  margin: auto;
+}
+nav {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+a {
+  color: #246c57;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+h1 {
+  font:
+    600 clamp(36px, 6vw, 64px)/1.1 Georgia,
+    serif;
+  max-width: 700px;
+}
+h2 {
+  font:
+    600 28px/1.2 Georgia,
+    serif;
+}
+section {
+  margin: 40px 0;
+  padding: 28px;
+  background: white;
+  border: 1px solid #dedfd5;
+  border-radius: 20px;
+}
+code {
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+.plans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.plans div {
+  flex: 1 1 180px;
+}
+.note {
+  color: #53625b;
+}
+button {
+  padding: 10px 16px;
+  border: 1px solid #246c57;
+  border-radius: 8px;
+  background: white;
+  color: #246c57;
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 3px solid #b55e19;
+  outline-offset: 3px;
+}

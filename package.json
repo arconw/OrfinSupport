@@ -31,7 +31,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "examples/standalone"
   ],
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -68,13 +69,14 @@
     "./angular": {
       "types": "./dist/adapters/angular.d.ts",
       "import": "./dist/adapters/angular.js"
-    }
+    },
+    "./standalone": "./dist/standalone/orfinsupport.min.js"
   },
   "scripts": {
     "dev": "concurrently -k -n api,web 'tsx watch demo/server.ts' 'vite --host 127.0.0.1'",
     "dev:web": "vite --host 127.0.0.1",
     "preview:demo": "node scripts/preview-demo.mjs",
-    "build": "tsup",
+    "build": "tsup && node scripts/build-standalone.mjs",
     "build:brand": "tsx scripts/build-brand.ts",
     "build:demo": "vite build",
     "typecheck": "tsc --noEmit",
@@ -89,7 +91,9 @@
     "format": "prettier --write src demo tests scripts docs examples *.json *.ts *.md .github",
     "format:check": "prettier --check src demo tests scripts docs examples *.json *.ts *.md .github",
     "test:next": "playwright test --config playwright.next.config.ts",
-    "capture:demo": "node scripts/capture-demo.mjs"
+    "capture:demo": "node scripts/capture-demo.mjs",
+    "test:package": "npm run build && node scripts/test-package.mjs",
+    "prepublishOnly": "npm run check && npm run test:package"
   },
   "dependencies": {
     "ajv": "^8.17.1",
@@ -148,9 +152,16 @@
     "vite": "^8.3.0",
     "vitest": "^5.0.1",
     "vue": "^3.5.43",
-    "zod": "^4.0.0"
+    "zod": "^4.0.0",
+    "esbuild": "^0.28.2"
   },
   "overrides": {
     "esbuild": "^0.28.2"
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "unpkg": "./dist/standalone/orfinsupport.min.js",
+  "jsdelivr": "./dist/standalone/orfinsupport.min.js"
 }

@@ -6,8 +6,8 @@
   <p>
     <a href="https://arconw.github.io/OrfinSupport/">Explore the playground</a> ·
     <a href="#bring-orfin-to-your-project">Get started</a> ·
-    <a href="docs/API.md">API reference</a> ·
-    <a href="docs/INTEGRATIONS.md">Integrations</a>
+    <a href="https://github.com/arconw/OrfinSupport/blob/main/docs/API.md">API reference</a> ·
+    <a href="https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md">Integrations</a>
   </p>
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-4361ee?style=flat-square" alt="MIT license" /></a>
@@ -40,7 +40,7 @@ Your visitors can ask a question, take a tour, or point at the part of the inter
 | **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies.                                        |
 | **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.                                                |
 
-The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](docs/LOCALIZATION.md).
+The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](https://github.com/arconw/OrfinSupport/blob/main/docs/LOCALIZATION.md).
 
 ## Your project’s actions
 
@@ -69,11 +69,11 @@ const orfin = createOrfin({
 
 For later updates, `orfin.updateSettings({ menuActions: ['page', compare] })` reorders/replaces commands. Use `menuActions: []` to hide the entry, or `menuActions: null` to restore the three built-ins. These are separate runtime choices; the setup above keeps your custom button installed.
 
-The button submits its configured prompt through the normal streaming conversation. Your backend registers the `compare_products` tool, reads **your catalog**, validates arguments and returns real characteristics and prices. The model explains those results; Orfin is not a source of product facts. Keep the provider key, catalog credentials and tool authorization on the server. `requires` controls visibility in the interface; server feature policy and authorization still control execution. See the [working project menu](demo/menu-actions.ts), [catalog tools](demo/tools.ts) and [backend tool integration](#tools-that-belong-to-your-product).
+The button submits its configured prompt through the normal streaming conversation. Your backend registers the `compare_products` tool, reads **your catalog**, validates arguments and returns real characteristics and prices. The model explains those results; Orfin is not a source of product facts. Keep the provider key, catalog credentials and tool authorization on the server. `requires` controls visibility in the interface; server feature policy and authorization still control execution. See the [working project menu](https://github.com/arconw/OrfinSupport/blob/main/demo/menu-actions.ts), [catalog tools](https://github.com/arconw/OrfinSupport/blob/main/demo/tools.ts) and [backend tool integration](#tools-that-belong-to-your-product).
 
-Use natural visitor wording for `prompt`. The demo’s [server instructions](demo/server.ts) require catalog/report tools for the relevant requests, so internal tool names do not appear in visitor messages. `visibleOn` is JSON-safe: it matches pathname or `#/` router paths, with a trailing `/*` for descendants. Advanced projects can supply a `visible(context)` predicate instead. Playground copies actual command arrays, translations and route rules; Project styles copies its real CSS too.
+Use natural visitor wording for `prompt`. The demo’s [server instructions](https://github.com/arconw/OrfinSupport/blob/main/demo/server.ts) require catalog/report tools for the relevant requests, so internal tool names do not appear in visitor messages. `visibleOn` is JSON-safe: it matches pathname or `#/` router paths, with a trailing `/*` for descendants. Advanced projects can supply a `visible(context)` predicate instead. Playground copies actual command arrays, translations and route rules; Project styles copies its real CSS too.
 
-The demo adds **Compare products** on Equipment/product/comparison pages and **Analyze delivery** on Reports, in both Demo replies and Live AI. Playground’s **Actions menu** setting demonstrates standard, reordered, contextual and empty lists. Your project can replace `menuActions` through React’s hook, Vue’s composable or Angular’s injected API after a route or selection changes. Predicates are reevaluated on hash/popstate navigation, observed page changes and settings updates; after a History API change with no DOM update, call `orfin.refreshPage()`. History, drafts and the selected logo remain intact. [Full menu API](docs/API.md#actions-menu).
+The demo adds **Compare products** on Equipment/product/comparison pages and **Analyze delivery** on Reports, in both Demo replies and Live AI. Playground’s **Actions menu** setting demonstrates standard, reordered, contextual and empty lists. Your project can replace `menuActions` through React’s hook, Vue’s composable or Angular’s injected API after a route or selection changes. Predicates are reevaluated on hash/popstate navigation, observed page changes and settings updates; after a History API change with no DOM update, call `orfin.refreshPage()`. History, drafts and the selected logo remain intact. [Full menu API](https://github.com/arconw/OrfinSupport/blob/main/docs/API.md#actions-menu).
 
 ## Try it locally
 
@@ -86,7 +86,7 @@ npm run dev
 
 Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with working projects, tasks, a delivery report, equipment catalog, product details, comparisons, customer reviews, a demo cart and assistant settings.
 
-**Demo replies** work without a backend or API credentials, including on GitHub Pages. The public static playground disables **Live AI** and links to local setup. **Live AI** sends requests through the demo server to your configured model provider. Set `ORFIN_API_URL`, `ORFIN_MODEL`, `ORFIN_API_KEY` (when required) and `ORFIN_TOOL_MODE` in the server environment. Use `native` for compatible function calling or `prompt` for text-only endpoints. The development defaults and validation setup are described in [Integrations](docs/INTEGRATIONS.md#local-development-provider). The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
+**Demo replies** work without a backend or API credentials, including on GitHub Pages. The public static playground disables **Live AI** and links to local setup. **Live AI** sends requests through the demo server to your configured model provider. Set `ORFIN_API_URL`, `ORFIN_MODEL`, `ORFIN_API_KEY` (when required) and `ORFIN_TOOL_MODE` in the server environment. Use `native` for compatible function calling or `prompt` for text-only endpoints. The development defaults and validation setup are described in [Integrations](https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md#local-development-provider). The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
 
 Try these in either mode:
 
@@ -113,14 +113,53 @@ For a stable production preview with both Demo replies and Live AI, run `npm run
 
 ## Bring Orfin to your project
 
-**Release status:** `0.1.0` is prepared for publication; it has not been published to npm yet. Build and install a local tarball for now:
+Install the library in your application:
 
 ```bash
-npm ci
-npm pack
-cd /path/to/your-app
-npm install /path/to/OrfinSupport/orfinsupport-0.1.0.tgz
+npm install orfinsupport
 ```
+
+Use `orfinsupport/react` for React and Next.js, `orfinsupport/vue` for Vue,
+`orfinsupport/angular` for Angular, and `orfinsupport` for plain JavaScript.
+Frameworks are optional peers: install only the framework your application uses.
+For MCP integration, also install `@modelcontextprotocol/sdk`.
+
+**Real AI replies require your backend and model provider.** The browser widget
+calls your endpoint (for example `/api/orfin`); your server imports
+`orfinsupport/server` and holds the provider credentials. Installing this package
+does not provision a hosted AI service. Follow the three steps below.
+
+The package is ESM-only and includes TypeScript declarations. The supported
+framework baselines are React 18, Vue 3.3 and Angular 19. Next.js uses the React
+adapter in a client component and the server handler in a Route Handler.
+The widget targets modern browsers, not React Native. Node.js 20.19+ is required
+for the server; your framework may require a newer Node.js version.
+See [the tested compatibility matrix](https://github.com/arconw/OrfinSupport/blob/main/docs/RELEASING.md#compatibility).
+
+### Without npm: one script tag
+
+Load the standalone bundle at the end of your page's `<body>`:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/orfinsupport@0.1.0/dist/standalone/orfinsupport.min.js"></script>
+<script>
+  const assistant = OrfinSupport.createOrfin({
+    endpoint: '/api/orfin',
+    locale: 'en',
+    theme: 'cloud',
+  });
+</script>
+```
+
+No framework, npm install, bundler or separate widget CSS is needed in the host
+page. The bundle includes its browser dependencies and exposes `OrfinSupport`.
+You can also host `dist/standalone/` on your own site; retain its license files.
+Real AI still needs the backend described below. For a server-free tour, use
+`features: { chat: false, hoverHelp: false }`.
+
+[Downloadable plain-HTML examples and configuration recipes](https://github.com/arconw/OrfinSupport/tree/main/examples/standalone)
+cover offline sample replies, your backend and custom appearance. Use pinned CDN
+versions; `dist/standalone/integrity.json` contains the optional SRI hash.
 
 ### 1. Describe your sections
 
@@ -202,7 +241,7 @@ export const POST = createOrfinHandler({
 });
 ```
 
-Set `ORFIN_API_URL`, `ORFIN_API_KEY` and `ORFIN_MODEL` in the **host application's server environment**. They must not use a public frontend prefix such as `NEXT_PUBLIC_` or `VITE_`. The library does not load environment files or include credentials. [Authentication, request limits and deployment boundaries](docs/INTEGRATIONS.md#server-boundaries).
+Set `ORFIN_API_URL`, `ORFIN_API_KEY` and `ORFIN_MODEL` in the **host application's server environment**. They must not use a public frontend prefix such as `NEXT_PUBLIC_` or `VITE_`. The library does not load environment files or include credentials. [Authentication, request limits and deployment boundaries](https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md#server-boundaries).
 
 ## Frameworks
 
@@ -221,7 +260,7 @@ export function Assistant() {
 }
 ```
 
-See [framework recipes](docs/INTEGRATIONS.md#framework-recipes) and the [runnable Next.js example](examples/next). The React distribution preserves its `use client` boundary. Server imports do not access the DOM. Changing feature settings updates a mounted adapter; remount it when replacing the transport, catalog or router.
+See [framework recipes](https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md#framework-recipes) and the [runnable Next.js example](https://github.com/arconw/OrfinSupport/blob/main/examples/next). The React distribution preserves its `use client` boundary. Server imports do not access the DOM. Changing feature settings updates a mounted adapter; remount it when replacing the transport, catalog or router.
 
 ## Change the language
 
@@ -230,7 +269,7 @@ const orfin = createOrfin({ endpoint: '/api/orfin', locale: 'en' });
 orfin.setLocale('ja');
 ```
 
-Visitors can also choose a language in assistant preferences. React exposes `useOrfin().setLocale()`, Vue exposes a writable `locale` computed ref, and Angular exposes `injectOrfin().locale()` and `setLocale()`. Supply partial `translations` overrides or localized section descriptions; missing text falls back to English. [Examples and fallback behavior](docs/LOCALIZATION.md).
+Visitors can also choose a language in assistant preferences. React exposes `useOrfin().setLocale()`, Vue exposes a writable `locale` computed ref, and Angular exposes `injectOrfin().locale()` and `setLocale()`. Supply partial `translations` overrides or localized section descriptions; missing text falls back to English. [Examples and fallback behavior](https://github.com/arconw/OrfinSupport/blob/main/docs/LOCALIZATION.md).
 
 ## Models and context
 
@@ -300,9 +339,9 @@ To support model-driven tools in your adapter, pass the provided `tools` definit
 
 For text-only compatible endpoints, use `toolMode: 'prompt'`. The provider parses a dedicated tool-call envelope and routes it through the **same allowlist, argument validator and execution limits** as native function calling. Ordinary responses still stream. Model compliance with that envelope is required; malformed calls produce a recoverable error.
 
-The handler retries a temporarily unavailable model up to two times **within the current model step**, before that step emits text or tool calls. Previously completed tools stay completed; the agent does not restart the conversation or replay cart changes. Partial replies and permanent request/authentication errors are not automatically retried. Configure `providerRetries: 0` to disable recovery, or observe attempts with `onProviderRetry`. Custom adapters can throw `ProviderError` from `orfinsupport/providers` with `{ retryable: true }` for a transient failure. [Recovery limits](docs/API.md#handler-options).
+The handler retries a temporarily unavailable model up to two times **within the current model step**, before that step emits text or tool calls. Previously completed tools stay completed; the agent does not restart the conversation or replay cart changes. Partial replies and permanent request/authentication errors are not automatically retried. Configure `providerRetries: 0` to disable recovery, or observe attempts with `onProviderRetry`. Custom adapters can throw `ProviderError` from `orfinsupport/providers` with `{ retryable: true }` for a transient failure. [Recovery limits](https://github.com/arconw/OrfinSupport/blob/main/docs/API.md#handler-options).
 
-For retrieval, use `createTextRetriever` for small document sets or `createVectorRetriever({ embed, search })` to connect your vector database. Your search callback owns tenant filters and access control. [Vector search example](docs/INTEGRATIONS.md#retrieval-and-vector-databases).
+For retrieval, use `createTextRetriever` for small document sets or `createVectorRetriever({ embed, search })` to connect your vector database. Your search callback owns tenant filters and access control. [Vector search example](https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md#retrieval-and-vector-databases).
 
 ```ts
 import { createTextRetriever } from 'orfinsupport/server';
@@ -373,7 +412,7 @@ createOrfin({
 });
 ```
 
-Only explicitly registered action names execute. Payloads are data, not selectors or JavaScript. Events are sent after the tool resolves successfully, and the browser awaits its handler before displaying the subsequent Done status. Host code validates payloads and owns transactional updates and idempotency. A streamed UI event is not a browser acknowledgement to the model; return authoritative server data from the tool, and report navigation as requested rather than guaranteed. See the working [demo tools](demo/tools.ts) and [cart integration](demo/cart-store.ts).
+Only explicitly registered action names execute. Payloads are data, not selectors or JavaScript. Events are sent after the tool resolves successfully, and the browser awaits its handler before displaying the subsequent Done status. Host code validates payloads and owns transactional updates and idempotency. A streamed UI event is not a browser acknowledgement to the model; return authoritative server data from the tool, and report navigation as requested rather than guaranteed. See the working [demo tools](https://github.com/arconw/OrfinSupport/blob/main/demo/tools.ts) and [cart integration](https://github.com/arconw/OrfinSupport/blob/main/demo/cart-store.ts).
 
 To connect a Streamable HTTP MCP server, install the optional SDK peer and allow only the tools the assistant should use:
 
@@ -387,7 +426,7 @@ const workspace = await connectMCP({
 });
 ```
 
-Pass `workspace.tools` to the handler and call `workspace.close()` on shutdown. An existing MCP client, including a stdio client, can use `toolsFromMCP`. Discovery supports pagination; execution forwards cancellation. [MCP lifecycle and permissions](docs/INTEGRATIONS.md#mcp).
+Pass `workspace.tools` to the handler and call `workspace.close()` on shutdown. An existing MCP client, including a stdio client, can use `toolsFromMCP`. Discovery supports pagination; execution forwards cancellation. [MCP lifecycle and permissions](https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md#mcp).
 
 ## A style that belongs
 
@@ -405,7 +444,7 @@ Choose a complete preset, then override individual tokens:
 
 Presets include foreground/background colors, control contrast, panel shape, shadow and header treatment. `supportedThemes` and `themePresets` are exported. Switch in widget preferences, the Playground, or with `orfin.updateSettings({ theme: 'forest' })`.
 
-**Use your own design system completely:** `theme: 'none'` removes the preset stylesheet and its palette, typography, borders and shadows. Positioning, scrolling, interaction and accessible controls remain. Pass your application’s CSS as `styles`, or style the exposed shadow parts from an external stylesheet. The Playground’s **Northstar appearance — No preset · Project styles** is a working example; its [complete host stylesheet](demo/host-theme.css) covers chat, preferences, hover, tours and section selection. The [styling guide](docs/STYLING.md) explains the Shadow DOM boundary, controls, states and runtime switching.
+**Use your own design system completely:** `theme: 'none'` removes the preset stylesheet and its palette, typography, borders and shadows. Positioning, scrolling, interaction and accessible controls remain. Pass your application’s CSS as `styles`, or style the exposed shadow parts from an external stylesheet. The Playground’s **Northstar appearance — No preset · Project styles** is a working example; its [complete host stylesheet](https://github.com/arconw/OrfinSupport/blob/main/demo/host-theme.css) covers chat, preferences, hover, tours and section selection. The [styling guide](https://github.com/arconw/OrfinSupport/blob/main/docs/STYLING.md) explains the Shadow DOM boundary, controls, states and runtime switching.
 
 Start without a preset and define the appearance in your project's ordinary CSS file:
 
@@ -461,7 +500,7 @@ createOrfin({
 
 Change the logo without remounting: `orfin.updateSettings({ logo: { src: '/brand/new.svg', alt: 'Acme' } })`; pass `logo: null` to restore Orfin. React’s `useOrfin().updateSettings`, Vue’s composable and Angular’s injected API accept the same setting. The launcher, header, messages, tour, hover prompt and empty state share it. Images retain their aspect ratio; unavailable or unsupported image URLs use the default mark. Relative/HTTP(S)/blob URLs and base64 PNG/JPEG/WebP/GIF/AVIF are supported. Provide an image allowed by your host’s `img-src` policy.
 
-The built-in Orfin is a native SVG character with round eyes and a small smile, sized to stay readable at 16–40 px. During an actual pending request, tool operation or streamed reply, its face smoothly changes to happy closed eyes and a small mouth, then returns when the reply ends, fails or is stopped. The body and SVG nodes stay in place; incoming chunks do not restart the transition. Reduced motion and `motion: 'none'` switch expressions immediately. Your supplied images stay unchanged. Static brand assets and the favicon use the smiling face. [Vector design and expressions](docs/DESIGN.md#orfin-identity).
+The built-in Orfin is a native SVG character with round eyes and a small smile, sized to stay readable at 16–40 px. During an actual pending request, tool operation or streamed reply, its face smoothly changes to happy closed eyes and a small mouth, then returns when the reply ends, fails or is stopped. The body and SVG nodes stay in place; incoming chunks do not restart the transition. Reduced motion and `motion: 'none'` switch expressions immediately. Your supplied images stay unchanged. Static brand assets and the favicon use the smiling face. [Vector design and expressions](https://github.com/arconw/OrfinSupport/blob/main/docs/DESIGN.md#orfin-identity).
 
 The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background brightness), `highlightDuration: 2000` and `highlightTransition: 280` milliseconds. Set opacity to `0.7` for the former stronger mask. Reduced-motion preferences disable visual transitions.
 
@@ -478,9 +517,9 @@ orfin.updateSettings({ motion: 'none' });
 
 `auto` is the default and always respects `prefers-reduced-motion`. `none` immediately disables widget and spotlight animation. Visitors can change the same setting in preferences; React, Vue and Angular use their existing `updateSettings` API. Changing motion preserves history, drafts, locale and custom logos. Waiting dots, tool activity and the small writing indicator follow actual response events; streamed text never replays its entrance animation. Stop removes the writing indicator and marks uncompleted tool activity as interrupted; stopping a stream does not undo a tool’s server-side effects.
 
-Project CSS can adjust `--orfin-motion-fast`, `--orfin-motion-content`, `--orfin-motion-enter`, `--orfin-motion-exit` and `--orfin-motion-ease`, including in `theme: 'none'`. See the [motion and action styling guide](docs/STYLING.md#motion-and-actions) for timings, exported parts and the Shadow DOM boundary.
+Project CSS can adjust `--orfin-motion-fast`, `--orfin-motion-content`, `--orfin-motion-enter`, `--orfin-motion-exit` and `--orfin-motion-ease`, including in `theme: 'none'`. See the [motion and action styling guide](https://github.com/arconw/OrfinSupport/blob/main/docs/STYLING.md#motion-and-actions) for timings, exported parts and the Shadow DOM boundary.
 
-The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)`, `::part(launcher)` and the other documented parts. A `nonce` option supports all injected style elements. CSS variables remain available for external theming. [Complete settings and style reference](docs/API.md).
+The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)`, `::part(launcher)` and the other documented parts. A `nonce` option supports all injected style elements. CSS variables remain available for external theming. [Complete settings and style reference](https://github.com/arconw/OrfinSupport/blob/main/docs/API.md).
 
 ## What Orfin remembers
 
@@ -521,20 +560,23 @@ npm install --prefix examples/next
 npm run test:next
 ```
 
-The automated suite covers fragmented SSE and Unicode, tool argument validation, feature gates, origin/auth/body limits, tool failures, cancellation, retrieval, a real MCP connection, storage behavior, tours with follow-up questions, section picking, full-page navigation, mobile layout, accessibility and framework lifecycles. Live checks require a configured model endpoint; ordinary CI does not. See [the validation record](docs/TESTING.md) for the tested scope and limitations.
+The automated suite covers fragmented SSE and Unicode, tool argument validation, feature gates, origin/auth/body limits, tool failures, cancellation, retrieval, a real MCP connection, storage behavior, tours with follow-up questions, section picking, full-page navigation, mobile layout, accessibility and framework lifecycles. Live checks require a configured model endpoint; ordinary CI does not. See [the validation record](https://github.com/arconw/OrfinSupport/blob/main/docs/TESTING.md) for the tested scope and limitations.
 
 `npm run capture:demo` regenerates the GIF and screenshots from a running playground. Recording requires FFmpeg on `PATH` (or `FFMPEG_PATH` pointing to its executable). To refresh only the animation, run `node scripts/capture-gif.mjs`; `ORFIN_CAPTURE_URL` selects the running playground. The GIF uses a continuous browser recording at 25 fps, preserving transitions and streamed replies instead of holding isolated screenshots. `npm run build:demo` builds the static site.
 
-The demos use locally hosted Inter with stronger text contrast and larger conversation text. The [shared typography overrides](demo/assistant-typography.css) demonstrate changing the widget through public CSS variables and shadow parts while keeping project-owned styles independent. The README GIF is recorded at its native resolution so text is not resampled.
+The demos use locally hosted Inter with stronger text contrast and larger conversation text. The [shared typography overrides](https://github.com/arconw/OrfinSupport/blob/main/demo/assistant-typography.css) demonstrate changing the widget through public CSS variables and shadow parts while keeping project-owned styles independent. The README GIF is recorded at its native resolution so text is not resampled.
 
 ## Repository and release
 
 - **`main`** — library source, tests, documentation, examples and demo source.
 - **`demo`** — built static playground, served by GitHub Pages. The editable demo source lives on `main`.
-- **npm** — publication is deliberately separate from repository builds. No workflow publishes a package automatically.
+- **npm** — release archives are tested in isolated consumer applications before publication.
 
-Ready-to-enable CI templates are in `.github/workflow-templates/`. Move them into `.github/workflows/` with a GitHub credential that has the `workflow` scope. The initial publication uses branch-based Pages because the available credential cannot create workflows.
+`.github/workflows/ci.yml` runs library, browser, static demo, packaged consumer
+and Next.js SSR checks. The manually dispatched `publish.yml` workflow uses npm
+Trusted Publishing after it is configured for this repository. Ordinary pushes
+do not publish packages. See [the release guide](https://github.com/arconw/OrfinSupport/blob/main/docs/RELEASING.md).
 
 The supported baseline is modern browsers with Shadow DOM, Fetch streams, ResizeObserver and `Element.checkVisibility`; the server baseline is Node.js 20.19+. Tests currently run in Chromium. The public static playground uses sample replies; real AI needs your backend. Cross-origin navigation is not enabled. Authentication, rate limiting, tool authorization, provider billing and production data policies belong to the host application.
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Released under the [MIT license](LICENSE).
+Contributions are welcome. See [CONTRIBUTING.md](https://github.com/arconw/OrfinSupport/blob/main/CONTRIBUTING.md). Released under the [MIT license](LICENSE).

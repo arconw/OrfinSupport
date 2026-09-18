@@ -7,13 +7,30 @@ import {
   toValue,
   watch,
 } from 'vue';
-import type { MaybeRefOrGetter, PropType } from 'vue';
+import type {
+  MaybeRefOrGetter,
+  PropType,
+  ShallowRef,
+  ComputedRef,
+  WritableComputedRef,
+  DefineComponent,
+  ComponentOptionsMixin,
+} from 'vue';
 import { createOrfin } from '../index';
 import { resolveSettings } from '../core/settings';
-import type { Locale, SettingsInput } from '../core/types';
+import type { AssistantSettings, Locale, SettingsInput } from '../core/types';
 import type { OrfinController, OrfinOptions } from '../browser/controller';
 
-export function useOrfin(options: MaybeRefOrGetter<OrfinOptions>) {
+export interface OrfinVueApi {
+  controller: ShallowRef<OrfinController | null>;
+  settings: ComputedRef<AssistantSettings>;
+  locale: WritableComputedRef<Locale>;
+  setLocale: (locale: Locale) => void;
+  updateSettings: (input: SettingsInput) => void;
+}
+
+// Explicit public types keep declarations compatible with Vue 3.3 consumers.
+export function useOrfin(options: MaybeRefOrGetter<OrfinOptions>): OrfinVueApi {
   const controller = shallowRef<OrfinController | null>(null);
   const settings = shallowRef(resolveSettings(toValue(options)));
   let unsubscribe: (() => void) | undefined;
@@ -45,7 +62,16 @@ export function useOrfin(options: MaybeRefOrGetter<OrfinOptions>) {
   };
 }
 
-export const OrfinSupport = defineComponent({
+export const OrfinSupport: DefineComponent<
+  { options: OrfinOptions },
+  {},
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  { ready: (controller: OrfinController) => true }
+> = defineComponent({
   name: 'OrfinSupport',
   props: { options: { type: Object as PropType<OrfinOptions>, required: true } },
   emits: { ready: (_controller: OrfinController) => true },

@@ -1,0 +1,53 @@
+[data-orfin-root]:not([data-theme='none']) {
+  --orfin-font: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-orfin-root][data-theme='cloud'] {
+  --orfin-text: #162235;
+  --orfin-muted: #39465c;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(orfin) {
+  font-weight: 450;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(message) {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(input) {
+  font-size: 14px;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(actions-trigger),
+[data-orfin-root]:not([data-theme='none'])::part(action-item),
+[data-orfin-root]:not([data-theme='none'])::part(primary),
+[data-orfin-root]:not([data-theme='none'])::part(secondary),
+[data-orfin-root]:not([data-theme='none'])::part(theme),
+[data-orfin-root]:not([data-theme='none'])::part(language) {
+  font-size: 14px;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(status),
+[data-orfin-root]:not([data-theme='none'])::part(tool),
+[data-orfin-root]:not([data-theme='none'])::part(context),
+[data-orfin-root]:not([data-theme='none'])::part(message-label),
+[data-orfin-root]:not([data-theme='none'])::part(motion-hint),
+[data-orfin-root]:not([data-theme='none'])::part(tour-inline) {
+  font-size: 13px;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(source),
+[data-orfin-root]:not([data-theme='none'])::part(footer),
+[data-orfin-root]:not([data-theme='none'])::part(spot-label) {
+  font-size: 11px;
+}
+
+[data-orfin-root]:not([data-theme='none'])::part(status),
+[data-orfin-root]:not([data-theme='none'])::part(tool),
+[data-orfin-root]:not([data-theme='none'])::part(source),
+[data-orfin-root]:not([data-theme='none'])::part(footer),
+[data-orfin-root]:not([data-theme='none'])::part(motion-hint) {
+  color: color-mix(in srgb, var(--text) 85%, var(--surface));
+}

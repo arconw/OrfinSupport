@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Assistant } from './assistant';
 import '@fontsource-variable/inter/wght.css';
-import '../../../demo/assistant-typography.css';
+import './assistant-typography.css';
 
 export const metadata = { title: 'OrfinSupport · Next.js example' };
 
