@@ -30,6 +30,7 @@ const orfin = createOrfin({
   highlightDuration: 2000,
   highlightOpacity: 0.15,
   highlightTransition: 280,
+  motion: 'auto',
   logo: null,
   features: {
     chat: true,
@@ -53,6 +54,8 @@ const orfin = createOrfin({
 `transport` overrides `endpoint`. `title` and `welcome` customize the empty state. `sections` supplies the public catalog. `allowedPaths` restricts navigation; without it, allowed paths come from the section catalog. `navigate` plugs into the host router. `themeVariables` accepts `--orfin-*` CSS custom properties. `styles` supplies trusted application CSS inside Shadow DOM. `nonce` is applied to every injected style element. `onEvent({ type, detail })` observes interaction events without receiving message content.
 
 Mount one controller per page in a browser lifecycle hook. `createOrfin` deliberately throws during SSR; framework adapters handle the lifecycle. Configuration that changes identity, catalog, transport or routing requires a remount. Feature, theme, logo, locale, memory and timing changes use `updateSettings`. Logo images use `{ src, alt? }`, or `null` for Orfin. `highlightOpacity` is clamped to 0–1 and `highlightTransition` to 0–1500 ms; non-finite values preserve the previous setting.
+
+`motion` accepts `'auto'` (default) or `'none'`. Auto respects the operating system's reduced-motion preference; none removes animation immediately, including spotlight transitions. It updates through configuration, widget preferences and all adapters' reactive settings APIs. Exiting surfaces become inert immediately and remain only for their configured fade; rapid reopening preserves their content. The motion layer also works without a preset. See [motion styling](STYLING.md#motion-and-actions).
 
 ## Localization
 
@@ -148,7 +151,7 @@ The ten `ThemePreset` values are `cloud`, `iris`, `lagoon`, `sand`, `rose`, `mid
 
 `styles` can be changed through `updateSettings({ styles })` and all framework reactive settings APIs. It is set as stylesheet text, never as HTML and never included in a chat request. This is trusted developer configuration. Reset with `styles: ''`. It applies after the preset, so scope rules to `:host([data-theme='none'])` if they should stop applying when a preset is chosen. The host exposes `data-theme` for external selectors too.
 
-Parts include `orfin`, `panel`, `header`, `heading`, `avatar`, `logo`, `logo-image`, `conversation`, `welcome`, `welcome-mark`, `suggestion`, `message`, `user`, `assistant`, `message-label`, `tool`, `source`, `composer`, `input-wrap`, `input`, `send`, `mini`, `footer`, `launcher`, `preferences`, `language`, `theme`, `toggle`, `error`, `retry`, `popover`, `tour-popover`, `popover-top`, `primary`, `secondary`, `icon-button`, `tour-inline`, `picker-bar`, `section-list`, `spotlight` and `spot-label`. Use trusted `styles` for descendants and state selectors such as `.theme[aria-pressed='true']`. See the complete [Northstar host stylesheet](../demo/host-theme.css).
+Parts include `orfin`, `panel`, `header`, `heading`, `avatar`, `logo`, `logo-image`, `conversation`, `welcome`, `welcome-mark`, `suggestion`, `message`, `user`, `assistant`, `message-label`, `tool`, `tool-icon`, `source`, `composer`, `input-wrap`, `input`, `send`, `mini`, `actions`, `actions-trigger`, `action-chevron`, `actions-menu`, `action-item`, `action-icon`, `action-label`, `footer`, `launcher`, `preferences`, `language`, `theme`, `toggle`, `motion-hint`, `error`, `retry`, `popover`, `tour-popover`, `popover-top`, `tour-copy`, `primary`, `secondary`, `icon-button`, `tour-inline`, `picker-bar`, `section-list`, `spotlight` and `spot-label`. Use trusted `styles` for descendants and state selectors such as `.theme[aria-pressed='true']`. See the complete [Northstar host stylesheet](../demo/host-theme.css).
 
 ```css
 [data-orfin-root][data-theme='none']::part(orfin) {

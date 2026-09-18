@@ -38,6 +38,8 @@ Mobile Playground regressions also enter a long custom logo URL, edit its altern
 
 An external-only consumer loads its scheme from an ordinary project CSS file with both preset and injected custom styles empty. Removing that file removes the appearance; no inline preset palette remains. Desktop and mobile RTL checks retain the conversation and custom logo through preset→none→preset. The external `::part(input):focus-visible` regression failed before removing an unconditional important outline reset from structural CSS; the preset now owns that visual reset, while no-preset mode retains overridable keyboard focus indicators.
 
+Motion/action regressions sample actual intermediate opacity frames for panel and menu entry/exit on desktop and 320/390-pixel touch viewports, including Arabic and no-preset project styling. They exercise rapid reversal, immediate motion disable, runtime device preference changes, draft/history retention, arrow-key/Escape/Tab navigation, outside dismissal, command feature flags and dispatch after a reply. Animation events verify that streaming and locale/theme changes do not replay message entrances. Existing mobile tour, empty-after-clear, external focus and long-configuration-URL cases remain in the full suite.
+
 ## Live model checks
 
 The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks used `gpt-5.6-sol` and prompt tool mode because this local gateway supports text streaming but does not expose native function calling.

@@ -59,6 +59,16 @@ describe('settings and memory', () => {
     expect(resolved).not.toHaveProperty('transport');
     expect(defaultSettings.features.hoverHelp).toBe(true);
   });
+  it('changes motion independently from themes and preserves the choice across other updates', () => {
+    const unthemed = resolveSettings({ theme: 'none', motion: 'none' });
+    expect(resolveSettings({ theme: 'forest', locale: 'ar' }, unthemed)).toMatchObject({
+      theme: 'forest',
+      locale: 'ar',
+      motion: 'none',
+    });
+    expect(resolveSettings({ motion: 'auto' }, unthemed).motion).toBe('auto');
+    expect(defaultSettings.motion).toBe('auto');
+  });
   it('keeps in-memory decisions and expires them after their TTL', () => {
     vi.useFakeTimers();
     const memory = new SectionMemory({ ...defaultSettings.memory, storage: 'none', ttlMs: 1000 });

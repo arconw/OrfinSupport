@@ -1,4 +1,5 @@
 import { css } from 'lit';
+import { motionStyles } from './motion';
 
 export const layoutStyles = css`
   :host {
@@ -113,7 +114,6 @@ export const layoutStyles = css`
     pointer-events: auto;
     overflow: hidden;
     z-index: 4;
-    animation: orfin-enter 0.22s ease-out;
   }
   .header {
     display: flex;
@@ -293,6 +293,7 @@ export const layoutStyles = css`
     padding: 0;
   }
   .composer-actions {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 7px;
@@ -308,6 +309,53 @@ export const layoutStyles = css`
   }
   .composer-actions .spacer {
     flex: 1;
+  }
+  .actions {
+    flex: 1;
+    min-width: 0;
+  }
+  .actions-trigger {
+    min-height: 44px;
+    max-width: 100%;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .action-chevron {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .actions-menu {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    inset-inline-start: 0;
+    width: 100%;
+    max-height: min(260px, calc(100dvh - 248px));
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 6px;
+    z-index: 2;
+  }
+  .action-item {
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    text-align: start;
+    padding: 10px;
+    gap: 10px;
+  }
+  .action-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .action-label {
+    flex: 1;
+    overflow-wrap: anywhere;
+  }
+  .clear-conversation {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+    flex-shrink: 0;
   }
   .footer {
     text-align: center;
@@ -345,7 +393,6 @@ export const layoutStyles = css`
     padding: 18px;
     pointer-events: auto;
     z-index: 3;
-    animation: orfin-enter 0.2s ease-out;
   }
   .popover-top {
     display: flex;
@@ -455,8 +502,9 @@ export const layoutStyles = css`
     width: 14px;
     height: 14px;
   }
-  .toggle[aria-checked='true'] {
-    justify-content: flex-end;
+  .motion-hint {
+    margin: 0 0 14px;
+    line-height: 1.6;
   }
   .error {
     padding: 12px;
@@ -478,16 +526,6 @@ export const layoutStyles = css`
   .tour-inline > span {
     margin-inline-end: auto;
     white-space: nowrap;
-  }
-  @keyframes orfin-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
   }
   @keyframes orfin-dot {
     0%,
@@ -532,6 +570,7 @@ export const layoutStyles = css`
       padding-top: 0;
     }
   }
+  ${motionStyles}
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

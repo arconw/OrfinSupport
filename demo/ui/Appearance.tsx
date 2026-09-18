@@ -151,6 +151,16 @@ export function Appearance({
           Orfin.
         </p>
       </div>
+      <label className="setting-field">
+        <span>Interface animations</span>
+        <select
+          value={settings.motion}
+          onChange={(event) => update({ motion: event.target.value as 'auto' | 'none' })}
+        >
+          <option value="auto">On · respect device preferences</option>
+          <option value="none">Off</option>
+        </select>
+      </label>
       <label className="setting-field spotlight-field">
         <span>
           Background dimming <strong>{Math.round(settings.highlightOpacity * 100)}%</strong>
@@ -166,7 +176,8 @@ export function Appearance({
         />
       </label>
       <p className="card-description">
-        15% keeps the page softly visible. Motion follows your device’s reduced-motion preference.
+        15% keeps the page softly visible. Animations can be switched off here or in Orfin’s
+        settings.
       </p>
     </section>
   );

@@ -15,8 +15,8 @@
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
-  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin answers during a tour, analyzes delivery results, compares displays, reads a three-star review and updates the demo cart" />
-  <p><sub>Recorded from the working playground: guided tours, grounded analysis, comparison, reviews and a cart that actually changes.</sub></p>
+  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin opens with coordinated motion, reveals the Actions menu, answers during a tour, analyzes delivery, compares displays and updates the demo cart" />
+  <p><sub>Recorded from the working playground: chat motion, the Actions menu, guided tours, grounded analysis and a cart that actually changes.</sub></p>
 </div>
 
 **Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
@@ -25,18 +25,20 @@
 
 Your visitors can ask a question, take a tour, or point at the part of the interface they want to understand. Orfin connects the conversation to the page in front of them.
 
-| Capability                   | What it does                                                                                                                                                             |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Continue from inside the chat or return to the current tour step.                                                |
-| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.                                            |
-| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.                                                  |
-| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and softly dims the background by 15% for two seconds, with configurable opacity and smooth transitions. |
-| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                                                     |
-| **Your tools and MCP**       | Calls validated server and MCP tools, updates your interface through registered actions, and explains the result.                                                        |
-| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                                                     |
-| **Your product’s style**     | Ten presets (five light, five dark), an unthemed host mode, reactive custom logos, CSS variables and shadow parts. Shadow DOM protects the interface from host styles.   |
-| **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies.                                    |
-| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.                                            |
+| Capability                   | What it does                                                                                                                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tours with questions**     | Walks through ordered sections with Back, Next and Ask. Continue from inside the chat or return to the current tour step.                                                    |
+| **Section picker**           | Highlights the section under the pointer; selecting it starts an explanation. A keyboard-accessible section list is included.                                                |
+| **Thoughtful hover help**    | Offers Yes / No after a configurable dwell time. Outside clicks dismiss it; a cooldown prevents repeated interruptions.                                                      |
+| **Navigation and spotlight** | Opens an allowed page, waits for its section, scrolls into view and softly dims the background by 15% for two seconds, with configurable opacity and smooth transitions.     |
+| **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                                                         |
+| **Your tools and MCP**       | Calls validated server and MCP tools, updates your interface through registered actions, and explains the result.                                                            |
+| **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                                                         |
+| **Actions within reach**     | A labelled menu below the composer opens tours, section selection and page explanations, including after a conversation has started. Supports touch and keyboard navigation. |
+| **Considered motion**        | Coordinated panel, menu, welcome, message, tool and settings transitions. Runtime control, host CSS timing and automatic reduced-motion support.                             |
+| **Your product’s style**     | Ten presets (five light, five dark), an unthemed host mode, reactive custom logos, CSS variables and shadow parts. Shadow DOM protects the interface from host styles.       |
+| **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies.                                        |
+| **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.                                                |
 
 The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](docs/LOCALIZATION.md).
 
@@ -427,6 +429,19 @@ createOrfin({
 Change the logo without remounting: `orfin.updateSettings({ logo: { src: '/brand/new.svg', alt: 'Acme' } })`; pass `logo: null` to restore Orfin. React’s `useOrfin().updateSettings`, Vue’s composable and Angular’s injected API accept the same setting. The launcher, header, messages, tour, hover prompt and empty state share it. Images retain their aspect ratio; unavailable or unsupported image URLs use the default mark. Relative/HTTP(S)/blob URLs and base64 PNG/JPEG/WebP/GIF/AVIF are supported. Provide an image allowed by your host’s `img-src` policy.
 
 The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background brightness), `highlightDuration: 2000` and `highlightTransition: 280` milliseconds. Set opacity to `0.7` for the former stronger mask. Reduced-motion preferences disable visual transitions.
+
+### Motion and actions
+
+The **Actions** button below the input stays visible throughout a conversation. It opens the tour, section picker and page explanation commands allowed by your feature flags. Its caption follows the locale; expanded state, arrow-key navigation, Escape, Tab and outside-click dismissal are built in. The Send button keeps its usual role.
+
+```ts
+const orfin = createOrfin({ endpoint: '/api/orfin', motion: 'auto' });
+orfin.updateSettings({ motion: 'none' });
+```
+
+`auto` is the default and always respects `prefers-reduced-motion`. `none` immediately disables widget and spotlight animation. Visitors can change the same setting in preferences; React, Vue and Angular use their existing `updateSettings` API. Changing motion preserves history, drafts, locale and custom logos. Streamed text is never animated one character at a time.
+
+Project CSS can adjust `--orfin-motion-fast`, `--orfin-motion-content`, `--orfin-motion-enter`, `--orfin-motion-exit` and `--orfin-motion-ease`, including in `theme: 'none'`. See the [motion and action styling guide](docs/STYLING.md#motion-and-actions) for timings, exported parts and the Shadow DOM boundary.
 
 The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)`, `::part(launcher)` and the other documented parts. A `nonce` option supports all injected style elements. CSS variables remain available for external theming. [Complete settings and style reference](docs/API.md).
 

@@ -58,6 +58,7 @@ export function SettingsPage({
       theme: settings.theme,
       ...(settings.theme === 'none' ? { styles: 'yourApplicationStyles' } : {}),
       logo: settings.logo,
+      motion: settings.motion,
       highlightOpacity: settings.highlightOpacity,
       highlightTransition: settings.highlightTransition,
       features: settings.features,

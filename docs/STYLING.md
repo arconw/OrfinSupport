@@ -50,6 +50,7 @@ Load this CSS through your application's normal stylesheet mechanism. The `data-
 
 [data-orfin-root][data-theme='none']::part(panel),
 [data-orfin-root][data-theme='none']::part(popover),
+[data-orfin-root][data-theme='none']::part(actions-menu),
 [data-orfin-root][data-theme='none']::part(picker-bar),
 [data-orfin-root][data-theme='none']::part(section-list) {
   background: var(--app-assistant-surface);
@@ -167,3 +168,44 @@ React's `useOrfin().updateSettings`, Vue's `useOrfin().updateSettings` and Angul
 Use `styles` for attribute states and descendants not individually exposed as parts. A tour popover also exports `popover`, so a common surface rule covers both tours and hover prompts. Adjust spotlight darkness and timing through `highlightOpacity` and `highlightTransition`; both remain independent of the chosen theme.
 
 The project owns contrast, typography and visual state design in no-preset mode. Check the replacement on narrow screens, keyboard focus, loading/disabled/error states and RTL. Orfin retains its accessible labels, runtime locale changes, responsive placement and reduced-motion handling. See [the API reference](API.md#style-tokens) for token defaults when using a preset.
+
+## Motion and actions
+
+Motion is independent of the palette. The layout layer keeps panel/menu presence, short content entrances, control feedback and tool progress active in no-preset mode; it adds no surface colors, borders or fonts. Use `motion: 'none'` to disable this behavior entirely, or `'auto'` to follow the device preference. Both settings work at creation and through `updateSettings`. OS reduced motion always wins.
+
+```css
+[data-orfin-root] {
+  --orfin-motion-fast: 120ms;
+  --orfin-motion-content: 200ms;
+  --orfin-motion-enter: 260ms;
+  --orfin-motion-exit: 160ms;
+  --orfin-motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-orfin-root][data-theme='none']::part(actions-trigger) {
+  color: #263c35;
+  background: #e5ecd6;
+  border: 2px solid #315947;
+  border-radius: 4px;
+  font: 600 14px/1.4 system-ui;
+}
+
+[data-orfin-root][data-theme='none']::part(action-item) {
+  color: #263c35;
+  background: #f9fff3;
+  border: 0;
+  font: inherit;
+}
+
+[data-orfin-root][data-theme='none']::part(action-item):focus-visible {
+  outline: 2px solid #315947;
+}
+```
+
+Defaults are 140 ms for feedback, 240 ms for content, 300 ms for panel arrival and 180 ms for exit. The exit duration also determines when an inert surface is removed; use a CSS duration in `ms` or `s`, bounded to 0–1500 ms by the presence lifecycle. Set the matching motion variable when changing the exit transition so CSS and removal remain synchronized. Spotlight timing is separately controlled by `highlightTransition`.
+
+Welcome elements enter with a short stagger; each message enters once, without replaying for streamed text. Pending tools rotate, completed tools briefly settle, and theme colors transition without replacing the input. Locale changes fade the labels while preserving keyboard focus. Rapid close/reopen reverses the transition. Closing surfaces are inert and hidden from assistive technology before removal.
+
+The actions area exports `actions`, `actions-trigger`, `action-chevron`, `actions-menu`, `action-item`, `action-icon` and `action-label`. Its menu is anchored above the labelled trigger and can overlay the composer until dismissed. Arrow keys, Home and End move between enabled commands; Escape returns to the trigger, Tab leaves the menu, and outside clicks close it. Page explanation is disabled during a reply. For expanded-state design inside `styles`, target `.actions-trigger[aria-expanded='true']`; arbitrary attribute selectors cannot cross the shadow boundary through `::part()`.
+
+Keep focus indicators, disabled states and 44 px action targets when replacing appearance. External `::part()` rules can override visual transitions; the explicit motion setting and reduced-motion rule intentionally suppress them for users who request less movement.

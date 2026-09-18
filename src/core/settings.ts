@@ -24,6 +24,7 @@ export const defaultSettings: AssistantSettings = {
   highlightDuration: 2000,
   highlightOpacity: 0.15,
   highlightTransition: 280,
+  motion: 'auto',
   logo: null,
   theme: 'cloud',
   styles: '',
@@ -41,6 +42,7 @@ export function resolveSettings(
         ? input.theme
         : previous.theme,
     styles: typeof input.styles === 'string' ? input.styles : previous.styles,
+    motion: input.motion === 'auto' || input.motion === 'none' ? input.motion : previous.motion,
     logo: input.logo === undefined ? previous.logo : input.logo,
     highlightOpacity: Number.isFinite(input.highlightOpacity)
       ? Math.min(1, Math.max(0, input.highlightOpacity!))

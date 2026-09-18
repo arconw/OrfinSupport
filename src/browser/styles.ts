@@ -89,6 +89,10 @@ export const widgetStyles = css`
     background: var(--soft);
     color: var(--text);
   }
+  .icon-button[aria-pressed='true'] {
+    background: var(--soft);
+    color: var(--accent);
+  }
   .conversation {
     scrollbar-width: thin;
     scrollbar-color: var(--line) transparent;
@@ -179,6 +183,7 @@ export const widgetStyles = css`
   }
   .input-wrap:focus-within {
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
   }
   textarea {
     color: var(--text);
@@ -206,6 +211,47 @@ export const widgetStyles = css`
   }
   .mini:hover {
     color: var(--accent);
+  }
+  .actions-trigger {
+    background: var(--soft);
+    color: var(--accent);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .actions-trigger:hover,
+  .actions-trigger[aria-expanded='true'] {
+    border-color: var(--accent);
+  }
+  .actions-trigger[aria-expanded='true'] {
+    background: var(--accent);
+    color: var(--surface);
+  }
+  .actions-menu {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+  .action-item {
+    background: transparent;
+    color: var(--text);
+    border: 0;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .action-item:hover,
+  .action-item:focus-visible {
+    background: var(--soft);
+  }
+  .action-icon {
+    color: var(--accent);
+  }
+  .motion-hint {
+    font-size: 11px;
+    color: var(--muted);
   }
   .footer {
     font-size: 9px;

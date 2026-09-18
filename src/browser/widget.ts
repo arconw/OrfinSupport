@@ -2,17 +2,20 @@ import { html, render, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { live } from 'lit/directives/live.js';
-import type { ChatMessage } from '../core/types';
 import { OrfinController } from './controller';
-import { formattedText, safeURL } from './format';
+import type { AssistantState } from './controller';
 import { popoverPosition } from './geometry';
 import { icon } from './icons';
 import { createLogoRenderer } from './logo';
-import { supportedThemes, themePresets } from '../core/themes';
+import { themePresets } from '../core/themes';
 import { widgetStyles } from './styles';
 import { layoutStyles } from './layout';
 import { localeDirection, formatMessage } from '../core/locale';
-import { localeOptions } from './i18n';
+import { keyed } from 'lit/directives/keyed.js';
+import { Presence, motionDuration } from './presence';
+import { createActionsMenu } from './actions';
+import { createMessageRenderer } from './messages';
+import { renderPreferences } from './preferences';
 
 export function mountWidget(controller: OrfinController): HTMLElement {
   const host = document.createElement('div');
@@ -61,6 +64,24 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   let wasOpen = false;
   let wasTourVisible = false;
   let lastCount = 0;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const panelPresence = new Presence<AssistantState>(() => update());
+  const hoverPresence = new Presence<{
+    position: ReturnType<typeof popoverPosition>;
+    section: NonNullable<AssistantState['hover']>['section'];
+  }>(() => update());
+  const tourPresence = new Presence<{
+    position: ReturnType<typeof popoverPosition>;
+    tour: NonNullable<AssistantState['tour']>;
+    section: ReturnType<OrfinController['sectionText']>;
+    progress: string;
+  }>(() => update());
+  const actions = createActionsMenu(controller, shadow, () => update());
+  const message = createMessageRenderer(controller, logo);
+  let lastLocale = controller.settings.locale;
+  let copyPhase: 'a' | 'b' | undefined;
+  const mediaChanged = () => update();
+  reducedMotion.addEventListener('change', mediaChanged);
 
   const submit = () => {
     const value = draft;
@@ -77,20 +98,6 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       ><span>${label}</span>${icon('chevron')}
     </button>`;
 
-  const message = (message: ChatMessage) =>
-    html`<article
-      class="message ${message.role}"
-      part="message ${message.role}"
-      lang=${message.locale ?? controller.settings.locale}
-      dir=${message.role === 'assistant' ? localeDirection(message.locale ?? controller.settings.locale) : 'auto'}
-    >
-      ${message.role === 'assistant' ? html`<div class="message-label" part="message-label">${logo(controller.settings.logo, 17)} Orfin</div>` : nothing}
-      ${message.tools?.map((tool) => html`<div class="tool" part="tool">${icon(tool.status === 'complete' ? 'check' : 'settings', 13)}${tool.name === 'highlight_section' ? controller.text.highlightTool : tool.name === 'navigate' ? controller.text.navigateTool : tool.name === 'start_tour' ? controller.text.tourTool : tool.name.replace(/_/g, ' ')} · ${tool.status === 'complete' ? controller.text.complete : tool.status === 'error' ? controller.text.error : controller.text.thinking}</div>`)}
-      ${formattedText(message.content)}
-      ${message.status === 'streaming' && !message.content ? html`<div class="thinking" part="thinking" aria-label=${controller.text.thinking}><i></i><i></i><i></i></div>` : nothing}
-      ${message.sources?.length ? html`<div class="sources" part="sources" aria-label=${controller.text.sources}>${message.sources.map((source) => (safeURL(source.url) ? html`<a class="source" part="source" href=${safeURL(source.url)!} target="_blank" rel="noopener noreferrer">${source.title}</a>` : html`<span class="source" part="source">${source.title}</span>`))}</div>` : nothing}
-    </article>`;
-
   const update = () => {
     const { state, settings, text } = controller;
     const theme = settings.theme === 'none' ? undefined : themePresets[settings.theme];
@@ -98,6 +105,15 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     if (preset!.textContent !== presetCSS) preset!.textContent = presetCSS;
     if (custom!.textContent !== settings.styles) custom!.textContent = settings.styles;
     host.dataset.theme = settings.theme;
+    const motionEnabled = settings.motion !== 'none' && !reducedMotion.matches;
+    const exitDuration = motionEnabled ? motionDuration(shadow, '--motion-exit', 180) : 0;
+    panelPresence.reconcile(state.open ? { ...state } : undefined, exitDuration);
+    const panelState = panelPresence.value;
+    if (!state.open || state.preferences || !settings.features.chat) actions.reset();
+    if (lastLocale !== settings.locale) {
+      copyPhase = copyPhase === 'a' ? 'b' : 'a';
+      lastLocale = settings.locale;
+    }
     if (state.highlight) {
       clearTimeout(highlightExit);
       highlightExit = undefined;
@@ -114,9 +130,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       } else if (!highlightFrame) highlightVisible = true;
     } else if (renderedHighlight && !highlightExit) {
       highlightVisible = false;
-      const duration = matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 0
-        : settings.highlightTransition;
+      const duration = motionEnabled ? settings.highlightTransition : 0;
       highlightExit = setTimeout(() => {
         renderedHighlight = undefined;
         highlightExit = undefined;
@@ -142,11 +156,27 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       state.highlight && state.tour && !state.open
         ? popoverPosition(state.highlight.rect, 300, 244)
         : undefined;
+    hoverPresence.reconcile(
+      state.hover && hoverPosition
+        ? { section: state.hover.section, position: hoverPosition }
+        : undefined,
+      exitDuration,
+    );
+    tourPresence.reconcile(
+      state.tour && currentSection && tourPosition
+        ? { tour: state.tour, section: currentSection, position: tourPosition, progress }
+        : undefined,
+      exitDuration,
+    );
+    const hoverFrame = hoverPresence.value;
+    const tourFrame = tourPresence.value;
     render(
       html`<div
         class="orfin"
         part="orfin"
         data-theme=${settings.theme}
+        data-motion=${motionEnabled ? 'auto' : 'none'}
+        data-copy=${copyPhase ?? nothing}
         data-header=${theme?.header ?? nothing}
         style=${styleMap({
           ...(theme
@@ -161,7 +191,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
             : {}),
           colorScheme: theme?.scheme ?? 'normal',
           '--spotlight-opacity': String(settings.highlightOpacity),
-          '--spotlight-transition': `${settings.highlightTransition}ms`,
+          '--spotlight-transition': `${motionEnabled ? settings.highlightTransition : 0}ms`,
         })}
         lang=${settings.locale}
         dir=${localeDirection(settings.locale)}
@@ -195,13 +225,17 @@ export function mountWidget(controller: OrfinController): HTMLElement {
             : nothing
         }
         ${
-          state.hover && hoverPosition
+          hoverFrame
             ? html`<section
                 class="popover"
                 part="popover"
+                data-visible=${hoverPresence.visible}
+                data-exiting=${hoverPresence.exiting}
+                ?inert=${hoverPresence.exiting}
+                aria-hidden=${hoverPresence.exiting ? 'true' : nothing}
                 role="dialog"
                 aria-label=${text.hover}
-                style=${styleMap({ top: `${hoverPosition.top}px`, left: `${hoverPosition.left}px`, maxHeight: `${innerHeight - hoverPosition.top - 12}px` })}
+                style=${styleMap({ top: `${hoverFrame.position.top}px`, left: `${hoverFrame.position.left}px`, maxHeight: `${innerHeight - hoverFrame.position.top - 12}px` })}
               >
                 <div class="popover-top" part="popover-top">
                   ${logo(controller.settings.logo, 20)}<span>Orfin</span
@@ -225,7 +259,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   ><button
                     class="primary"
                     part="primary"
-                    @click=${() => void controller.explain(state.hover!.section)}
+                    @click=${() => void controller.explain(hoverFrame.section)}
                   >
                     ${text.yes}${icon('arrow', 14)}
                   </button>
@@ -234,16 +268,20 @@ export function mountWidget(controller: OrfinController): HTMLElement {
             : nothing
         }
         ${
-          state.tour && currentSection && tourPosition
+          tourFrame
             ? html`<section
                 class="popover tour-popover"
                 part="popover tour-popover"
+                data-visible=${tourPresence.visible}
+                data-exiting=${tourPresence.exiting}
+                ?inert=${tourPresence.exiting}
+                aria-hidden=${tourPresence.exiting ? 'true' : nothing}
                 role="dialog"
                 aria-label=${text.guidedTour}
-                style=${styleMap({ top: `${tourPosition.top}px`, left: `${tourPosition.left}px`, maxHeight: `${innerHeight - tourPosition.top - 12}px` })}
+                style=${styleMap({ top: `${tourFrame.position.top}px`, left: `${tourFrame.position.left}px`, maxHeight: `${innerHeight - tourFrame.position.top - 12}px` })}
               >
                 <div class="popover-top" part="popover-top">
-                  ${logo(controller.settings.logo, 20)}<span>Orfin · ${progress}</span
+                  ${logo(controller.settings.logo, 20)}<span>Orfin · ${tourFrame.progress}</span
                   ><button
                     class="icon-button"
                     part="icon-button"
@@ -253,15 +291,20 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                     ${icon('close', 14)}
                   </button>
                 </div>
-                <h3>${currentSection.title}</h3>
-                <p>${currentSection.description}</p>
+                ${keyed(
+                  tourFrame.section.id,
+                  html`<div class="tour-copy" part="tour-copy">
+                    <h3>${tourFrame.section.title}</h3>
+                    <p>${tourFrame.section.description}</p>
+                  </div>`,
+                )}
                 <div class="popover-actions" part="popover-actions">
                   <button
                     class="icon-button"
                     part="icon-button"
                     aria-label=${text.back}
-                    ?disabled=${state.tour.index === 0}
-                    @click=${() => void controller.tourStep(state.tour!.index - 1)}
+                    ?disabled=${tourFrame.tour.index === 0}
+                    @click=${() => void controller.tourStep(tourFrame.tour!.index - 1)}
                   >
                     ${icon('back', 15)}</button
                   ><button
@@ -276,22 +319,27 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   ><button
                     class="primary"
                     part="primary"
-                    @click=${() => void controller.tourStep(state.tour!.index + 1)}
+                    @click=${() => void controller.tourStep(tourFrame.tour!.index + 1)}
                   >
-                    ${state.tour.index === state.tour.sections.length - 1 ? text.finish : text.next}${icon('arrow', 14)}
+                    ${tourFrame.tour.index === tourFrame.tour.sections.length - 1 ? text.finish : text.next}${icon('arrow', 14)}
                   </button>
                 </div>
                 <div class="tour-progress" part="tour-progress">
-                  ${state.tour.sections.map((_, index) => html`<i class=${index <= state.tour!.index ? 'active' : ''}></i>`)}
+                  ${tourFrame.tour.sections.map((_, index) => html`<i class=${index <= tourFrame.tour!.index ? 'active' : ''}></i>`)}
                 </div>
               </section>`
             : nothing
         }
         ${
-          state.open
+          panelState
             ? html`<section
                 class="panel"
                 part="panel"
+                id="orfin-panel"
+                data-visible=${panelPresence.visible}
+                data-exiting=${panelPresence.exiting}
+                ?inert=${panelPresence.exiting}
+                aria-hidden=${panelPresence.exiting ? 'true' : nothing}
                 role="dialog"
                 aria-label="Orfin"
                 aria-modal="false"
@@ -301,13 +349,14 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   <div class="heading" part="heading">
                     <h2>Orfin</h2>
                     <div class="status" part="status">
-                      <i></i>${state.busy ? text.thinking : text.online}
+                      <i></i>${panelState.busy ? text.thinking : text.online}
                     </div>
                   </div>
                   <button
                     class="icon-button"
                     part="icon-button"
                     aria-label=${text.settings}
+                    aria-pressed=${panelState.preferences}
                     @click=${() => controller.preferences()}
                   >
                     ${icon('settings')}</button
@@ -321,7 +370,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   </button>
                 </header>
                 ${
-                  state.tour
+                  panelState.tour
                     ? html`<nav
                         class="tour-inline"
                         part="tour-inline"
@@ -331,8 +380,8 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                           class="icon-button"
                           part="icon-button"
                           aria-label=${text.back}
-                          ?disabled=${state.tour.index === 0}
-                          @click=${() => void controller.tourStep(state.tour!.index - 1)}
+                          ?disabled=${panelState.tour.index === 0}
+                          @click=${() => void controller.tourStep(panelState.tour!.index - 1)}
                         >
                           ${icon('back', 15)}</button
                         ><span>${progress}</span
@@ -347,72 +396,16 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         ><button
                           class="primary"
                           part="primary"
-                          @click=${() => void controller.tourStep(state.tour!.index + 1)}
+                          @click=${() => void controller.tourStep(panelState.tour!.index + 1)}
                         >
-                          ${state.tour.index === state.tour.sections.length - 1 ? text.finish : text.next}
+                          ${panelState.tour.index === panelState.tour.sections.length - 1 ? text.finish : text.next}
                         </button>
                       </nav>`
                     : nothing
                 }
                 ${
-                  state.preferences
-                    ? html`<div class="conversation preferences" part="conversation preferences">
-                        <h3>${text.settings}</h3>
-                        <div class="field" part="field">
-                          <label for="orfin-language">${text.language}</label>
-                          <select
-                            id="orfin-language"
-                            part="language"
-                            .value=${settings.locale}
-                            @change=${(event: Event) => controller.setLocale((event.target as HTMLSelectElement).value)}
-                          >
-                            ${localeOptions(settings.locale, settings.translations).map((locale) => html`<option value=${locale.code} ?selected=${locale.code === settings.locale}>${locale.label}</option>`)}
-                          </select>
-                        </div>
-                        <div class="field" part="field">
-                          <label>${text.theme}</label>
-                          <div class="themes" part="themes">
-                            ${supportedThemes.map((theme) => html`<button class="theme" part="theme" aria-pressed=${settings.theme === theme} @click=${() => controller.updateSettings({ theme })}>${text[theme]}</button>`)}
-                            <button
-                              class="theme external-theme"
-                              part="theme external-theme"
-                              aria-pressed=${settings.theme === 'none'}
-                              @click=${() => controller.updateSettings({ theme: 'none' })}
-                            >
-                              ${text.externalTheme}
-                            </button>
-                          </div>
-                        </div>
-                        <div class="toggle-row" part="toggle-row">
-                          <span id="hover-label">${text.autoHelp}</span
-                          ><button
-                            class="toggle"
-                            part="toggle"
-                            role="switch"
-                            aria-labelledby="hover-label"
-                            aria-checked=${settings.features.hoverHelp}
-                            @click=${() => controller.updateSettings({ features: { hoverHelp: !settings.features.hoverHelp } })}
-                          ></button>
-                        </div>
-                        <div class="toggle-row" part="toggle-row">
-                          <span id="memory-label">${text.memory}</span
-                          ><button
-                            class="toggle"
-                            part="toggle"
-                            role="switch"
-                            aria-labelledby="memory-label"
-                            aria-checked=${settings.memory.rememberDismissed}
-                            @click=${() => controller.updateSettings({ memory: { rememberDismissed: !settings.memory.rememberDismissed, rememberVisited: !settings.memory.rememberVisited } })}
-                          ></button>
-                        </div>
-                        <button
-                          class="secondary"
-                          part="secondary"
-                          @click=${() => controller.forget()}
-                        >
-                          ${text.reset}
-                        </button>
-                      </div>`
+                  panelState.preferences
+                    ? renderPreferences(controller)
                     : html`<div
                         class="conversation"
                         part="conversation"
@@ -420,10 +413,10 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                         aria-live="polite"
                         aria-relevant="additions text"
                         aria-label=${text.conversation}
-                        aria-busy=${state.busy}
+                        aria-busy=${panelState.busy}
                       >
                         ${
-                          !state.messages.length
+                          !panelState.messages.length
                             ? html`<div class="welcome" part="welcome">
                                 <div class="welcome-mark" part="welcome-mark">
                                   ${logo(controller.settings.logo, 49)}
@@ -434,19 +427,19 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                                   ${settings.features.tour ? suggestion(text.tour, 'tour', () => void controller.startTour()) : nothing}${settings.features.sectionPicker ? suggestion(text.pick, 'pick', () => controller.pick()) : nothing}${settings.features.chat ? suggestion(text.page, 'page', () => void controller.send(text.pagePrompt)) : nothing}
                                 </div>
                               </div>`
-                            : repeat(state.messages, (message) => message.id, message)
+                            : repeat(panelState.messages, (message) => message.id, message)
                         }
-                        ${state.error ? html`<div class="error" part="error" role="alert">${controller.errorMessage}<br /><button part="retry" @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
+                        ${panelState.error ? html`<div class="error" part="error" role="alert">${controller.errorMessage}<br /><button part="retry" @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
                       </div>`
                 }
                 ${
-                  !state.preferences && settings.features.chat
+                  !panelState.preferences && settings.features.chat
                     ? html`<div class="composer" part="composer">
                         ${
-                          state.selectedSection
+                          panelState.selectedSection
                             ? html`<div class="context" part="context">
                                 ${icon('pick', 12)}<span
-                                  >${controller.sectionText(state.selectedSection).title}</span
+                                  >${controller.sectionText(panelState.selectedSection).title}</span
                                 ><button
                                   class="icon-button"
                                   part="icon-button"
@@ -482,19 +475,15 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                           ><button
                             class="send"
                             part="send"
-                            aria-label=${state.busy ? text.stop : text.send}
-                            @click=${() => (state.busy ? controller.stop() : submit())}
+                            aria-label=${panelState.busy ? text.stop : text.send}
+                            @click=${() => (panelState.busy ? controller.stop() : submit())}
                           >
-                            ${icon(state.busy ? 'stop' : 'send', 17)}
+                            ${icon(panelState.busy ? 'stop' : 'send', 17)}
                           </button>
                         </div>
                         <div class="composer-actions" part="composer-actions">
-                          ${settings.features.sectionPicker ? html`<button class="mini" part="mini" @click=${() => controller.pick()}>${icon('pick')}${text.pick}</button>` : nothing}<span
-                            class="spacer"
-                            part="spacer"
-                          ></span
-                          ><button
-                            class="mini"
+                          ${actions.render(exitDuration)}<button
+                            class="mini clear-conversation"
                             part="mini"
                             aria-label=${text.clear}
                             @click=${() => controller.clear()}
@@ -511,7 +500,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
               </section>`
             : nothing
         }
-        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : logo(controller.settings.logo, 30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
+        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} aria-controls="orfin-panel" ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : logo(controller.settings.logo, 30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
       </div>`,
       container,
     );
@@ -537,6 +526,10 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   const unsubscribe = controller.subscribe(update);
   controller.onCleanup(() => {
     unsubscribe();
+    reducedMotion.removeEventListener('change', mediaChanged);
+    panelPresence.dispose();
+    hoverPresence.dispose();
+    tourPresence.dispose();
     clearTimeout(highlightExit);
     cancelAnimationFrame(highlightFrame);
     render(nothing, container);

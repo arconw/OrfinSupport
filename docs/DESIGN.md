@@ -60,6 +60,12 @@ Review: a grid of ten miniature dashboard cards would confuse theme selection wi
 
 Design process informed by [Anthropic's frontend-design skill](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
 
-The default Orfin character is a rounded, slightly asymmetric speech shape with two tall eyes. Its small lower-left tail suggests a conversation; its silhouette stays recognizable at launcher and message sizes. This identity is separate from Northstar’s compass symbol. Custom logos retain a reserved, consistent footprint.
+The default Orfin character is an asymmetric rounded companion with two tall eyes and a small side protrusion. There is no speech tail or four-point star. Three SVG silhouettes were compared at actual 16, 24 and 40 px: a geometric notch, the selected companion, and a soft clover. The companion keeps more character at small sizes without the clover's familiar flower outline. Body and eyes share one vector source across the widget and demo brand; inverted branding preserves eye contrast. This identity is separate from Northstar’s compass symbol. Custom logos retain a reserved, consistent footprint.
+
+![Three Orfin silhouette candidates at 16, 24 and 40 pixels](assets/logo-study.svg)
+
+Motion follows a single rhythm: 140 ms control feedback, 240 ms content transitions, 300 ms panel arrival and 180 ms exit. The welcome gets one short stagger and blink; messages enter once and streaming changes only their text. Tool states, preferences, locale labels and theme surfaces acknowledge changes. No animation blocks typing. Panel and menu exits retain inert content briefly so closing feels as deliberate as opening. OS reduced motion and a reactive off switch stop animation immediately.
+
+The composer has a visibly labelled Actions menu with a 44 px target, tinted resting state and distinct expanded state. It remains available after welcome suggestions disappear. Tour, section and page commands respect feature flags; keyboard behavior follows a menu button, and closing returns focus predictably. Its appearance is fully replaceable through project CSS, like the rest of the assistant.
 
 The host appearance example deliberately changes typography, corners and control treatment: warm paper, forest ink, serif headings and double-rule separators. It uses no preset stylesheet. Functional geometry and reduced-motion behavior remain library concerns; application CSS supplies every visual surface. The mobile theme gallery uses a three-column grid and never expands the page width.

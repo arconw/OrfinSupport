@@ -73,6 +73,7 @@ export interface AssistantSettings {
   highlightDuration: number;
   highlightOpacity: number;
   highlightTransition: number;
+  motion: 'auto' | 'none';
   logo: AssistantLogo | null;
   theme: Theme;
   styles: string;

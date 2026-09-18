@@ -26,6 +26,7 @@
 }
 :host([data-theme='none']) .panel,
 :host([data-theme='none']) .popover,
+:host([data-theme='none']) .actions-menu,
 :host([data-theme='none']) .picker-bar,
 :host([data-theme='none']) .section-list {
   background: var(--surface);
@@ -59,6 +60,28 @@
   background: var(--accent);
   color: var(--surface);
   border: 1px solid var(--accent);
+}
+:host([data-theme='none']) .actions-trigger {
+  color: var(--accent);
+  background: var(--soft);
+  border: 1px solid var(--accent);
+  font-size: 13px;
+}
+:host([data-theme='none']) .actions-trigger[aria-expanded='true'] {
+  color: var(--surface);
+  background: var(--accent);
+}
+:host([data-theme='none']) .action-item {
+  border: 0;
+  text-align: start;
+  font-size: 13px;
+}
+:host([data-theme='none']) .action-item:focus-visible {
+  background: var(--soft);
+}
+:host([data-theme='none']) .motion-hint {
+  color: var(--muted);
+  font-size: 11px;
 }
 :host([data-theme='none']) .launcher {
   --orfin-eye: var(--accent);

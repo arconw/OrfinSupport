@@ -1,4 +1,5 @@
 import { html, svg } from 'lit';
+import { orfinSilhouette, orfinEyes } from '../core/brand';
 
 const paths = {
   close: 'M6 6l12 12M18 6 6 18',
@@ -14,6 +15,8 @@ const paths = {
   check: 'm5 12 4 4L19 6',
   help: 'M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3v1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
   chevron: 'm9 5 7 7-7 7',
+  down: 'm6 9 6 6 6-6',
+  actions: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
 } as const;
 
 export function icon(name: keyof typeof paths, size = 18) {
@@ -22,11 +25,9 @@ export function icon(name: keyof typeof paths, size = 18) {
 
 export function orfinMark(size = 28) {
   return html`<svg width=${size} height=${size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-    <path
-      d="M8 9C12 4 24 3 30 8c5 4 7 12 4 18-2 5-7 8-13 8h-4l-6 3 1-6C5 28 3 16 8 9Z"
-      fill="currentColor"
-    />
-    <ellipse cx="16" cy="19" rx="1.7" ry="2.5" fill="var(--orfin-eye, var(--surface, white))" />
-    <ellipse cx="25" cy="18.5" rx="1.7" ry="2.5" fill="var(--orfin-eye, var(--surface, white))" />
+    <path d=${orfinSilhouette} fill="currentColor" />
+    <g class="orfin-eyes" fill="var(--orfin-eye, var(--surface, white))">
+      ${orfinEyes.map((x) => svg`<ellipse cx=${x} cy="20" rx="1.85" ry="2.6" />`)}
+    </g>
   </svg>`;
 }

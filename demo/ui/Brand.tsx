@@ -1,12 +1,14 @@
+import { orfinSilhouette, orfinEyes } from '../../src/core/brand';
+
 export function OrfinLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <path
-        d="M8 9C12 4 24 3 30 8c5 4 7 12 4 18-2 5-7 8-13 8h-4l-6 3 1-6C5 28 3 16 8 9Z"
-        fill="currentColor"
-      />
-      <ellipse cx="16" cy="19" rx="1.7" ry="2.5" fill="var(--orfin-eye, white)" />
-      <ellipse cx="25" cy="18.5" rx="1.7" ry="2.5" fill="var(--orfin-eye, white)" />
+      <path d={orfinSilhouette} fill="currentColor" />
+      <g fill="var(--orfin-eye, white)">
+        {orfinEyes.map((x) => (
+          <ellipse key={x} cx={x} cy="20" rx="1.85" ry="2.6" />
+        ))}
+      </g>
     </svg>
   );
 }

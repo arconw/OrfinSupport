@@ -9,26 +9,39 @@ const browser = await chromium.launch();
 const context = await browser.newContext({
   viewport: { width: 1440, height: 1000 },
   deviceScaleFactor: 1,
-  reducedMotion: 'reduce',
+  reducedMotion: 'no-preference',
 });
 const page = await context.newPage();
 const baseURL = process.env.ORFIN_CAPTURE_URL ?? 'http://127.0.0.1:4173';
 await page.goto(baseURL);
 await page.waitForLoadState('networkidle');
+await page.waitForTimeout(800);
 await page.locator('[data-orfin-root] textarea').blur();
 await page.screenshot({ path: 'docs/assets/playground.png', animations: 'disabled' });
 const gif = GIFEncoder();
+const frames = [];
 const capture = async (delay) => {
-  const screenshot = await page.screenshot({ animations: 'disabled' });
-  const { data, info } = await sharp(screenshot)
-    .resize(1080, 750)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const palette = quantize(data, 192);
-  gif.writeFrame(applyPalette(data, palette), info.width, info.height, { palette, delay });
+  frames.push({ screenshot: await page.screenshot(), delay });
+};
+const transition = async (count = 6) => {
+  for (let index = 0; index < count; index++) {
+    const start = Date.now();
+    await capture(70);
+    await page.waitForTimeout(Math.max(0, 70 - (Date.now() - start)));
+  }
 };
 await capture(1500);
+await page.evaluate(() => window.__orfin.close());
+await transition(4);
+await capture(350);
+await page.evaluate(() => window.__orfin.open());
+await transition(9);
+await page.locator('[data-orfin-root] .actions-trigger').evaluate((button) => button.click());
+await transition();
+await page.screenshot({ path: 'docs/assets/actions.png' });
+await capture(1300);
+await page.keyboard.press('Escape');
+await transition(4);
 await page.getByRole('button', { name: 'Show me around', exact: true }).click();
 await page.getByRole('dialog', { name: 'Guided tour' }).waitFor();
 await capture(1700);
@@ -157,6 +170,15 @@ await page.locator('[data-orfin-root] .launcher').click();
 await page.locator('[data-orfin-root] textarea').blur();
 await page.screenshot({ path: 'docs/assets/host-appearance.png', animations: 'disabled' });
 await capture(2000);
+for (const { screenshot, delay } of frames) {
+  const { data, info } = await sharp(screenshot)
+    .resize(1080, 750)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const palette = quantize(data, 192);
+  gif.writeFrame(applyPalette(data, palette), info.width, info.height, { palette, delay });
+}
 gif.finish();
 await writeFile('docs/assets/demo.gif', gif.bytes());
 await page.evaluate(() => {
