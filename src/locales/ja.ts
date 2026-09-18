@@ -33,6 +33,8 @@ export const ja = {
   memory: '選択を記憶する',
   reset: 'セクションの履歴を消去',
   online: 'お手伝いします',
+  replying: '返信中',
+  interrupted: '中断',
   thinking: '考え中',
   powered: 'OrfinSupport によるサポート',
   disabled: 'このワークスペースではチャットが無効になっています。',

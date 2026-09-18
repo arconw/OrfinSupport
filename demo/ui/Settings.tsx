@@ -4,6 +4,7 @@ import type { AssistantSettings, Features, SettingsInput } from '../../src/core/
 import { Appearance } from './Appearance';
 import { defaultSettings } from '../../src/core/settings';
 import type { OrfinController } from '../../src/index';
+import { projectMenu } from '../menu-actions';
 
 export function SettingsPage({
   orfin,
@@ -59,6 +60,11 @@ export function SettingsPage({
       ...(settings.theme === 'none' ? { styles: 'yourApplicationStyles' } : {}),
       logo: settings.logo,
       motion: settings.motion,
+      menuActions: settings.menuActions?.some(
+        (action) => typeof action !== 'string' && action.visible,
+      )
+        ? 'projectMenu (demo/menu-actions.ts)'
+        : settings.menuActions,
       highlightOpacity: settings.highlightOpacity,
       highlightTransition: settings.highlightTransition,
       features: settings.features,
@@ -143,6 +149,41 @@ export function SettingsPage({
           <section className="settings-card">
             <h2>A little more, or a little less</h2>
             <p className="card-description">Turn on the capabilities your visitors need.</p>
+            <label className="setting-field">
+              <span>Actions menu</span>
+              <select
+                value={
+                  settings.menuActions === null
+                    ? 'default'
+                    : !settings.menuActions.length
+                      ? 'none'
+                      : typeof settings.menuActions[0] === 'string'
+                        ? 'page-first'
+                        : 'project'
+                }
+                onChange={(event) =>
+                  update({
+                    menuActions:
+                      event.target.value === 'default'
+                        ? null
+                        : event.target.value === 'none'
+                          ? []
+                          : event.target.value === 'page-first'
+                            ? ['page', 'pick', 'tour']
+                            : projectMenu,
+                  })
+                }
+              >
+                <option value="project">Project commands · change with the page</option>
+                <option value="default">Standard commands</option>
+                <option value="page-first">Page explanation first</option>
+                <option value="none">Hide the menu</option>
+              </select>
+            </label>
+            <p className="card-description">
+              Equipment adds Compare products; Reports adds Analyze delivery. These commands use the
+              project’s tools and data.
+            </p>
             {features.map((feature) => (
               <div className="feature-row" key={feature.key}>
                 <div>

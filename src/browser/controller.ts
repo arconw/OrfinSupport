@@ -79,6 +79,7 @@ export class OrfinController {
   private tourPlan?: TourPlan;
   private pageObserver?: MutationObserver;
   private pendingTourStep?: number;
+  private pageURL = location.href;
 
   constructor(options: OrfinOptions) {
     this.options = options;
@@ -176,6 +177,13 @@ export class OrfinController {
   stop() {
     this.abort?.abort();
     this.abort = undefined;
+    for (const message of this.state.messages) {
+      if (message.status !== 'streaming') continue;
+      message.status = 'cancelled';
+      message.tools = message.tools?.map((tool) =>
+        tool.status === 'running' ? { ...tool, status: 'interrupted' } : tool,
+      );
+    }
     this.state.busy = false;
     this.emit();
   }
@@ -249,6 +257,9 @@ export class OrfinController {
         this.state.errorStatus = error instanceof OrfinError ? error.status : undefined;
       }
     } finally {
+      reply.tools = reply.tools?.map((tool) =>
+        tool.status === 'running' ? { ...tool, status: 'interrupted' } : tool,
+      );
       if (this.abort === abort) {
         this.state.busy = false;
         this.abort = undefined;
@@ -297,12 +308,20 @@ export class OrfinController {
   }
 
   private refreshContext = () => {
+    let changed = this.pageURL !== location.href;
+    this.pageURL = location.href;
     const selected = this.state.selectedSection;
     if (!this.state.tour && selected && !this.registry.element(selected.id)) {
       this.state.selectedSection = undefined;
-      this.emit();
+      changed = true;
     }
+    if (changed) this.emit();
   };
+
+  refreshPage() {
+    this.refreshContext();
+    this.emit('page');
+  }
 
   private position = () => {
     this.refreshContext();

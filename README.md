@@ -42,6 +42,39 @@ Your visitors can ask a question, take a tour, or point at the part of the inter
 
 The library is framework independent. React, Vue and Angular adapters manage the same widget’s lifecycle. Next.js uses the React adapter plus a standard Web `Request → Response` route handler. The widget includes 16 languages, English by default, regional and custom translation fallback, and Arabic RTL layout. Language changes work through widget preferences, configuration and reactive framework APIs. [Localization guide](docs/LOCALIZATION.md).
 
+## Your project’s actions
+
+**Put your own commands in the Actions menu.** Orfin is a configurable project assistant; the shop is one example. A report can offer “Analyze results”, a workspace “Find a project”, and a catalog “Compare products”. Built-in commands can be removed, reordered or combined with your commands, without replacing the conversation.
+
+```ts
+import { createOrfin, type CustomMenuAction } from 'orfinsupport';
+
+const compare: CustomMenuAction = {
+  id: 'compare-products',
+  label: 'Compare products',
+  translations: {
+    ru: { label: 'Сравнить товары' },
+    fr: { label: 'Comparer les produits' },
+  },
+  prompt: 'Use compare_products to compare Luma 27 and Luma 32 Pro for a small desk.',
+  requires: ['tools'],
+  visible: ({ url }) => new URL(url).pathname.startsWith('/products'),
+};
+
+const orfin = createOrfin({
+  endpoint: '/api/orfin',
+  menuActions: [compare, 'tour', 'pick', 'page'],
+});
+
+orfin.updateSettings({ menuActions: ['page', compare] });
+orfin.updateSettings({ menuActions: [] });
+orfin.updateSettings({ menuActions: null });
+```
+
+The button submits its configured prompt through the normal streaming conversation. Your backend registers the `compare_products` tool, reads **your catalog**, validates arguments and returns real characteristics and prices. The model explains those results; Orfin is not a source of product facts. Keep the provider key, catalog credentials and tool authorization on the server. `requires` controls visibility in the interface; server feature policy and authorization still control execution. See the [working project menu](demo/menu-actions.ts), [catalog tools](demo/tools.ts) and [backend tool integration](#tools-that-belong-to-your-product).
+
+The demo adds **Compare products** on Equipment/product/comparison pages and **Analyze delivery** on Reports, in both Demo replies and Live AI. Playground’s **Actions menu** setting demonstrates standard, reordered, contextual and empty lists. Your project can replace `menuActions` through React’s hook, Vue’s composable or Angular’s injected API after a route or selection changes. Predicates are reevaluated on hash/popstate navigation, observed page changes and settings updates; after a History API change with no DOM update, call `orfin.refreshPage()`. History, drafts and the selected logo remain intact. [Full menu API](docs/API.md#actions-menu).
+
 ## Try it locally
 
 ```bash
@@ -434,12 +467,14 @@ The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background
 
 The **Actions** button below the input stays visible throughout a conversation. It opens the tour, section picker and page explanation commands allowed by your feature flags. Its caption follows the locale; expanded state, arrow-key navigation, Escape, Tab and outside-click dismissal are built in. The Send button keeps its usual role.
 
+Use `menuActions` to configure the menu. An empty effective list hides the entry; `null` restores the three built-ins. This setting is separate from `actions`, which maps server-emitted browser action names to project handlers.
+
 ```ts
 const orfin = createOrfin({ endpoint: '/api/orfin', motion: 'auto' });
 orfin.updateSettings({ motion: 'none' });
 ```
 
-`auto` is the default and always respects `prefers-reduced-motion`. `none` immediately disables widget and spotlight animation. Visitors can change the same setting in preferences; React, Vue and Angular use their existing `updateSettings` API. Changing motion preserves history, drafts, locale and custom logos. Streamed text is never animated one character at a time.
+`auto` is the default and always respects `prefers-reduced-motion`. `none` immediately disables widget and spotlight animation. Visitors can change the same setting in preferences; React, Vue and Angular use their existing `updateSettings` API. Changing motion preserves history, drafts, locale and custom logos. Waiting dots, tool activity and the small writing indicator follow actual response events; streamed text never replays its entrance animation. Stop removes the writing indicator and marks uncompleted tool activity as interrupted; stopping a stream does not undo a tool’s server-side effects.
 
 Project CSS can adjust `--orfin-motion-fast`, `--orfin-motion-content`, `--orfin-motion-enter`, `--orfin-motion-exit` and `--orfin-motion-ease`, including in `theme: 'none'`. See the [motion and action styling guide](docs/STYLING.md#motion-and-actions) for timings, exported parts and the Shadow DOM boundary.
 

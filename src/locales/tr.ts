@@ -33,6 +33,8 @@ export const tr = {
   memory: 'Seçimlerimi hatırla',
   reset: 'Bölüm geçmişini unut',
   online: 'Yardım için buradayım',
+  replying: 'Yanıt yazılıyor',
+  interrupted: 'Kesildi',
   thinking: 'Düşünüyorum',
   powered: 'OrfinSupport desteği',
   disabled: 'Bu çalışma alanında sohbet kapalı.',

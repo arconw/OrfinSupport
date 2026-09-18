@@ -10,6 +10,7 @@ export const motionStyles = css`
   }
   .panel,
   .popover,
+  .preferences-view,
   .actions-menu {
     opacity: 0;
     translate: 0 10px;
@@ -36,6 +37,7 @@ export const motionStyles = css`
       color var(--motion-content);
   }
   .panel[data-visible='true'],
+  .preferences-view[data-visible='true'],
   .popover[data-visible='true'],
   .actions-menu[data-visible='true'] {
     opacity: 1;
@@ -45,6 +47,22 @@ export const motionStyles = css`
   [data-exiting='true'] {
     pointer-events: none;
     transition-duration: var(--motion-exit);
+  }
+  .chat-view {
+    opacity: 1;
+    translate: 0 0;
+    visibility: visible;
+    transition:
+      opacity var(--motion-content) var(--motion-ease),
+      translate var(--motion-content) var(--motion-ease),
+      visibility 0s;
+  }
+  .chat-view[data-active='false'] {
+    opacity: 0;
+    translate: 0 -4px;
+    pointer-events: none;
+    visibility: hidden;
+    transition-delay: 0s, 0s, var(--motion-content);
   }
   .orfin[dir='rtl'] .panel,
   .orfin[dir='rtl'] .actions-menu {
@@ -163,6 +181,25 @@ export const motionStyles = css`
   .tool[data-status='complete'] [data-icon='check'] path {
     stroke-dasharray: 26;
     animation: orfin-check var(--motion-content) var(--motion-ease);
+  }
+  .streaming-indicator i {
+    animation: orfin-writing 850ms ease-in-out infinite alternate;
+  }
+  .streaming-indicator i:nth-child(2) {
+    animation-delay: 140ms;
+  }
+  .streaming-indicator i:nth-child(3) {
+    animation-delay: 280ms;
+  }
+  @keyframes orfin-writing {
+    from {
+      scale: 1 0.45;
+      opacity: 0.45;
+    }
+    to {
+      scale: 1 1;
+      opacity: 1;
+    }
   }
   .launcher > svg,
   .launcher > .orfin-logo {

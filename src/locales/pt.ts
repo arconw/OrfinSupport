@@ -33,6 +33,8 @@ export const pt = {
   memory: 'Lembrar minhas escolhas',
   reset: 'Esquecer histórico de seções',
   online: 'Aqui para ajudar',
+  replying: 'Respondendo',
+  interrupted: 'Interrompido',
   thinking: 'Pensando',
   powered: 'Assistência por OrfinSupport',
   disabled: 'O chat está desativado neste espaço de trabalho.',

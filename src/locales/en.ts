@@ -31,6 +31,8 @@ export const en = {
   memory: 'Remember my choices',
   reset: 'Forget section history',
   online: 'Here to help',
+  replying: 'Replying',
+  interrupted: 'Interrupted',
   thinking: 'Thinking',
   powered: 'Guidance by OrfinSupport',
   disabled: 'Chat is turned off in this workspace.',

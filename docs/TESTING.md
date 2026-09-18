@@ -40,6 +40,8 @@ An external-only consumer loads its scheme from an ordinary project CSS file wit
 
 Motion/action regressions sample actual intermediate opacity frames for panel and menu entry/exit on desktop and 320/390-pixel touch viewports, including Arabic and no-preset project styling. They exercise rapid reversal, immediate motion disable, runtime device preference changes, draft/history retention, arrow-key/Escape/Tab navigation, outside dismissal, command feature flags and dispatch after a reply. Animation events verify that streaming and locale/theme changes do not replay message entrances. Existing mobile tour, empty-after-clear, external focus and long-configuration-URL cases remain in the full suite.
 
+The same frame sampler covers preferences entry and exit. Menu configuration tests check route predicates, reordered and empty lists, regional translations, focus retention when a keyed item moves or disappears, long Arabic lists, and commands executing real demo comparison/report tools. A controlled transport checks waiting → running tool → writing → completion, Stop during tool execution and writing, then error/retry. Interrupted activity stops animating without claiming a successful tool result.
+
 ## Live model checks
 
 The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks used `gpt-5.6-sol` and prompt tool mode because this local gateway supports text streaming but does not expose native function calling.

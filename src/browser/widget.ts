@@ -66,6 +66,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   let lastCount = 0;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const panelPresence = new Presence<AssistantState>(() => update());
+  const preferencesPresence = new Presence<boolean>(() => update());
   const hoverPresence = new Presence<{
     position: ReturnType<typeof popoverPosition>;
     section: NonNullable<AssistantState['hover']>['section'];
@@ -109,6 +110,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     const exitDuration = motionEnabled ? motionDuration(shadow, '--motion-exit', 180) : 0;
     panelPresence.reconcile(state.open ? { ...state } : undefined, exitDuration);
     const panelState = panelPresence.value;
+    preferencesPresence.reconcile(state.open && state.preferences ? true : undefined, exitDuration);
     if (!state.open || state.preferences || !settings.features.chat) actions.reset();
     if (lastLocale !== settings.locale) {
       copyPhase = copyPhase === 'a' ? 'b' : 'a';
@@ -349,7 +351,8 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                   <div class="heading" part="heading">
                     <h2>Orfin</h2>
                     <div class="status" part="status">
-                      <i></i>${panelState.busy ? text.thinking : text.online}
+                      <i></i
+                      >${panelState.busy ? (panelState.messages.at(-1)?.content ? text.replying : text.thinking) : text.online}
                     </div>
                   </div>
                   <button
@@ -403,99 +406,110 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                       </nav>`
                     : nothing
                 }
-                ${
-                  panelState.preferences
-                    ? renderPreferences(controller)
-                    : html`<div
-                        class="conversation"
-                        part="conversation"
-                        role="log"
-                        aria-live="polite"
-                        aria-relevant="additions text"
-                        aria-label=${text.conversation}
-                        aria-busy=${panelState.busy}
-                      >
-                        ${
-                          !panelState.messages.length
-                            ? html`<div class="welcome" part="welcome">
-                                <div class="welcome-mark" part="welcome-mark">
-                                  ${logo(controller.settings.logo, 49)}
-                                </div>
-                                <h3>${controller.options.title ?? text.title}</h3>
-                                <p>${controller.options.welcome ?? text.intro}</p>
-                                <div class="suggestions" part="suggestions">
-                                  ${settings.features.tour ? suggestion(text.tour, 'tour', () => void controller.startTour()) : nothing}${settings.features.sectionPicker ? suggestion(text.pick, 'pick', () => controller.pick()) : nothing}${settings.features.chat ? suggestion(text.page, 'page', () => void controller.send(text.pagePrompt)) : nothing}
-                                </div>
-                              </div>`
-                            : repeat(panelState.messages, (message) => message.id, message)
-                        }
-                        ${panelState.error ? html`<div class="error" part="error" role="alert">${controller.errorMessage}<br /><button part="retry" @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
-                      </div>`
-                }
-                ${
-                  !panelState.preferences && settings.features.chat
-                    ? html`<div class="composer" part="composer">
-                        ${
-                          panelState.selectedSection
-                            ? html`<div class="context" part="context">
-                                ${icon('pick', 12)}<span
-                                  >${controller.sectionText(panelState.selectedSection).title}</span
-                                ><button
-                                  class="icon-button"
-                                  part="icon-button"
-                                  aria-label=${text.clearContext}
-                                  @click=${() => {
-                                    state.selectedSection = undefined;
-                                    update();
-                                  }}
-                                >
-                                  ${icon('close', 12)}
-                                </button>
-                              </div>`
-                            : nothing
-                        }
-                        <div class="input-wrap" part="input-wrap">
-                          <textarea
-                            part="input"
-                            aria-label=${text.placeholder}
-                            placeholder=${text.placeholder}
-                            maxlength="12000"
-                            rows="2"
-                            .value=${live(draft)}
-                            @input=${(event: Event) => {
-                              draft = (event.target as HTMLTextAreaElement).value;
-                            }}
-                            @keydown=${(event: KeyboardEvent) => {
-                              if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
-                                event.preventDefault();
-                                submit();
-                              }
-                            }}
-                          ></textarea
-                          ><button
-                            class="send"
-                            part="send"
-                            aria-label=${panelState.busy ? text.stop : text.send}
-                            @click=${() => (panelState.busy ? controller.stop() : submit())}
-                          >
-                            ${icon(panelState.busy ? 'stop' : 'send', 17)}
-                          </button>
-                        </div>
-                        <div class="composer-actions" part="composer-actions">
-                          ${actions.render(exitDuration)}<button
-                            class="mini clear-conversation"
-                            part="mini"
-                            aria-label=${text.clear}
-                            @click=${() => controller.clear()}
-                          >
-                            ${icon('clear')}
-                          </button>
-                        </div>
-                      </div>`
-                    : !settings.features.chat
-                      ? html`<p class="disabled" part="disabled">${text.disabled}</p>`
-                      : nothing
-                }
+                <div class="panel-body" part="panel-body">
+                  <div
+                    class="chat-view"
+                    part="chat-view"
+                    data-active=${!panelState.preferences}
+                    ?inert=${panelState.preferences}
+                    aria-hidden=${panelState.preferences ? 'true' : nothing}
+                  >
+                    <div
+                      class="conversation"
+                      part="conversation"
+                      role="log"
+                      aria-live="polite"
+                      aria-relevant="additions text"
+                      aria-label=${text.conversation}
+                      aria-busy=${panelState.busy}
+                    >
+                      ${
+                        !panelState.messages.length
+                          ? html`<div class="welcome" part="welcome">
+                              <div class="welcome-mark" part="welcome-mark">
+                                ${logo(controller.settings.logo, 49)}
+                              </div>
+                              <h3>${controller.options.title ?? text.title}</h3>
+                              <p>${controller.options.welcome ?? text.intro}</p>
+                              <div class="suggestions" part="suggestions">
+                                ${settings.features.tour ? suggestion(text.tour, 'tour', () => void controller.startTour()) : nothing}${settings.features.sectionPicker ? suggestion(text.pick, 'pick', () => controller.pick()) : nothing}${settings.features.chat ? suggestion(text.page, 'page', () => void controller.send(text.pagePrompt)) : nothing}
+                              </div>
+                            </div>`
+                          : repeat(panelState.messages, (message) => message.id, message)
+                      }
+                      ${panelState.error ? html`<div class="error" part="error" role="alert">${controller.errorMessage}<br /><button part="retry" @click=${() => void controller.retry()}>${text.retry}</button></div>` : nothing}
+                    </div>
+                    ${
+                      settings.features.chat
+                        ? html`<div class="composer" part="composer">
+                            ${
+                              panelState.selectedSection
+                                ? html`<div class="context" part="context">
+                                    ${icon('pick', 12)}<span
+                                      >${controller.sectionText(panelState.selectedSection).title}</span
+                                    ><button
+                                      class="icon-button"
+                                      part="icon-button"
+                                      aria-label=${text.clearContext}
+                                      @click=${() => {
+                                        state.selectedSection = undefined;
+                                        update();
+                                      }}
+                                    >
+                                      ${icon('close', 12)}
+                                    </button>
+                                  </div>`
+                                : nothing
+                            }
+                            <div class="input-wrap" part="input-wrap">
+                              <textarea
+                                part="input"
+                                aria-label=${text.placeholder}
+                                placeholder=${text.placeholder}
+                                maxlength="12000"
+                                rows="2"
+                                .value=${live(draft)}
+                                @input=${(event: Event) => {
+                                  draft = (event.target as HTMLTextAreaElement).value;
+                                }}
+                                @keydown=${(event: KeyboardEvent) => {
+                                  if (
+                                    event.key === 'Enter' &&
+                                    !event.shiftKey &&
+                                    !event.isComposing
+                                  ) {
+                                    event.preventDefault();
+                                    submit();
+                                  }
+                                }}
+                              ></textarea
+                              ><button
+                                class="send"
+                                part="send"
+                                aria-label=${panelState.busy ? text.stop : text.send}
+                                @click=${() => (panelState.busy ? controller.stop() : submit())}
+                              >
+                                ${icon(panelState.busy ? 'stop' : 'send', 17)}
+                              </button>
+                            </div>
+                            <div class="composer-actions" part="composer-actions">
+                              ${actions.render(exitDuration)}<button
+                                class="mini clear-conversation"
+                                part="mini"
+                                aria-label=${text.clear}
+                                @click=${() => controller.clear()}
+                              >
+                                ${icon('clear')}
+                              </button>
+                            </div>
+                          </div>`
+                        : !settings.features.chat
+                          ? html`<p class="disabled" part="disabled">${text.disabled}</p>`
+                          : nothing
+                    }
+                  </div>
+                  ${preferencesPresence.value ? html`<div class="preferences-view" part="preferences-view" data-visible=${preferencesPresence.visible} data-exiting=${preferencesPresence.exiting} ?inert=${preferencesPresence.exiting} aria-hidden=${preferencesPresence.exiting ? 'true' : nothing}>${renderPreferences(controller)}</div>` : nothing}
+                </div>
                 <footer class="footer" part="footer">${text.powered}</footer>
               </section>`
             : nothing
@@ -528,6 +542,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     unsubscribe();
     reducedMotion.removeEventListener('change', mediaChanged);
     panelPresence.dispose();
+    preferencesPresence.dispose();
     hoverPresence.dispose();
     tourPresence.dispose();
     clearTimeout(highlightExit);

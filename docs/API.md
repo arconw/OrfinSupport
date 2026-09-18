@@ -31,6 +31,7 @@ const orfin = createOrfin({
   highlightOpacity: 0.15,
   highlightTransition: 280,
   motion: 'auto',
+  menuActions: null,
   logo: null,
   features: {
     chat: true,
@@ -61,6 +62,29 @@ Mount one controller per page in a browser lifecycle hook. `createOrfin` deliber
 
 `locale` defaults to `en`. There are 16 complete built-in catalogs, with regional fallback, additional custom languages and Arabic RTL layout. `translations` accepts a locale-keyed map of partial `TranslationMessages` overrides and can be replaced through `updateSettings`. `supportedLocales` and `resolveTranslations` are exported for host integrations. See [localization](LOCALIZATION.md) for hooks, composables, signals, section translations and response-language behavior.
 
+## Actions menu
+
+`menuActions: readonly MenuAction[] | null` configures the composer menu. Default `null` resolves to `['tour', 'pick', 'page']`; `[]` hides the entry entirely. Supplying an array replaces the default list, preserving its order. Built-ins respect `features.tour`, `features.sectionPicker` and `features.chat`. The welcome shortcuts remain separately governed by those feature flags.
+
+A `CustomMenuAction` contains:
+
+| Field              | Meaning                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `id`               | Stable project identifier, used to retain focus across reorder/replacement. Duplicate custom IDs use the first eligible entry. |
+| `label`            | Default plain-text button label.                                                                                               |
+| `prompt`           | User-visible message submitted through `send()` when chosen.                                                                   |
+| `translations`     | Locale → partial `{ label, prompt }` overrides; same English/regional fallback chain as section translations.                  |
+| `requires`         | Optional boolean feature names that must all be enabled, such as `['tools', 'navigation']`.                                    |
+| `visible(context)` | Optional pure synchronous predicate receiving `{ url, locale, features }`. False or an exception hides the command.            |
+
+Custom commands and page explanation are disabled during a reply. An ineligible command is rechecked before dispatch. No menu definitions, predicates or callbacks are sent to the model; only the selected prompt enters the normal conversation. Custom commands require chat to be enabled. Predicates should inspect their supplied context without mutating the widget or page.
+
+`updateSettings({ menuActions })` replaces the list at runtime in every adapter. Open menus reconcile their items and retain keyboard focus when an ID survives. If the focused command disappears, focus moves to an eligible item; if the list becomes empty, focus returns to the composer. The locale updates labels in place, without losing a draft or messages.
+
+Hash/popstate events and observed page changes trigger reevaluation. `refreshPage()` explicitly refreshes context and predicates for routers that change `history.pushState` without updating the DOM. A reactive route hook may instead supply a new `menuActions` array. The demo shows route-specific [project commands](../demo/menu-actions.ts).
+
+`menuActions` is separate from `OrfinOptions.actions`: the latter contains project handlers for server-emitted `BrowserAction` events. A prompt button does not directly execute or authorize a server tool. Configure the model provider, tool schemas, identity and access policy in your backend handler as usual.
+
 ## Controller
 
 | Method                                        | Purpose                                                                                                |
@@ -77,6 +101,7 @@ Mount one controller per page in a browser lifecycle hook. `createOrfin` deliber
 | `highlight(sectionId, persistent?)`           | Scroll and spotlight a catalog section                                                                 |
 | `navigate(path, sectionId?)`                  | Navigate to an allowed same-origin path                                                                |
 | `updateSettings(partial)`                     | Merge runtime preferences                                                                              |
+| `refreshPage()`                               | Refresh section context and menu predicates after a router update without a DOM change                 |
 | `setLocale(locale)`                           | Change the UI and the language of subsequent model replies without remounting                          |
 | `forget()`                                    | Clear persisted and in-memory section choices                                                          |
 | `subscribe(listener)`                         | Observe state updates; returns an unsubscribe function                                                 |
@@ -151,7 +176,7 @@ The ten `ThemePreset` values are `cloud`, `iris`, `lagoon`, `sand`, `rose`, `mid
 
 `styles` can be changed through `updateSettings({ styles })` and all framework reactive settings APIs. It is set as stylesheet text, never as HTML and never included in a chat request. This is trusted developer configuration. Reset with `styles: ''`. It applies after the preset, so scope rules to `:host([data-theme='none'])` if they should stop applying when a preset is chosen. The host exposes `data-theme` for external selectors too.
 
-Parts include `orfin`, `panel`, `header`, `heading`, `avatar`, `logo`, `logo-image`, `conversation`, `welcome`, `welcome-mark`, `suggestion`, `message`, `user`, `assistant`, `message-label`, `tool`, `tool-icon`, `source`, `composer`, `input-wrap`, `input`, `send`, `mini`, `actions`, `actions-trigger`, `action-chevron`, `actions-menu`, `action-item`, `action-icon`, `action-label`, `footer`, `launcher`, `preferences`, `language`, `theme`, `toggle`, `motion-hint`, `error`, `retry`, `popover`, `tour-popover`, `popover-top`, `tour-copy`, `primary`, `secondary`, `icon-button`, `tour-inline`, `picker-bar`, `section-list`, `spotlight` and `spot-label`. Use trusted `styles` for descendants and state selectors such as `.theme[aria-pressed='true']`. See the complete [Northstar host stylesheet](../demo/host-theme.css).
+Parts include `orfin`, `panel`, `panel-body`, `chat-view`, `preferences-view`, `header`, `heading`, `avatar`, `logo`, `logo-image`, `conversation`, `welcome`, `welcome-mark`, `suggestion`, `message`, `user`, `assistant`, `message-label`, `tool`, `tool-icon`, `streaming-indicator`, `source`, `composer`, `input-wrap`, `input`, `send`, `mini`, `actions`, `actions-trigger`, `action-chevron`, `actions-menu`, `action-item`, `action-icon`, `action-label`, `footer`, `launcher`, `preferences`, `language`, `theme`, `toggle`, `motion-hint`, `error`, `retry`, `popover`, `tour-popover`, `popover-top`, `tour-copy`, `primary`, `secondary`, `icon-button`, `tour-inline`, `picker-bar`, `section-list`, `spotlight` and `spot-label`. Use trusted `styles` for descendants and state selectors such as `.theme[aria-pressed='true']`. See the complete [Northstar host stylesheet](../demo/host-theme.css).
 
 ```css
 [data-orfin-root][data-theme='none']::part(orfin) {

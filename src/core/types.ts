@@ -65,6 +65,25 @@ export interface MemoryOptions {
   key: string;
 }
 
+export type BuiltInMenuAction = 'tour' | 'pick' | 'page';
+
+export interface MenuActionContext {
+  url: string;
+  locale: Locale;
+  features: Readonly<Features>;
+}
+
+export interface CustomMenuAction {
+  id: string;
+  label: string;
+  prompt: string;
+  translations?: Record<string, Partial<Pick<CustomMenuAction, 'label' | 'prompt'>>>;
+  requires?: readonly Exclude<keyof Features, 'pageContext'>[];
+  visible?: (context: MenuActionContext) => boolean;
+}
+
+export type MenuAction = BuiltInMenuAction | CustomMenuAction;
+
 export interface AssistantSettings {
   features: Features;
   memory: MemoryOptions;
@@ -74,6 +93,7 @@ export interface AssistantSettings {
   highlightOpacity: number;
   highlightTransition: number;
   motion: 'auto' | 'none';
+  menuActions: readonly MenuAction[] | null;
   logo: AssistantLogo | null;
   theme: Theme;
   styles: string;
@@ -107,7 +127,7 @@ export interface Source {
 export interface ToolActivity {
   id: string;
   name: string;
-  status: 'running' | 'complete' | 'error';
+  status: 'running' | 'complete' | 'error' | 'interrupted';
 }
 
 export interface PageContext {

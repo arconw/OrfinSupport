@@ -40,6 +40,7 @@ import { DemoCartStore } from '../cart-store';
 import { productIds, validateCart } from '../catalog';
 import hostStyles from '../host-theme.css?inline';
 import { DemoReportStore, validReportView } from '../report-store';
+import { projectMenu } from '../menu-actions';
 
 declare global {
   interface Window {
@@ -65,7 +66,9 @@ export function App() {
   const reportStore = useMemo(() => new DemoReportStore(), []);
   const cart = useSyncExternalStore(cartStore.subscribe, cartStore.get);
   const [orfin, setOrfin] = useState<OrfinController | null>(null);
-  const [settings, setSettings] = useState(() => resolveSettings({ styles: hostStyles }));
+  const [settings, setSettings] = useState(() =>
+    resolveSettings({ styles: hostStyles, menuActions: projectMenu }),
+  );
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [projects, setProjects] = useState(initialProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -130,6 +133,7 @@ export function App() {
       },
       theme: 'cloud',
       styles: hostStyles,
+      menuActions: projectMenu,
       memory: { key: 'orfin:northstar:v1' },
     }),
     [mode, navigate, cartStore, reportStore],

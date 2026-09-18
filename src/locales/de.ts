@@ -33,6 +33,8 @@ export const de = {
   memory: 'Meine Auswahl merken',
   reset: 'Bereichsverlauf vergessen',
   online: 'Für dich da',
+  replying: 'Antwort wird erstellt',
+  interrupted: 'Unterbrochen',
   thinking: 'Denke nach',
   powered: 'Unterstützung von OrfinSupport',
   disabled: 'Der Chat ist in diesem Arbeitsbereich deaktiviert.',

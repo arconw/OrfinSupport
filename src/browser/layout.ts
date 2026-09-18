@@ -121,6 +121,24 @@ export const layoutStyles = css`
     gap: 10px;
     padding: 18px 18px 15px;
   }
+  .panel-body {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+  }
+  .chat-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+  }
+  .preferences-view {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
   .avatar {
     width: 40px;
     height: 40px;
@@ -352,10 +370,25 @@ export const layoutStyles = css`
     overflow-wrap: anywhere;
   }
   .clear-conversation {
+    margin-inline-start: auto;
     min-width: 44px;
     min-height: 44px;
     padding: 8px;
     flex-shrink: 0;
+  }
+  .streaming-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 14px;
+    margin-inline-start: 6px;
+    vertical-align: middle;
+  }
+  .streaming-indicator i {
+    width: 2px;
+    height: 7px;
+    background: currentColor;
+    border-radius: 2px;
   }
   .footer {
     text-align: center;

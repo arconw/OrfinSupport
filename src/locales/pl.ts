@@ -33,6 +33,8 @@ export const pl = {
   memory: 'Zapamiętaj moje wybory',
   reset: 'Zapomnij historię sekcji',
   online: 'Gotowy do pomocy',
+  replying: 'Piszę odpowiedź',
+  interrupted: 'Przerwano',
   thinking: 'Zastanawiam się',
   powered: 'Pomoc od OrfinSupport',
   disabled: 'Czat jest wyłączony w tej przestrzeni.',

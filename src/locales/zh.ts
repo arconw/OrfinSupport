@@ -33,6 +33,8 @@ export const zh = {
   memory: '记住我的选择',
   reset: '清除区域历史',
   online: '随时为您提供帮助',
+  replying: '正在回复',
+  interrupted: '已中断',
   thinking: '正在思考',
   powered: '由 OrfinSupport 提供帮助',
   disabled: '此工作区已关闭聊天。',

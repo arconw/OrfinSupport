@@ -33,6 +33,8 @@ export const uk = {
   memory: 'Запам’ятовувати мої відповіді',
   reset: 'Забути історію секцій',
   online: 'Готовий допомогти',
+  replying: 'Пишу відповідь',
+  interrupted: 'Перервано',
   thinking: 'Міркую',
   powered: 'Помічник OrfinSupport',
   disabled: 'Чат вимкнено в цьому проєкті.',

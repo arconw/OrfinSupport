@@ -33,6 +33,8 @@ export const ru = {
   memory: 'Запоминать мои ответы',
   reset: 'Забыть историю секций',
   online: 'Готов помочь',
+  replying: 'Пишу ответ',
+  interrupted: 'Прервано',
   thinking: 'Думаю',
   powered: 'Помощник OrfinSupport',
   disabled: 'Чат отключён в этом проекте.',

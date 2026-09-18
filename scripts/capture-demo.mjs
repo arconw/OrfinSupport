@@ -42,6 +42,17 @@ await page.screenshot({ path: 'docs/assets/actions.png' });
 await capture(1300);
 await page.keyboard.press('Escape');
 await transition(4);
+await page
+  .locator('[data-orfin-root] .header .icon-button')
+  .first()
+  .evaluate((button) => button.click());
+await transition();
+await capture(800);
+await page
+  .locator('[data-orfin-root] .header .icon-button')
+  .first()
+  .evaluate((button) => button.click());
+await transition();
 await page.getByRole('button', { name: 'Show me around', exact: true }).click();
 await page.getByRole('dialog', { name: 'Guided tour' }).waitFor();
 await capture(1700);
@@ -96,11 +107,17 @@ await page.evaluate(() => {
   window.__orfin.clearHighlight();
   window.__orfin.updateSettings({ theme: 'cloud' });
 });
-const ask = async (query) => {
+const ask = async (query, command) => {
   await page.evaluate(() => window.__orfin.open());
-  await page.locator('[data-orfin-root] textarea').fill(query);
-  await capture(900);
-  await page.locator('[data-orfin-root] .send').click();
+  if (command) {
+    await page.locator('[data-orfin-root] .actions-trigger').click();
+    await capture(1100);
+    await page.getByRole('menuitem', { name: command, exact: true }).click();
+  } else {
+    await page.locator('[data-orfin-root] textarea').fill(query);
+    await capture(900);
+    await page.locator('[data-orfin-root] .send').click();
+  }
   for (let index = 0; index < 4; index++) {
     await page.waitForTimeout(260);
     await capture(260);
@@ -118,7 +135,7 @@ await page.goto(`${baseURL}/#/shop`);
 await page.evaluate(() => window.__orfin.close());
 await page.screenshot({ path: 'docs/assets/shop.png', animations: 'disabled' });
 await capture(1400);
-await ask('Compare Luma 27 and Luma 32 Pro for a small desk.');
+await ask('Compare Luma 27 and Luma 32 Pro for a small desk.', 'Compare products');
 await ask('Find the 3-star review for the second product. Why that rating?');
 await page.evaluate(() => window.__orfin.clear());
 await ask('Open Luma 27 and add two to my cart.');

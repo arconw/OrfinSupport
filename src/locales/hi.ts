@@ -33,6 +33,8 @@ export const hi = {
   memory: 'मेरे विकल्प याद रखें',
   reset: 'अनुभागों का इतिहास भूलें',
   online: 'मदद के लिए तैयार',
+  replying: 'उत्तर लिख रहा हूँ',
+  interrupted: 'बाधित',
   thinking: 'सोच रहा हूँ',
   powered: 'OrfinSupport द्वारा सहायता',
   disabled: 'इस कार्यक्षेत्र में चैट बंद है।',

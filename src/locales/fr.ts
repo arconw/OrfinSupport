@@ -33,6 +33,8 @@ export const fr = {
   memory: 'Mémoriser mes choix',
   reset: 'Oublier l’historique des sections',
   online: 'À votre service',
+  replying: 'Réponse en cours',
+  interrupted: 'Interrompu',
   thinking: 'Réflexion en cours',
   powered: 'Assistance par OrfinSupport',
   disabled: 'Le chat est désactivé dans cet espace de travail.',

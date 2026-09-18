@@ -33,6 +33,8 @@ export const nl = {
   memory: 'Mijn keuzes onthouden',
   reset: 'Geschiedenis van onderdelen vergeten',
   online: 'Klaar om te helpen',
+  replying: 'Antwoord wordt geschreven',
+  interrupted: 'Onderbroken',
   thinking: 'Aan het nadenken',
   powered: 'Ondersteuning door OrfinSupport',
   disabled: 'Chat is uitgeschakeld in deze werkruimte.',

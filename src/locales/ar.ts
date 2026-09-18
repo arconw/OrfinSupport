@@ -33,6 +33,8 @@ export const ar = {
   memory: 'تذكّر اختياراتي',
   reset: 'نسيان سجل الأقسام',
   online: 'هنا لمساعدتك',
+  replying: 'جارٍ كتابة الرد',
+  interrupted: 'تمت المقاطعة',
   thinking: 'جارٍ التفكير',
   powered: 'مساعدة من OrfinSupport',
   disabled: 'المحادثة معطّلة في مساحة العمل هذه.',

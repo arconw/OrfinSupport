@@ -2,7 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 
 const root = '[data-orfin-root]';
 
-async function sampleTransition(page: Page, target: 'panel' | 'actions-menu', opening: boolean) {
+async function sampleTransition(
+  page: Page,
+  target: 'panel' | 'actions-menu' | 'preferences-view',
+  opening: boolean,
+) {
   return page.evaluate(
     async ({ target, opening }) => {
       const shadow = document.querySelector('[data-orfin-root]')!.shadowRoot!;
@@ -10,7 +14,8 @@ async function sampleTransition(page: Page, target: 'panel' | 'actions-menu', op
       if (target === 'panel') {
         if (opening) window.__orfin!.open();
         else window.__orfin!.close();
-      } else shadow.querySelector<HTMLButtonElement>('.actions-trigger')!.click();
+      } else if (target === 'preferences-view') window.__orfin!.preferences();
+      else shadow.querySelector<HTMLButtonElement>('.actions-trigger')!.click();
       element ??= shadow.querySelector(`.${target}`);
       const values: number[] = [];
       const start = performance.now();
@@ -120,6 +125,8 @@ for (const setup of [
       ['panel', true],
       ['actions-menu', true],
       ['actions-menu', false],
+      ['preferences-view', true],
+      ['preferences-view', false],
     ] as const) {
       const frames = await sampleTransition(page, target, opening);
       expect(frames.some((value) => value > 0 && value < 1)).toBe(true);

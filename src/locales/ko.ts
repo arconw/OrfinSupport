@@ -33,6 +33,8 @@ export const ko = {
   memory: '내 선택 기억하기',
   reset: '섹션 기록 지우기',
   online: '도와드릴 준비가 됐어요',
+  replying: '답변 작성 중',
+  interrupted: '중단됨',
   thinking: '생각 중',
   powered: 'OrfinSupport 제공',
   disabled: '이 작업 공간에서는 채팅이 꺼져 있습니다.',

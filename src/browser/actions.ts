@@ -1,5 +1,7 @@
 import { html, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
 import type { OrfinController } from './controller';
+import { resolveMenuActions } from '../core/menu';
 import { icon } from './icons';
 import { Presence } from './presence';
 
@@ -12,16 +14,26 @@ export function createActionsMenu(
   const presence = new Presence<boolean>(refresh);
   const lifecycle = new AbortController();
   const trigger = () => shadow.querySelector<HTMLButtonElement>('.actions-trigger');
+  const available = () =>
+    resolveMenuActions(
+      controller.settings,
+      {
+        url: location.href,
+        locale: controller.settings.locale,
+        features: controller.settings.features,
+      },
+      controller.text,
+      controller.state.busy,
+    );
   const items = () =>
     Array.from(shadow.querySelectorAll<HTMLButtonElement>('.action-item:not(:disabled)'));
   const focusItem = (button?: HTMLButtonElement) => {
-    button?.focus({ preventScroll: true });
-    const menu = shadow.querySelector('.actions-menu');
+    (button ?? trigger())?.focus({ preventScroll: true });
+    const menu = shadow.querySelector<HTMLElement>('.actions-menu');
     if (!button || !menu) return;
-    const bounds = button.getBoundingClientRect();
-    const viewport = menu.getBoundingClientRect();
-    if (bounds.bottom > viewport.bottom) menu.scrollTop += bounds.bottom - viewport.bottom;
-    else if (bounds.top < viewport.top) menu.scrollTop -= viewport.top - bounds.top;
+    const bottom = button.offsetTop + button.offsetHeight;
+    if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight;
+    else if (button.offsetTop < menu.scrollTop) menu.scrollTop = button.offsetTop;
   };
   const close = (restore = false) => {
     if (!open) return;
@@ -34,9 +46,16 @@ export function createActionsMenu(
     refresh();
     queueMicrotask(() => focusItem(last ? items().at(-1) : items()[0]));
   };
-  const choose = (action: () => void) => {
+  const choose = (key: string) => {
+    const action = available().find((item) => item.key === key);
+    if (!action || action.disabled) return;
     close();
-    action();
+    if (action.builtin === 'tour') void controller.startTour();
+    else if (action.builtin === 'pick') controller.pick();
+    else {
+      void controller.send(action.prompt ?? controller.text.pagePrompt);
+      shadow.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true });
+    }
   };
   const keydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape' && open) {
@@ -88,19 +107,39 @@ export function createActionsMenu(
       presence.dispose();
     },
     render(duration: number) {
-      const { text, settings } = controller;
+      const { text } = controller;
+      const commands = available();
+      const focused = shadow.activeElement as HTMLElement | null;
+      const focusedKey = focused?.dataset.actionId;
+      if (!commands.length) {
+        open = false;
+        presence.dispose();
+        if (focusedKey || focused === trigger())
+          queueMicrotask(() =>
+            shadow.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true }),
+          );
+        return nothing;
+      }
+      if (open && focusedKey)
+        queueMicrotask(() => {
+          if (!open) return;
+          const target = items().find((item) => item.dataset.actionId === focusedKey) ?? items()[0];
+          if (shadow.activeElement !== target) focusItem(target);
+        });
       presence.reconcile(open ? true : undefined, duration);
-      const action = (label: string, type: 'tour' | 'pick' | 'page', callback: () => void) =>
+      const action = (command: (typeof commands)[number]) =>
         html`<button
           class="action-item"
           part="action-item"
           role="menuitem"
           tabindex="-1"
-          ?disabled=${type === 'page' && controller.state.busy}
-          @click=${() => choose(callback)}
+          data-action-id=${command.key}
+          ?disabled=${command.disabled}
+          @click=${() => choose(command.key)}
         >
-          <span class="action-icon" part="action-icon">${icon(type)}</span>
-          <span class="action-label" part="action-label">${label}</span>${icon('chevron', 14)}
+          <span class="action-icon" part="action-icon">${icon(command.builtin ?? 'actions')}</span>
+          <span class="action-label" part="action-label">${command.label}</span
+          >${icon('chevron', 14)}
         </button>`;
       return html`<div class="actions" part="actions" @keydown=${keydown}>
         <button
@@ -127,18 +166,7 @@ export function createActionsMenu(
                 data-visible=${presence.visible}
                 data-exiting=${presence.exiting}
               >
-                ${settings.features.tour ? action(text.tour, 'tour', () => void controller.startTour()) : nothing}
-                ${settings.features.sectionPicker ? action(text.pick, 'pick', () => controller.pick()) : nothing}
-                ${
-                  settings.features.chat
-                    ? action(text.page, 'page', () => {
-                        void controller.send(text.pagePrompt);
-                        shadow
-                          .querySelector<HTMLTextAreaElement>('textarea')
-                          ?.focus({ preventScroll: true });
-                      })
-                    : nothing
-                }
+                ${repeat(commands, (command) => command.key, action)}
               </div>`
             : nothing
         }
