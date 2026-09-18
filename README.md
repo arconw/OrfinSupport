@@ -53,6 +53,8 @@ Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with w
 
 Try “Show me the active projects”, “What does the Studio plan cost?”, “Open the knowledge page”, or “What is our team capacity this week?”
 
+For a stable production preview with both Demo replies and Live AI, run `npm run preview:demo` and open **http://127.0.0.1:4189**. It builds an isolated copy of the frontend and API; source edits and subsequent builds do not reload an ongoing review. Start a new snapshot on another port with `npm run preview:demo -- --port 4190`. The gateway is required only for Live AI.
+
 ## Bring Orfin to your project
 
 **Release status:** `0.1.0` is prepared for publication; it has not been published to npm yet. Build and install a local tarball for now:

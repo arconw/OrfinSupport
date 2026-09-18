@@ -108,6 +108,8 @@ Tour steps and counters update when the layout or section visibility changes. Th
 
 In `pageContext: 'page'` mode, visible text under `main` is included and section/article/region elements can be selected without manual annotations. When no `main` exists, visible body text is used. Form controls, editable regions, scripts, styles and hidden/private areas are omitted. Automatic section annotations are removed when leaving this mode or destroying the controller. Page queries are omitted from the transmitted URL. This is a context convenience, not an authorization boundary; only render data the visitor may access.
 
+Each request includes only the available sections of the current document. A selected section is cleared when its target disappears or becomes unavailable, including after host-router navigation and browser history changes. It is checked again before sending. Conversation history stays intact. Keep the complete trusted catalog on the server to support navigation to sections on other pages.
+
 ## Style tokens
 
 | Property          | Default                                 |

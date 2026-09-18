@@ -9,7 +9,7 @@ export async function createWorkspaceMCP() {
     'team_capacity',
     {
       description:
-        'Get the current team capacity and available working days from Northstar. Use when asked about team availability or workload.',
+        'Get Northstar workspace statistics over MCP: current plan, member count, team capacity and available working days. Use for workspace statistics, plan, team size, availability or workload.',
       inputSchema: {},
     },
     async () => ({
@@ -17,6 +17,7 @@ export async function createWorkspaceMCP() {
         {
           type: 'text' as const,
           text: JSON.stringify({
+            plan: 'Studio',
             members: 12,
             availableDays: 48,
             plannedDays: 36,

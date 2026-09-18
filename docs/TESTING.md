@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Latest validation: **51 unit/integration tests, 41 Chromium browser tests, 3 Next.js production tests and 8 live gateway scenarios**.
+Latest validation: **53 unit/integration tests, 44 Chromium browser tests, 3 Next.js production tests and 11 live gateway scenarios**.
 
 ## Automated coverage
 
@@ -22,6 +22,8 @@ Acceptance regressions cover Ask → reply → Next at 1440×1000 and 390×844, 
 
 Responsive tour regressions complete the tour with ordinary clicks at 390×844, 320×568 and 844×390. They also cover repeated desktop/mobile resizing, context updates while Ask is open, zero-area and inaccessible targets, DOM removal, all targets becoming unavailable, restoring data-only sections, and switching to a responsive equivalent. The initial eight responsive cases failed before the fixes. Next.js production tests were rerun after the tour changes to verify routing and hydration from the rebuilt package.
 
+Page-context regressions cover ending the tour on Team pulse and navigating to Playground, sending immediately after a target is removed, browser history, and preserving existing messages during a locale change. All three cases failed before the fixes. Native and prompt-tool protocol tests verify that response-language instructions survive a complete tool round trip with English history.
+
 ## Live model checks
 
 The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks used `gpt-5.6-sol` and prompt tool mode because this local gateway supports text streaming but does not expose native function calling.
@@ -34,7 +36,7 @@ The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks 
 | Retrieval                | The Studio plan document was returned as a source and used in the streamed response                                  |
 | Next.js backend          | The production Route Handler returned a successful SSE reply through the gateway                                     |
 
-Additional live checks verify Spanish, Japanese and Arabic replies to English questions, and English as the default for a Russian question. The first four checks in the latest run completed in approximately 3.1, 7.1, 5.5 and 3.1 seconds respectively. These are observations from one local run, not performance guarantees. `npm run test:live` regenerates a machine-readable local report under `.artifacts/` without saving message contents or credentials.
+Additional live checks verify Spanish, Japanese and Arabic replies to English questions, and English as the default for a Russian question. Russian checks require an actual completed MCP call and a Russian answer to the acceptance question about the Studio plan and 12 members, both with and without English history. A separate case explicitly requests English while the UI locale is Russian. `npm run test:live` regenerates a machine-readable local report under `.artifacts/` without saving message contents or credentials.
 
 ## Reproducing
 
@@ -46,6 +48,8 @@ npm run test:e2e
 ```
 
 For actual model checks, keep the gateway running, start `npm run dev`, and run `npm run test:live` in another terminal. For the Next.js integration, build the library, install `examples/next` dependencies, then run `npm run test:next`.
+
+For uninterrupted browser acceptance, use `npm run preview:demo` at `http://127.0.0.1:4189`. Frontend assets and the API are bundled into an isolated `.runtime/preview-*` directory and served without HMR or a file watcher. Both modes work from the same origin. Run live checks against it with `ORFIN_LIVE_URL=http://127.0.0.1:4189/api/orfin npm run test:live`; use `ORFIN_LIVE_FILTER=Russian` to select the language scenarios. To keep an existing review stable, start subsequent snapshots with a different `--port`.
 
 The browser fixtures are served only in development. The production demo build includes the React playground and does not ship Angular’s compiler or the test fixtures. Explicit dependency prebundling prevents lazy framework imports from reloading active test pages.
 

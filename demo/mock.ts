@@ -1,7 +1,8 @@
 import type { AgentEvent, ChatTransport } from '../src/core/types';
-import { knowledge } from './data';
+import { knowledge, sections } from './data';
 import { demoCopy } from './locales';
 import { resolveTranslations } from '../src/browser/i18n';
+import { localizeSection } from '../src/core/locale';
 
 export function createDemoTransport(): ChatTransport {
   return {
@@ -10,6 +11,9 @@ export function createDemoTransport(): ChatTransport {
       const ru = request.locale === 'ru';
       const localized = demoCopy(request.locale);
       const ui = resolveTranslations(request.locale);
+      const aboutPage =
+        /\b(page|here|configure|configuration|settings)\b|страниц|настро|здесь/.test(query) ||
+        query === ui.pagePrompt.toLowerCase();
       let intent = 'greeting';
       let reply = ru
         ? 'Northstar — рабочее пространство команды. Здесь можно следить за проектами, задачами и прогрессом. Попросите показать проекты, открыть базу знаний или рассказать о выбранной секции.'
@@ -82,7 +86,7 @@ export function createDemoTransport(): ChatTransport {
         reply = ru
           ? 'В демо используется план Studio: $24 за участника в месяц, неограниченное количество проектов, гостевой доступ и 100 ГБ хранилища. Это вымышленные данные: списаний в демо нет.'
           : 'You’re on the **Studio plan**: $24 per member, per month, with unlimited projects, guest access, and 100 GB of storage. Your workspace has 12 members. These are fictional demo details — no payments happen here.';
-      } else if (selected && query !== ui.pagePrompt.toLowerCase()) {
+      } else if (selected && !aboutPage) {
         intent = 'section';
         reply = ru
           ? `**${selected.title}**\n\nЭто секция вашего рабочего пространства. ${selected.description}\n\nВы можете продолжить экскурсию или задать ещё один вопрос.`
@@ -91,11 +95,12 @@ export function createDemoTransport(): ChatTransport {
         events.push({ type: 'sources', sources: [knowledge[3]!] });
         intent = 'privacy';
         reply = knowledge[3]!.content;
-      } else if (/page|страниц/.test(query) || query === ui.pagePrompt.toLowerCase()) {
+      } else if (aboutPage) {
         intent = 'page';
-        reply = ru
-          ? 'На странице собраны основные разделы Northstar:\n\n- Активные проекты и их прогресс\n- Загрузка команды по дням\n- Последние события\n- Ваши ближайшие задачи\n\nНажмите «Спросить про секцию», чтобы разобрать что-то подробнее.'
-          : '**A shared view of your team’s work.**\n\n- **Active projects** — what’s moving, who’s involved, and when it’s due.\n- **Team pulse** — how the week is shaping up.\n- **What’s happening** — the latest updates from your teammates.\n- **Your next steps** — small tasks you can check off right here.\n\nWant a closer look? Ask me to show you a section.';
+        reply =
+          request.page.sections
+            .map((section) => `**${section.title}**\n\n${section.description}`)
+            .join('\n\n') || ui.select;
       }
       if (localized) {
         const action = events.find((event) => event.type === 'action');
@@ -104,7 +109,9 @@ export function createDemoTransport(): ChatTransport {
             ? action.action.sectionId
             : undefined;
         const destination = sectionId
-          ? request.page.sections.find((section) => section.id === sectionId)
+          ? sections
+              .map((section) => localizeSection(section, request.locale))
+              .find((section) => section.id === sectionId)
           : undefined;
         if (intent === 'plan') reply = localized.plan;
         else if (intent === 'capacity') reply = localized.capacity;
@@ -113,11 +120,7 @@ export function createDemoTransport(): ChatTransport {
         else if (intent === 'section' && selected)
           reply = `**${selected.title}**\n\n${selected.description}\n\n${localized.followup}`;
         else if (destination) reply = `**${destination.title}**\n\n${destination.description}`;
-        else if (intent === 'page')
-          reply = request.page.sections
-            .filter((section) => section.tourOrder !== undefined)
-            .map((section) => `**${section.title}**\n${section.description}`)
-            .join('\n\n');
+        else if (intent === 'page') reply += `\n\n${localized.followup}`;
         else reply = `${ui.title} ${localized.sections.welcome.description} ${localized.followup}`;
         for (const event of events)
           if (event.type === 'sources')

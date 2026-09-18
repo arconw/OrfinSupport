@@ -127,10 +127,11 @@ export class SectionRegistry {
   }
 
   page(mode: 'sections' | 'page', selectedSectionId?: string, locale = 'en'): PageContext {
+    const visible = this.discover(mode).filter((section) => this.element(section.id));
     return {
       url: `${location.origin}${location.pathname}`,
       title: document.title.slice(0, 300),
-      sections: this.discover(mode).map((source) => {
+      sections: visible.map((source) => {
         const {
           prompt: _prompt,
           translations: _translations,
@@ -138,7 +139,7 @@ export class SectionRegistry {
         } = localizeSection(source, locale);
         return section;
       }),
-      ...(selectedSectionId ? { selectedSectionId } : {}),
+      ...(visible.some((section) => section.id === selectedSectionId) ? { selectedSectionId } : {}),
       ...(mode === 'page'
         ? { text: visibleText(document.querySelector('main') ?? document.body) }
         : {}),

@@ -120,7 +120,15 @@ export function mountWidget(controller: OrfinController): HTMLElement {
                 </div>
                 <details class="section-list">
                   <summary>${text.pick}</summary>
-                  ${controller.registry.discover(settings.features.pageContext).map((section) => html`<button @click=${() => void controller.explain(section)}>${controller.sectionText(section).title}</button>`)}
+                  ${controller.registry
+                    .discover(settings.features.pageContext)
+                    .filter((section) => controller.registry.element(section.id))
+                    .map(
+                      (section) =>
+                        html`<button @click=${() => void controller.explain(section)}>
+                          ${controller.sectionText(section).title}
+                        </button>`,
+                    )}
                 </details>`
             : nothing
         }

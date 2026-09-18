@@ -23,7 +23,7 @@ function promptMessages(messages: ModelMessage[], tools: ToolDefinition[]) {
     : '';
   return messages.map((message) => {
     if (message.role === 'system')
-      return { role: 'system', content: `${message.content}\n${instruction}` };
+      return { role: 'system', content: `${instruction}\n${message.content}` };
     if (message.role === 'tool')
       return { role: 'user', content: `Tool result (${message.toolCallId}): ${message.content}` };
     if (message.toolCalls?.length) {

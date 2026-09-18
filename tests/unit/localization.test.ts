@@ -11,8 +11,9 @@ import { resolveSettings } from '../../src/core/settings';
 import { createHttpTransport } from '../../src/core/transport';
 import { runAgent } from '../../src/server/agent';
 import { validateChatRequest } from '../../src/server/validation';
-import { collect, request } from './helpers';
+import { collect, request, streamedResponse } from './helpers';
 import type { ModelMessage } from '../../src/core/types';
+import { createOpenAICompatible } from '../../src/providers/openai';
 
 const signal = new AbortController().signal;
 
@@ -111,6 +112,70 @@ describe('localization contracts', () => {
     expect(sent[0]!.content).not.toContain('"translations"');
     expect(sent.at(-1)!.content).toBe('Explain this in one sentence.');
   });
+  it.each(['native', 'prompt'] as const)(
+    'preserves the locale policy through a %s tool round trip with English history',
+    async (toolMode) => {
+      const payloads: { messages: { role: string; content: string | null }[] }[] = [];
+      const provider = createOpenAICompatible({
+        baseURL: 'http://example.test/v1',
+        model: 'test',
+        toolMode,
+        fetch: async (_url, init) => {
+          payloads.push(JSON.parse(init!.body as string));
+          const delta =
+            payloads.length > 1
+              ? { content: 'В команде 12 участников.' }
+              : toolMode === 'prompt'
+                ? { content: '<orfin-tool>{"name":"workspace","arguments":{}}</orfin-tool>' }
+                : {
+                    tool_calls: [
+                      { index: 0, id: 'call-1', function: { name: 'workspace', arguments: '{}' } },
+                    ],
+                  };
+          return streamedResponse([{ choices: [{ delta }] }, '[DONE]']);
+        },
+      });
+      await collect(
+        runAgent(
+          {
+            provider,
+            context: 'English project context.',
+            tools: [
+              {
+                name: 'workspace',
+                description: 'Workspace statistics',
+                parameters: { type: 'object' },
+                execute: () => ({ text: 'This workspace has 12 members.' }),
+              },
+            ],
+          },
+          request({
+            locale: 'ru',
+            messages: [
+              { role: 'assistant', content: 'Earlier English answer.' },
+              { role: 'user', content: 'Use the workspace statistics tool.' },
+            ],
+          }),
+          signal,
+        ),
+      );
+      expect(payloads).toHaveLength(2);
+      for (const payload of payloads) {
+        const policy = payload.messages.find((message) => message.role === 'system')!.content!;
+        expect(policy).toContain('Response language: Russian (ru)');
+        expect(policy).toContain('before and after tool calls');
+        expect(policy).toContain('unless the visitor explicitly requests another language');
+        expect(policy.lastIndexOf('Response language:')).toBeGreaterThan(
+          policy.lastIndexOf('English project context'),
+        );
+      }
+      expect(
+        payloads[1]!.messages.some((message) =>
+          message.content?.includes('This workspace has 12 members.'),
+        ),
+      ).toBe(true);
+    },
+  );
   it.each([
     [429, 'rateLimit'],
     [401, 'unauthorized'],
