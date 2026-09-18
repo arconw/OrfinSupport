@@ -19,6 +19,13 @@
   </p>
 </div>
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, explains a selected section and compares displays" />
+  <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, section explanations and a real product comparison.</sub></p>
+</div>
+
+**Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
+
 ## Install
 
 **npm · React, Next.js, Vue, Angular or plain JavaScript**
@@ -55,13 +62,6 @@ backend at `/api/orfin` and a model provider**; keep API keys on the server.
 The ZIP also includes an offline demo you can open immediately.
 
 ---
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, explains a selected section and compares displays" />
-  <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, section explanations and a real product comparison.</sub></p>
-</div>
-
-**Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
 
 ## A guide that can point
 
