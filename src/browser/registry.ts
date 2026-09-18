@@ -4,6 +4,19 @@ import { localizeSection } from '../core/locale';
 const excluded =
   'script,style,noscript,input,textarea,select,[contenteditable],[data-orfin-private],[data-orfin-root],[hidden],[aria-hidden="true"]';
 
+export function availableElement(element: HTMLElement): boolean {
+  if (
+    !element.isConnected ||
+    element.closest(
+      '[data-orfin-private],[data-orfin-root],[hidden],[aria-hidden="true"],[inert]',
+    ) ||
+    !element.checkVisibility({ visibilityProperty: true, opacityProperty: true })
+  )
+    return false;
+  const rect = element.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
+}
+
 export function visibleText(element: Element, limit = 12000): string {
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
@@ -27,10 +40,7 @@ export class SectionRegistry {
 
   element(id: string): HTMLElement | undefined {
     return Array.from(this.root.querySelectorAll<HTMLElement>('[data-orfin-section]')).find(
-      (element) =>
-        element.dataset.orfinSection === id &&
-        element.checkVisibility({ visibilityProperty: true }) &&
-        !element.closest('[data-orfin-private]'),
+      (element) => element.dataset.orfinSection === id && availableElement(element),
     );
   }
 
@@ -62,7 +72,7 @@ export class SectionRegistry {
     });
   }
 
-  discover(mode: 'sections' | 'page'): Section[] {
+  discover(mode: 'sections' | 'page', includeUnavailable = false): Section[] {
     if (mode === 'page') {
       for (const [index, element] of Array.from(
         this.root.querySelectorAll<HTMLElement>('main section, main article, main [role="region"]'),
@@ -82,8 +92,8 @@ export class SectionRegistry {
       if (
         !id ||
         !/^[\w-]{1,100}$/.test(id) ||
-        !element.checkVisibility() ||
         element.closest('[data-orfin-private],[data-orfin-root]') ||
+        (!includeUnavailable && !availableElement(element)) ||
         (mode === 'sections' && element.dataset.orfinDiscovered)
       )
         continue;
@@ -112,7 +122,7 @@ export class SectionRegistry {
     if (!(target instanceof Element)) return;
     this.discover(mode);
     const element = target.closest<HTMLElement>('[data-orfin-section]');
-    if (!element || element.closest('[data-orfin-private],[data-orfin-root]')) return;
+    if (!element || !availableElement(element)) return;
     return this.discover(mode).find((section) => section.id === element.dataset.orfinSection);
   }
 

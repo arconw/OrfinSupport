@@ -47,6 +47,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
   }
   let draft = '';
   let wasOpen = false;
+  let wasTourVisible = false;
   let lastCount = 0;
 
   const submit = () => {
@@ -395,7 +396,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
               </section>`
             : nothing
         }
-        ${!state.picking ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : orfinMark(30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
+        ${!state.picking && !state.tour ? html`<button class="launcher" part="launcher" aria-label=${state.open ? text.close : text.open} aria-expanded=${state.open} ?data-open=${state.open} @click=${() => controller.toggle()}>${state.open ? icon('close', 21) : orfinMark(30)}${state.open ? nothing : html`<span>${text.open}</span>`}</button>` : nothing}
       </div>`,
       container,
     );
@@ -408,6 +409,11 @@ export function mountWidget(controller: OrfinController): HTMLElement {
     }
     if (!state.open && wasOpen)
       shadow.querySelector<HTMLButtonElement>('.launcher')?.focus({ preventScroll: true });
+    if (tourPosition && !wasTourVisible)
+      shadow
+        .querySelector<HTMLButtonElement>('.tour-popover .primary')
+        ?.focus({ preventScroll: true });
+    wasTourVisible = !!tourPosition;
     wasOpen = state.open;
     lastCount = state.messages.length;
   };

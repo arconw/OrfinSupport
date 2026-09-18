@@ -78,6 +78,8 @@ Mount one controller per page in a browser lifecycle hook. `createOrfin` deliber
 
 `state.error` is a stable `OrfinErrorCode`; `errorMessage` exposes the current localized text and `state.errorStatus` optionally contains an HTTP status. `state` also includes messages, busy status, current section, hover, spotlight, picker and tour state. Prefer methods to direct mutation. `settings` contains resolved preferences. Interaction event types include `open`, `close`, `message`, `reply`, `settings`, `highlight`, `navigate`, `hover`, `pick-start`, `tour-step`, `tour-end`, `clear`, and `memory-cleared`.
 
+`highlight()` resolves to `true` when a target is shown and `false` when it is unavailable or the operation is cancelled. Navigation failures reject the promise.
+
 ## Sections
 
 ```ts
@@ -92,7 +94,9 @@ interface Section {
 }
 ```
 
-Use unique IDs with letters, digits, underscores and hyphens, up to 100 characters. Catalog IDs match `data-orfin-section`. Tours sort by `tourOrder`; if none are ordered, the visible marked sections are used. Hidden sections are skipped. Provide a server catalog when navigation or section instructions must be controlled by trusted configuration. `prompt` is intended for that server catalog and is stripped from the browser request.
+Use unique IDs with letters, digits, underscores and hyphens, up to 100 characters. Catalog IDs match `data-orfin-section`. Tours sort by `tourOrder`; when no ordered targets are available at the start, the visible marked sections are used. Hidden sections are skipped. Provide a server catalog when navigation or section instructions must be controlled by trusted configuration. `prompt` is intended for that server catalog and is stripped from the browser request.
+
+Tour steps and counters update when the layout or section visibility changes. The current section stays selected while it remains available. Otherwise, Orfin advances to the next available section, or the previous section when there is no next one. If every target becomes unavailable, the tour ends and the chat opens. Targets with no rendered area, hidden styles, `aria-hidden`, or `inert` are skipped. Offscreen sections remain eligible and are scrolled into view. Responsive alternatives may share a section ID when only one is available at a time. The launcher stays hidden during a tour; Ask and the inline chat controls remain available.
 
 | Attribute                    | Meaning                                                        |
 | ---------------------------- | -------------------------------------------------------------- |

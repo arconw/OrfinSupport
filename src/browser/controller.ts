@@ -16,8 +16,10 @@ import { formatMessage, localizeSection } from '../core/locale';
 import { OrfinError, errorMessages, isOrfinErrorCode } from '../core/errors';
 import type { OrfinErrorCode } from '../core/errors';
 import { SectionMemory } from './memory';
-import { SectionRegistry } from './registry';
+import { availableElement, SectionRegistry } from './registry';
 import { navigatePage, pendingSection } from './navigation';
+import { TourPlan } from './tour';
+import type { TourState } from './tour';
 
 export interface OrfinOptions extends SettingsInput {
   endpoint?: string;
@@ -42,7 +44,7 @@ export interface AssistantState {
   selectedSection?: Section;
   highlight?: { section: Section; rect: Rect };
   hover?: { section: Section; rect: Rect };
-  tour?: { index: number; sections: Section[] };
+  tour?: TourState;
   error?: OrfinErrorCode;
   errorStatus?: number;
 }
@@ -67,6 +69,9 @@ export class OrfinController {
   private destroyed = false;
   private tourRevision = 0;
   private highlightRevision = 0;
+  private tourPlan?: TourPlan;
+  private tourObserver?: MutationObserver;
+  private pendingTourStep?: number;
 
   constructor(options: OrfinOptions) {
     this.options = options;
@@ -280,11 +285,25 @@ export class OrfinController {
   }
 
   private position = () => {
-    if (
-      this.target?.isConnected &&
-      this.target.checkVisibility({ visibilityProperty: true }) &&
-      this.state.highlight
-    ) {
+    const tour = this.state.tour;
+    if (tour && this.tourPlan && this.pendingTourStep === undefined) {
+      const current = tour.sections[tour.index]!;
+      if (this.target && !this.target.isConnected) this.tourPlan.skip(current.id);
+      const next = this.tourPlan.refresh(tour, this.settings.features.navigation);
+      if (!next) {
+        this.state.selectedSection = undefined;
+        this.endTour();
+        this.open();
+        return;
+      }
+      this.state.tour = next;
+      const section = next.sections[next.index]!;
+      if (section.id !== current.id || this.registry.element(section.id) !== this.target) {
+        void this.tourStep(next.index);
+        return;
+      }
+    }
+    if (this.target && availableElement(this.target) && this.state.highlight) {
       this.state.highlight.rect = spotlightRect(this.target);
       this.emit();
     } else if (this.state.highlight) this.clearHighlight();
@@ -295,6 +314,12 @@ export class OrfinController {
         this.emit();
       } else this.dismissHover();
     }
+  };
+
+  private resize = () => {
+    if (this.state.tour && this.target && availableElement(this.target))
+      this.target.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'nearest' });
+    this.position();
   };
 
   private showHighlight(section: Section, element: HTMLElement) {
@@ -320,13 +345,15 @@ export class OrfinController {
     const section = this.registry
       .discover(this.settings.features.pageContext)
       .find((section) => section.id === id);
-    if (!section || this.destroyed) return;
+    if (!section || this.destroyed) return false;
+    if (this.registry.isPresent(id) && !this.registry.element(id)) return false;
     if (!this.registry.element(id) && section.path) {
-      if (!this.settings.features.navigation) return;
+      if (!this.settings.features.navigation) return false;
       await this.navigate(section.path, id);
     }
+    if (this.registry.isPresent(id) && !this.registry.element(id)) return false;
     const element = await this.registry.waitForElement(id, this.lifecycle.signal);
-    if (!element || this.destroyed || revision !== this.highlightRevision) return;
+    if (!element || this.destroyed || revision !== this.highlightRevision) return false;
     element.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'nearest' });
     this.showHighlight(section, element);
     if (!persistent)
@@ -334,6 +361,7 @@ export class OrfinController {
         () => this.clearHighlight(),
         this.settings.highlightDuration,
       );
+    return true;
   }
 
   async navigate(path: string, sectionId?: string) {
@@ -355,25 +383,42 @@ export class OrfinController {
 
   async startTour() {
     if (!this.settings.features.tour) return;
+    if (this.state.tour) this.endTour();
     this.cancelPick();
     this.dismissHover();
-    const sections = this.registry
-      .discover(this.settings.features.pageContext)
-      .filter(
-        (section) =>
-          section.tourOrder !== undefined &&
-          (!this.registry.isPresent(section.id) || this.registry.element(section.id)) &&
-          (this.settings.features.navigation || this.registry.element(section.id)),
-      )
+    const discovered = this.registry.discover(this.settings.features.pageContext, true);
+    const ordered = discovered
+      .filter((section) => section.tourOrder !== undefined)
       .sort((a, b) => a.tourOrder! - b.tourOrder!);
-    if (!sections.length)
-      sections.push(
-        ...this.registry
-          .discover(this.settings.features.pageContext)
-          .filter((section) => this.registry.element(section.id)),
+    this.tourPlan = new TourPlan(ordered, this.registry);
+    let tour = this.tourPlan.refresh(undefined, this.settings.features.navigation);
+    if (!tour) {
+      this.tourPlan = new TourPlan(
+        discovered.filter((section) => this.registry.element(section.id)),
+        this.registry,
       );
-    if (!sections.length) return;
-    this.state.tour = { index: 0, sections };
+      tour = this.tourPlan.refresh(undefined, this.settings.features.navigation);
+    }
+    if (!tour) {
+      this.tourPlan = undefined;
+      return;
+    }
+    this.state.tour = tour;
+    this.tourObserver = new MutationObserver(this.position);
+    this.tourObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: [
+        'class',
+        'style',
+        'hidden',
+        'aria-hidden',
+        'inert',
+        'data-orfin-private',
+        'data-orfin-section',
+      ],
+    });
     this.state.open = false;
     await this.tourStep(0);
   }
@@ -387,16 +432,29 @@ export class OrfinController {
     }
     tour.index = Math.max(0, index);
     const section = tour.sections[tour.index]!;
-    this.state.selectedSection = section;
-    this.memory.remember(section.id, 'visited');
     const revision = ++this.tourRevision;
+    this.pendingTourStep = revision;
+    this.clearHighlight();
+    this.state.selectedSection = section;
     this.emit('tour-step', { index: tour.index, sectionId: section.id });
-    await this.highlight(section.id, true);
+    let highlighted = false;
+    try {
+      highlighted = await this.highlight(section.id, true);
+    } catch {
+      highlighted = false;
+    }
     if (revision !== this.tourRevision) return;
-    this.emit();
+    this.pendingTourStep = undefined;
+    if (highlighted) this.memory.remember(section.id, 'visited');
+    else this.tourPlan?.skip(section.id);
+    this.position();
   }
   endTour() {
     this.tourRevision++;
+    this.pendingTourStep = undefined;
+    this.tourPlan = undefined;
+    this.tourObserver?.disconnect();
+    this.tourObserver = undefined;
     this.state.tour = undefined;
     this.clearHighlight();
     this.emit('tour-end');
@@ -500,7 +558,7 @@ export class OrfinController {
       { signal },
     );
     window.addEventListener('scroll', this.position, { signal, capture: true, passive: true });
-    window.addEventListener('resize', this.position, { signal, passive: true });
+    window.addEventListener('resize', this.resize, { signal, passive: true });
     window.addEventListener(
       'blur',
       () => {
@@ -519,6 +577,7 @@ export class OrfinController {
     clearTimeout(this.hoverTimer);
     clearTimeout(this.highlightTimer);
     this.observer?.disconnect();
+    this.tourObserver?.disconnect();
     this.registry.cleanup();
     this.listeners.clear();
     for (const cleanup of this.cleanupCallbacks) cleanup();
