@@ -21,7 +21,10 @@ const changes = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8
 const version = `${revision}${changes ? '-working' : ''}`;
 
 await new Promise((accept, reject) => {
-  const builder = spawn('npm', ['run', 'build:demo', '--', '--outDir', web], { stdio: 'inherit' });
+  const builder = spawn('npm', ['run', 'build:demo', '--', '--outDir', web], {
+    stdio: 'inherit',
+    env: { ...process.env, VITE_ORFIN_DEMO_LIVE: 'true' },
+  });
   builder.on('error', reject);
   builder.on('exit', (code) => (code === 0 ? accept() : reject(new Error('Demo build failed.'))));
 });

@@ -79,7 +79,7 @@ export function mountWidget(controller: OrfinController): HTMLElement {
 
   const update = () => {
     const { state, settings, text } = controller;
-    const conversation = shadow.querySelector('.conversation');
+    const conversation = shadow.querySelector('[role="log"]');
     const atBottom =
       !conversation ||
       conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 70;
@@ -408,9 +408,11 @@ export function mountWidget(controller: OrfinController): HTMLElement {
       </div>`,
       container,
     );
-    if (state.messages.length && (atBottom || lastCount !== state.messages.length)) {
-      const log = shadow.querySelector('.conversation');
-      if (log) log.scrollTop = log.scrollHeight;
+    const log = shadow.querySelector('[role="log"]');
+    if (log) {
+      if (!state.messages.length && lastCount) log.scrollTop = 0;
+      else if (state.messages.length && (atBottom || lastCount !== state.messages.length))
+        log.scrollTop = log.scrollHeight;
     }
     if (state.open && !wasOpen) {
       focusInput();

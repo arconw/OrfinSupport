@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Latest validation: **54 unit/integration tests, 44 Chromium browser tests, 3 Next.js production tests, 12 live gateway scenarios and 2 live browser scenarios**. Each live browser scenario also passed twice in fresh contexts against the frozen production preview.
+Latest validation: **54 unit/integration tests, 46 Chromium browser tests, 2 static production demo tests, 3 Next.js production tests, 12 live gateway scenarios and 2 live browser scenarios**. Each live browser scenario also passed twice in fresh contexts against the frozen production preview.
 
 ## Automated coverage
 
@@ -23,6 +23,10 @@ Acceptance regressions cover Ask → reply → Next at 1440×1000 and 390×844, 
 Responsive tour regressions complete the tour with ordinary clicks at 390×844, 320×568 and 844×390. They also cover repeated desktop/mobile resizing, context updates while Ask is open, zero-area and inaccessible targets, DOM removal, all targets becoming unavailable, restoring data-only sections, and switching to a responsive equivalent. The initial eight responsive cases failed before the fixes. Next.js production tests were rerun after the tour changes to verify routing and hydration from the rebuilt package.
 
 Page-context regressions cover ending the tour on Team pulse and navigating to Playground, sending immediately after a target is removed, browser history, and preserving existing messages during a locale change. All three cases failed before the fixes. Native and prompt-tool protocol tests verify that response-language instructions survive a complete tool round trip with English history.
+
+Compact welcome checks use Iris and Russian at 320×568 and 390×844. Opening, reopening, resizing and clearing a completed conversation leave the greeting at `scrollTop=0` with its icon inside the log. Before the fix, clearing a long reply retained a scroll offset and clipped the greeting. Automatic following applies to the message log; it does not scroll assistant preferences.
+
+Static production tests build the actual demo with Live AI disabled, then use Chromium at 1440×1000 and 320×568. They verify the disabled local-only option, its accessible explanation, keyboard selection, a complete sample reply without API requests, all 16 language choices, a French language change preserving history, and no horizontal overflow or browser errors. The local production preview explicitly enables Live AI when it builds its frontend alongside the API.
 
 ## Live model checks
 
@@ -48,6 +52,7 @@ npm ci
 npm run check
 npx playwright install chromium
 npm run test:e2e
+npm run test:demo
 ```
 
 For actual model checks, keep the gateway running, start `npm run dev`, and run `npm run test:live` in another terminal. For the Next.js integration, build the library, install `examples/next` dependencies, then run `npm run test:next`.
@@ -63,6 +68,8 @@ ORFIN_LIVE_BROWSER_URL=http://127.0.0.1:4189 npm run test:live:browser
 The default browser target is the development demo on port 4173. This suite requires the backend and gateway to be running and intentionally does not reuse mocked CI responses. Screenshots, call metadata and the JSON result are saved under `.artifacts/live-browser*`. Use `-- --repeat-each=2` for two independent runs per locale.
 
 The browser fixtures are served only in development. The production demo build includes the React playground and does not ship Angular’s compiler or the test fixtures. Explicit dependency prebundling prevents lazy framework imports from reloading active test pages.
+
+`npm run test:demo` builds and serves the static demo on port 4194, with no API or gateway dependency. The live suites remain separate and require the local backend.
 
 ## Limits of this validation
 

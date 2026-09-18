@@ -45,6 +45,7 @@ const routes = [
 ];
 const routeFromURL = () =>
   location.hash.startsWith('#/') ? location.hash.slice(1).split('?')[0]! : '/';
+const liveAvailable = import.meta.env.DEV || import.meta.env.VITE_ORFIN_DEMO_LIVE === 'true';
 
 export function App() {
   const [path, setPath] = useState(routeFromURL);
@@ -130,23 +131,39 @@ export function App() {
           OrfinSupport<span className="version">Playground</span>
         </a>
         <div className="demo-bar-right">
-          <span className="demo-caption">A little guidance goes a long way.</span>
+          {liveAvailable ? (
+            <span className="demo-caption">A little guidance goes a long way.</span>
+          ) : (
+            <a
+              id="provider-info"
+              className="demo-caption"
+              href="https://github.com/arconw/OrfinSupport#try-it-locally"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Run Live AI locally ↗
+            </a>
+          )}
           <label className="mode-switch">
             <span className={`connection-dot ${mode}`} />
             <select
               aria-label="Assistant provider"
+              aria-describedby={liveAvailable ? undefined : 'provider-info'}
               value={mode}
               onChange={(event) => {
-                setMode(event.target.value as 'demo' | 'live');
+                const nextMode = liveAvailable && event.target.value === 'live' ? 'live' : 'demo';
+                setMode(nextMode);
                 setToast(
-                  event.target.value === 'live'
+                  nextMode === 'live'
                     ? 'Live AI uses your local llm-gate through the demo server.'
                     : 'Demo mode uses sample responses. No API needed.',
                 );
               }}
             >
               <option value="demo">Demo replies</option>
-              <option value="live">Live AI · local gateway</option>
+              <option value="live" disabled={!liveAvailable}>
+                {liveAvailable ? 'Live AI · local gateway' : 'Live AI · run locally'}
+              </option>
             </select>
             <ChevronDown size={12} />
           </label>
