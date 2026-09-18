@@ -5,16 +5,58 @@
   <p>Meet Orfin — an assistant that understands your product,<br/>shows people where to go, and stays for the follow-up question.</p>
   <p>
     <a href="https://arconw.github.io/OrfinSupport/">Explore the playground</a> ·
+    <a href="#install">Install</a> ·
     <a href="#bring-orfin-to-your-project">Get started</a> ·
     <a href="https://github.com/arconw/OrfinSupport/blob/main/docs/API.md">API reference</a> ·
     <a href="https://github.com/arconw/OrfinSupport/blob/main/docs/INTEGRATIONS.md">Integrations</a>
   </p>
   <p>
+    <a href="https://www.npmjs.com/package/orfinsupport"><img src="https://img.shields.io/npm/v/orfinsupport?style=flat-square&color=4361ee" alt="npm version" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-4361ee?style=flat-square" alt="MIT license" /></a>
     <img src="https://img.shields.io/badge/TypeScript-strict-4361ee?style=flat-square" alt="Strict TypeScript" />
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
+</div>
+
+## Install
+
+**npm · React, Next.js, Vue, Angular or plain JavaScript**
+
+```bash
+npm i orfinsupport
+```
+
+Use `orfinsupport/react`, `orfinsupport/vue` or `orfinsupport/angular` for your
+framework, and `orfinsupport` for plain JavaScript.
+[Framework examples](#frameworks) · [Complete setup](#bring-orfin-to-your-project)
+
+**One script tag · No npm or build tool required**
+
+Add this before your page's closing `</body>` tag:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/orfinsupport@0.1.0/dist/standalone/orfinsupport.min.js"></script>
+<script>
+  const assistant = OrfinSupport.createOrfin({
+    endpoint: '/api/orfin',
+    locale: 'en',
+    theme: 'cloud',
+  });
+</script>
+```
+
+[**Download JavaScript**](https://cdn.jsdelivr.net/npm/orfinsupport@0.1.0/dist/standalone/orfinsupport.min.js)
+· [**Download ZIP + examples**](https://github.com/arconw/OrfinSupport/releases/download/v0.1.0/orfinsupport-standalone-0.1.0.zip)
+· [Configuration recipes](https://github.com/arconw/OrfinSupport/tree/main/examples/standalone)
+
+Styles and browser dependencies are included. **Real AI replies need your own
+backend at `/api/orfin` and a model provider**; keep API keys on the server.
+The ZIP also includes an offline demo you can open immediately.
+
+---
+
+<div align="center">
   <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, explains a selected section and compares displays" />
   <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, section explanations and a real product comparison.</sub></p>
 </div>
