@@ -6,7 +6,7 @@ Built static demo for [OrfinSupport](https://github.com/arconw/OrfinSupport).
 
 Library and editable demo source: [`main`](https://github.com/arconw/OrfinSupport/tree/main).
 
-Source revision: `f0dc2ebbd7fd90272987eb435fa48fab4d471831`.
+Source revision: `f35cafe8a234335a9fc400a1fef8b2cc9c2f5c0a`.
 
 This public playground uses localized sample replies with working catalog, report, comparison, review and cart tools. Live AI is disabled here; run the source locally to connect your LLM backend. No purchases or payments are available.
 
