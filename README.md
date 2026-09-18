@@ -15,8 +15,8 @@
     <img src="https://img.shields.io/badge/React_·_Next_·_Vue_·_Angular-supported-67758b?style=flat-square" alt="React, Next.js, Vue and Angular" />
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
-  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, analyzes delivery, compares displays and updates the demo cart" />
-  <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, grounded analysis and a cart that actually changes.</sub></p>
+  <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin changes its expression while answering, reveals the Actions menu, answers during a tour, explains a selected section and compares displays" />
+  <p><sub>Recorded from the working playground: an expressive Orfin, the Actions menu, guided tours, section explanations and a real product comparison.</sub></p>
 </div>
 
 **Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
@@ -523,7 +523,7 @@ npm run test:next
 
 The automated suite covers fragmented SSE and Unicode, tool argument validation, feature gates, origin/auth/body limits, tool failures, cancellation, retrieval, a real MCP connection, storage behavior, tours with follow-up questions, section picking, full-page navigation, mobile layout, accessibility and framework lifecycles. Live checks require a configured model endpoint; ordinary CI does not. See [the validation record](docs/TESTING.md) for the tested scope and limitations.
 
-`npm run capture:demo` regenerates the GIF and screenshots from a running playground. `npm run build:demo` builds the static site.
+`npm run capture:demo` regenerates the GIF and screenshots from a running playground. Recording requires FFmpeg on `PATH` (or `FFMPEG_PATH` pointing to its executable). To refresh only the animation, run `node scripts/capture-gif.mjs`; `ORFIN_CAPTURE_URL` selects the running playground. The GIF uses a continuous browser recording at 25 fps, preserving transitions and streamed replies instead of holding isolated screenshots. `npm run build:demo` builds the static site.
 
 The demos use locally hosted Inter with stronger text contrast and larger conversation text. The [shared typography overrides](demo/assistant-typography.css) demonstrate changing the widget through public CSS variables and shadow parts while keeping project-owned styles independent. The README GIF is recorded at its native resolution so text is not resampled.
 
