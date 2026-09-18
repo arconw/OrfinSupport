@@ -164,6 +164,49 @@ describe('agent execution boundaries', () => {
       action: { type: 'highlight', sectionId: 'projects' },
     });
   });
+  it.each(['/bounty', '/bounty/123', '/bounty/123/history', '/profile'])(
+    'emits concrete navigation allowed by a subtree or exact route: %s',
+    async (path) => {
+      const events = await collect(
+        runAgent(
+          {
+            context: 'Test',
+            allowedPaths: ['/bounty/*', '/profile'],
+            provider: provider([[call('navigate', { path })]]),
+          },
+          request(),
+          signal,
+        ),
+      );
+      expect(events).toContainEqual({ type: 'action', action: { type: 'navigate', path } });
+    },
+  );
+  it.each([
+    '/bounty-other/123',
+    '/profile/edit',
+    '/bounty/*',
+    '/bounty/../admin',
+    '/bounty/%2e%2e/admin',
+    '/bounty/%2f..%2fadmin',
+    'https://evil.test/bounty/123',
+    '//evil.test/bounty/123',
+  ])('rejects invalid navigation even with a subtree allowlist: %s', async (path) => {
+    const events = await collect(
+      runAgent(
+        {
+          context: 'Test',
+          allowedPaths: ['/bounty/*', '/profile'],
+          provider: provider([[call('navigate', { path })]]),
+        },
+        request(),
+        signal,
+      ),
+    );
+    expect(events.filter((event) => event.type === 'action')).toHaveLength(0);
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'tool', tool: expect.objectContaining({ status: 'error' }) }),
+    );
+  });
   it('bounds repeated tools and loop depth', async () => {
     const execute = vi.fn(() => 'ok');
     const options = {

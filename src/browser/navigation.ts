@@ -1,3 +1,5 @@
+import { isAllowedNavigationPath } from '../core/navigation';
+
 export interface NavigationOptions {
   path: string;
   sectionId?: string;
@@ -11,7 +13,7 @@ export async function navigatePage(options: NavigationOptions): Promise<string> 
   if (
     destination.origin !== location.origin ||
     !['http:', 'https:'].includes(destination.protocol) ||
-    !options.allowedPaths.includes(destination.pathname)
+    !isAllowedNavigationPath(destination.pathname, options.allowedPaths)
   )
     throw new Error('This page is outside the assistant’s allowed navigation.');
   if (options.navigate) {

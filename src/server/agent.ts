@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import { defaultSettings } from '../core/settings';
 import { languageName, localizeSection, normalizeLocale } from '../core/locale';
+import { isAllowedNavigationPath, navigationPathPattern } from '../core/navigation';
 import { streamProvider } from './provider-stream';
 import type {
   AgentEvent,
@@ -59,22 +60,34 @@ function availableTools(
     add(
       {
         name: 'navigate',
-        description: 'Open an allowed application page, optionally pointing out a section on it.',
+        description:
+          'Open an allowed application page, optionally pointing out a section on it. For a path ending in /*, use a concrete URL in that subtree, never the wildcard itself.',
         parameters: {
           type: 'object',
           properties: {
-            path: { type: 'string', enum: paths },
+            path: paths.some((path) => path.endsWith('/*'))
+              ? {
+                  type: 'string',
+                  description: `Allowed paths: ${paths.join(', ')}. A trailing /* includes the base path and descendants.`,
+                  anyOf: paths.map((path) => ({ pattern: navigationPathPattern(path) })),
+                }
+              : { type: 'string', enum: paths },
             sectionId: { type: 'string', enum: sections.map((section) => section.id) },
           },
           required: ['path'],
           additionalProperties: false,
         },
       },
-      (args) => ({
-        type: 'navigate',
-        path: String(args.path),
-        ...(args.sectionId ? { sectionId: String(args.sectionId) } : {}),
-      }),
+      (args) => {
+        const path = String(args.path);
+        if (!isAllowedNavigationPath(path, paths))
+          throw new Error('This page is outside the assistant’s allowed navigation.');
+        return {
+          type: 'navigate',
+          path,
+          ...(args.sectionId ? { sectionId: String(args.sectionId) } : {}),
+        };
+      },
     );
   if (features.tour)
     add(
