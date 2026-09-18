@@ -555,7 +555,7 @@
   margin: 10px 0;
 }
 .report-number small {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   font-size: 15px;
   color: var(--muted);
   letter-spacing: 0;

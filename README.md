@@ -525,6 +525,8 @@ The automated suite covers fragmented SSE and Unicode, tool argument validation,
 
 `npm run capture:demo` regenerates the GIF and screenshots from a running playground. `npm run build:demo` builds the static site.
 
+The demos use locally hosted Inter with stronger text contrast and larger conversation text. The [shared typography overrides](demo/assistant-typography.css) demonstrate changing the widget through public CSS variables and shadow parts while keeping project-owned styles independent. The README GIF is recorded at its native resolution so text is not resampled.
+
 ## Repository and release
 
 - **`main`** — library source, tests, documentation, examples and demo source.

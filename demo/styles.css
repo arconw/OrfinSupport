@@ -1,14 +1,15 @@
 :root {
-  font-family: 'DM Sans', sans-serif;
-  color: #25334a;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  color: #162235;
   background: #f6f8fc;
   font-synthesis: none;
   font-optical-sizing: auto;
   font-size: 16px;
+  font-weight: 450;
   line-height: 1.5;
   --cobalt: #4361ee;
-  --ink: #25334a;
-  --muted: #4f5e75;
+  --ink: #162235;
+  --muted: #354259;
   --line: #e9edf4;
 }
 * {
@@ -103,7 +104,7 @@ button:disabled {
   border-radius: 9px;
 }
 .version {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: var(--muted);
@@ -190,11 +191,11 @@ button:disabled {
   line-height: 1.2;
 }
 .workspace-brand > span > span {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   display: block;
   font-size: 12px;
   color: var(--muted);
-  font-weight: 400;
+  font-weight: 450;
   letter-spacing: 0;
   margin-top: 6px;
 }
@@ -365,7 +366,7 @@ button:disabled {
   display: block;
   color: var(--muted);
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 450;
   margin-top: 3px;
 }
 .user-avatar {
@@ -658,10 +659,10 @@ button:disabled {
   gap: 9px;
 }
 .pulse-stat strong > span {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
   color: var(--muted);
-  font-weight: 400;
+  font-weight: 450;
   letter-spacing: 0;
 }
 .positive {

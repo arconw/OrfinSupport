@@ -2,6 +2,8 @@
 
 OrfinSupport supports three levels of styling: a complete preset, preset overrides, and a project-owned appearance with no preset at all. All framework adapters use the same settings.
 
+The Northstar demo and Next example use locally hosted Inter, stronger text contrast, 15px conversation text and a 16px composer. Their [shared typography stylesheet](../demo/assistant-typography.css) uses the public CSS variable and shadow parts, and stops applying when `theme: 'none'` is selected. Fonts belong to your application; the npm widget does not download them or require Inter.
+
 ## Disable the preset
 
 ```ts
