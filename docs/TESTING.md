@@ -34,6 +34,8 @@ The expanded workspace shares catalog, cart and delivery-ledger data between UI 
 
 Appearance checks cover ten presets (five light/five dark), token contrast, widget and Playground selection, custom logo replacement/failure fallback, Arabic at 320×568, reduced motion and retention of one spotlight mask between tour steps. The new report, shop, product, comparison and settings pages are also scanned with axe; contrast and review-star semantics were corrected based on those results. New pages fit a 320-pixel viewport; dense report tables scroll within their container.
 
+Mobile Playground regressions also enter a long custom logo URL, edit its alternative text and adjust dimming. They compare document and visual viewport widths with the configured 320/390-pixel device width and check control bounds. Before the fix, the configuration preview's minimum grid width expanded the page; long JSON lines now scroll inside that preview.
+
 An external-only consumer loads its scheme from an ordinary project CSS file with both preset and injected custom styles empty. Removing that file removes the appearance; no inline preset palette remains. Desktop and mobile RTL checks retain the conversation and custom logo through preset→none→preset. The external `::part(input):focus-visible` regression failed before removing an unconditional important outline reset from structural CSS; the preset now owns that visual reset, while no-preset mode retains overridable keyboard focus indicators.
 
 ## Live model checks

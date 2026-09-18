@@ -1498,6 +1498,7 @@ button:disabled {
   padding-top: 22px;
 }
 .config-card {
+  min-width: 0;
   border: 1px solid #e1e7f1;
   border-radius: 12px;
   background: #edf2f9;

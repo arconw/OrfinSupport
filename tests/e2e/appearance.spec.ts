@@ -107,7 +107,7 @@ for (const width of [320, 390]) {
     browser,
   }) => {
     const context = await browser.newContext({
-      viewport: { width, height: 844 },
+      viewport: { width, height: width === 320 ? 568 : 844 },
       isMobile: true,
       hasTouch: true,
       reducedMotion: 'no-preference',
@@ -120,6 +120,37 @@ for (const width of [320, 390]) {
     );
     await page.locator(`${root} .header .icon-button`).last().tap();
     await page.getByRole('button', { name: 'Espresso', exact: true }).tap();
+    await page.getByLabel('Assistant logo', { exact: true }).selectOption('custom');
+    await page
+      .getByLabel('Logo image URL', { exact: true })
+      .fill(`./studio-mark.svg#${'appearance-'.repeat(60)}`);
+    await page
+      .getByLabel('Logo alternative text', { exact: true })
+      .fill('A configurable project assistant logo');
+    const range = page.getByLabel('Background dimming', { exact: true });
+    await range.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(range).toHaveValue('0.2');
+    const layout = await page.evaluate(() => ({
+      documentWidth: document.documentElement.scrollWidth,
+      visualWidth: visualViewport!.width,
+      bounds: Array.from(
+        document.querySelectorAll(
+          '.settings-card, .config-card, .theme-preview, .host-appearance, .setting-field input, .setting-field select',
+        ),
+        (element) => {
+          const { left, right } = element.getBoundingClientRect();
+          return { left, right };
+        },
+      ),
+    }));
+    expect(layout.documentWidth).toBe(width);
+    expect(layout.visualWidth).toBeCloseTo(width, 0);
+    expect(layout.bounds.every(({ left, right }) => left >= 0 && right <= width)).toBe(true);
+    const configPreview = page.getByLabel('Integration configuration', { exact: true });
+    expect(
+      await configPreview.evaluate((element) => element.scrollWidth > element.clientWidth),
+    ).toBe(true);
     await page.locator(`${root} .launcher`).tap();
     await expect(page.locator(`${root} .panel`)).toHaveCSS('background-color', 'rgb(52, 44, 40)');
     await page.goto('http://127.0.0.1:4173/');
