@@ -62,7 +62,7 @@ const server = createServer(async (incoming, outgoing) => {
         status: 'ok',
         mode: 'live',
         model: process.env.ORFIN_MODEL ?? 'gpt-5.6-sol',
-        tools: ['project_status', 'team_capacity (MCP)'],
+        tools: ['project_status', ...mcp.tools.map((tool) => `${tool.name} (MCP)`)],
         preview: !!serveStatic,
         revision: process.env.ORFIN_DEMO_REVISION,
       }),

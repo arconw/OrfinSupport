@@ -5,9 +5,39 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createServer } from 'node:http';
 import { toolsFromMCP, connectMCP } from '../../src/mcp/index';
+import { createWorkspaceMCP } from '../../demo/mcp';
+import { workspaceStatistics } from '../../demo/data';
 import { request } from './helpers';
 
 describe('MCP bridge', () => {
+  it('exposes demo workspace statistics with completed task counts through the SDK', async () => {
+    const connection = await createWorkspaceMCP();
+    try {
+      expect(connection.tools.map((tool) => tool.name).sort()).toEqual([
+        'team_capacity',
+        'workspace_statistics',
+      ]);
+      const tool = connection.tools.find((tool) => tool.name === 'workspace_statistics')!;
+      const result = await tool.execute(
+        {},
+        { signal: new AbortController().signal, request: request() },
+      );
+      expect(result).toMatchObject({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              ...workspaceStatistics,
+              source: 'Northstar demo workspace over MCP',
+            }),
+          },
+        ],
+      });
+      expect(workspaceStatistics).toMatchObject({ completedTasks: 24, period: 'this week' });
+    } finally {
+      await connection.close();
+    }
+  });
   it('connects to a real Streamable HTTP endpoint and closes the session', async () => {
     const mcp = new McpServer({ name: 'http-test', version: '1' });
     mcp.registerTool('status', { inputSchema: {} }, async () => ({

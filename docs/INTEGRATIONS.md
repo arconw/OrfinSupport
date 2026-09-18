@@ -197,7 +197,9 @@ Create a connection with the right authentication scope, share it only across re
 
 `toolsFromMCP(existingClient, { allow, prefix })` also supports SDK clients connected through stdio or another SDK transport. The bridge follows discovery cursors, forwards `AbortSignal`, rejects `isError` results and keeps remote tool names separate from model-visible prefixes. Pin the optional SDK peer to the compatible 1.x release line used by this package.
 
-The demo’s `team_capacity` tool uses the official SDK over an in-memory transport: it performs MCP initialization, discovery and calls. This is an actual protocol integration with fictional workspace data. Production HTTP transport creation is available through `connectMCP`.
+The demo automatically connects `workspace_statistics` and `team_capacity` using the official SDK over an in-memory transport: it performs MCP initialization, discovery and calls. `workspace_statistics` returns the current plan, member count, active projects, completed tasks this week and on-time delivery rate. `team_capacity` returns available and planned working days, utilization and remaining capacity. The data are fictional fixtures shared with the demo overview; the calls go through the actual protocol. Production HTTP transport creation is available through `connectMCP`.
+
+Select **Live AI** and leave **Connected tools** enabled in the demo Playground. Ask “Please call the connected MCP workspace statistics tool and tell me the completed task count. Use the tool, not the knowledge documents.” The widget sends the request to `/api/orfin`, displays the running tool and then **workspace statistics · Done**, and streams an answer with **24 completed tasks this week**. No additional MCP setup is needed for this local example. Demo replies do not call MCP. The live browser suite exercises this complete path without response interception on both desktop and mobile.
 
 ## Server boundaries
 

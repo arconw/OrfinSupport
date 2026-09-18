@@ -48,7 +48,7 @@ export function SettingsPage({
     {
       key: 'tools',
       title: 'Connected tools',
-      description: 'Use workspace tools and connected MCP services.',
+      description: 'In Live AI, fetch workspace statistics and team capacity through MCP.',
     },
   ];
   const config = JSON.stringify(

@@ -49,9 +49,11 @@ npm run dev
 
 Open **http://127.0.0.1:4173**. Northstar is a fictional studio workspace with working project filters, project creation, tasks, knowledge articles and an assistant settings playground.
 
-**Demo replies** work without a backend or API credentials, including on GitHub Pages. **Live AI** sends requests through the local demo server to `http://127.0.0.1:8787/codex/v1`, using `gpt-5.6-sol` by default. The gateway must already be running. The live server also starts an actual MCP client/server connection for the team capacity tool.
+**Demo replies** work without a backend or API credentials, including on GitHub Pages. **Live AI** sends requests through the local demo server to `http://127.0.0.1:8787/codex/v1`, using `gpt-5.6-sol` by default. The gateway must already be running. The live server automatically connects an actual MCP client/server pair with `workspace_statistics` and `team_capacity`. **Connected tools** in Playground is enabled by default; there is no separate MCP switch.
 
 Try “Show me the active projects”, “What does the Studio plan cost?”, “Open the knowledge page”, or “What is our team capacity this week?”
+
+To try MCP, select **Live AI** and ask: “Please call the connected MCP workspace statistics tool and tell me the completed task count. Use the tool, not the knowledge documents.” Orfin shows **workspace statistics · Done** and reports **24 tasks this week**, using the same fictional data as the overview. Demo replies simulate conversations; actual MCP calls require Live AI and the local backend. The answer follows the language selected in assistant preferences.
 
 For a stable production preview with both Demo replies and Live AI, run `npm run preview:demo` and open **http://127.0.0.1:4189**. It builds an isolated copy of the frontend and API; source edits and subsequent builds do not reload an ongoing review. Start a new snapshot on another port with `npm run preview:demo -- --port 4190`. The gateway is required only for Live AI.
 
@@ -285,6 +287,7 @@ npx playwright install chromium
 npm run test:e2e
 npm run dev
 npm run test:live
+npm run test:live:browser
 npm install --prefix examples/next
 npm run test:next
 ```

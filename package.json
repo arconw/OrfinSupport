@@ -81,6 +81,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:live": "tsx scripts/live-check.ts",
+    "test:live:browser": "playwright test --config playwright.live.config.ts",
     "check": "npm run typecheck && npm test && npm run build && npm run build:demo",
     "prepack": "npm run build",
     "format": "prettier --write src demo tests scripts docs examples *.json *.ts *.md .github",

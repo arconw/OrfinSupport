@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Latest validation: **53 unit/integration tests, 44 Chromium browser tests, 3 Next.js production tests and 11 live gateway scenarios**.
+Latest validation: **54 unit/integration tests, 44 Chromium browser tests, 3 Next.js production tests, 12 live gateway scenarios and 2 live browser scenarios**. Each live browser scenario also passed twice in fresh contexts against the frozen production preview.
 
 ## Automated coverage
 
@@ -33,10 +33,13 @@ The gateway was already running at `http://127.0.0.1:8787/codex/v1`. The checks 
 | Project context          | A real response streamed across multiple text deltas                                                                 |
 | Model-directed spotlight | The model requested `highlight_section` for `projects`; the server emitted the corresponding browser action          |
 | MCP tool round trip      | The model called `team_capacity`; the official SDK client completed the tool call and the model continued its answer |
+| Workspace statistics     | The model called `workspace_statistics` and reported 24 completed tasks this week from the MCP result                |
 | Retrieval                | The Studio plan document was returned as a source and used in the streamed response                                  |
 | Next.js backend          | The production Route Handler returned a successful SSE reply through the gateway                                     |
 
 Additional live checks verify Spanish, Japanese and Arabic replies to English questions, and English as the default for a Russian question. Russian checks require an actual completed MCP call and a Russian answer to the acceptance question about the Studio plan and 12 members, both with and without English history. A separate case explicitly requests English while the UI locale is Russian. `npm run test:live` regenerates a machine-readable local report under `.artifacts/` without saving message contents or credentials.
+
+The live browser suite submits the exact acceptance question about completed tasks through the public widget, with English at 1440×1000 and Russian at 390×844. It verifies the real `/api/orfin` request, enabled tools, MCP running/complete events with the same call ID, the rendered Done card, the correct task count and answer language, an empty composer, and no browser exceptions. It does not intercept requests or replace model replies. This regression failed on the previous preview: the demo offered only `team_capacity`, whose result did not include completed tasks. The new `workspace_statistics` tool shares the overview's weekly statistics fixture.
 
 ## Reproducing
 
@@ -50,6 +53,14 @@ npm run test:e2e
 For actual model checks, keep the gateway running, start `npm run dev`, and run `npm run test:live` in another terminal. For the Next.js integration, build the library, install `examples/next` dependencies, then run `npm run test:next`.
 
 For uninterrupted browser acceptance, use `npm run preview:demo` at `http://127.0.0.1:4189`. Frontend assets and the API are bundled into an isolated `.runtime/preview-*` directory and served without HMR or a file watcher. Both modes work from the same origin. Run live checks against it with `ORFIN_LIVE_URL=http://127.0.0.1:4189/api/orfin npm run test:live`; use `ORFIN_LIVE_FILTER=Russian` to select the language scenarios. To keep an existing review stable, start subsequent snapshots with a different `--port`.
+
+Run the complete widget → backend → MCP → model check against that preview:
+
+```bash
+ORFIN_LIVE_BROWSER_URL=http://127.0.0.1:4189 npm run test:live:browser
+```
+
+The default browser target is the development demo on port 4173. This suite requires the backend and gateway to be running and intentionally does not reuse mocked CI responses. Screenshots, call metadata and the JSON result are saved under `.artifacts/live-browser*`. Use `-- --repeat-each=2` for two independent runs per locale.
 
 The browser fixtures are served only in development. The production demo build includes the React playground and does not ship Angular’s compiler or the test fixtures. Explicit dependency prebundling prevents lazy framework imports from reloading active test pages.
 

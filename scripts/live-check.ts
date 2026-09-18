@@ -12,6 +12,13 @@ const replyText = (events: AgentEvent[]) =>
     .filter((event) => event.type === 'delta')
     .map((event) => event.text)
     .join('');
+const completedMCP = (events: AgentEvent[]) =>
+  events.some(
+    (event) =>
+      event.type === 'tool' &&
+      ['team_capacity', 'workspace_statistics'].includes(event.tool.name) &&
+      event.tool.status === 'complete',
+  );
 const cases: {
   name: string;
   query: string;
@@ -49,6 +56,18 @@ const cases: {
       ),
   },
   {
+    name: 'MCP workspace completed task count',
+    query:
+      'Please call the connected MCP workspace statistics tool and tell me the completed task count. Use the tool, not the knowledge documents.',
+    check: (events) =>
+      events.some(
+        (event) =>
+          event.type === 'tool' &&
+          event.tool.name === 'workspace_statistics' &&
+          event.tool.status === 'complete',
+      ) && /\b24\b/u.test(replyText(events)),
+  },
+  {
     name: 'retrieval with sources',
     query: 'What is the price of the Studio plan?',
     check: (events: AgentEvent[]) =>
@@ -80,12 +99,7 @@ const cases: {
     query:
       'Use the connected MCP workspace statistics tool. What plan is this workspace on and how many team members are there?',
     check: (events) =>
-      events.some(
-        (event) =>
-          event.type === 'tool' &&
-          event.tool.name === 'team_capacity' &&
-          event.tool.status === 'complete',
-      ) &&
+      completedMCP(events) &&
       (replyText(events).match(/[А-Яа-яЁё]/gu)?.length ?? 0) > 20 &&
       /Studio/u.test(replyText(events)) &&
       /12/u.test(replyText(events)),
@@ -104,12 +118,7 @@ const cases: {
     query:
       'Use the connected MCP workspace statistics tool. What plan is this workspace on and how many team members are there?',
     check: (events) =>
-      events.some(
-        (event) =>
-          event.type === 'tool' &&
-          event.tool.name === 'team_capacity' &&
-          event.tool.status === 'complete',
-      ) && (replyText(events).match(/[А-Яа-яЁё]/gu)?.length ?? 0) > 20,
+      completedMCP(events) && (replyText(events).match(/[А-Яа-яЁё]/gu)?.length ?? 0) > 20,
   },
   {
     name: 'explicit English request overrides Russian locale after MCP',
@@ -117,12 +126,7 @@ const cases: {
     query:
       'Answer in English. Use the connected MCP workspace statistics tool. What plan is this workspace on and how many team members are there?',
     check: (events) =>
-      events.some(
-        (event) =>
-          event.type === 'tool' &&
-          event.tool.name === 'team_capacity' &&
-          event.tool.status === 'complete',
-      ) &&
+      completedMCP(events) &&
       /Studio/u.test(replyText(events)) &&
       /12/u.test(replyText(events)) &&
       !/[А-Яа-яЁё]/u.test(replyText(events)),

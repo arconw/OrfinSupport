@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import type { OrfinController } from '../../src/index';
-import type { Project } from '../data';
+import { workspaceStatistics, type Project } from '../data';
 import { OrfinLogo, WelcomeArt } from './Brand';
 import { Avatars, ProjectCard } from './Projects';
 
@@ -87,7 +87,8 @@ export function Overview({
           </div>
           <div className="pulse-stat">
             <strong>
-              24<span>tasks completed</span>
+              {workspaceStatistics.completedTasks}
+              <span>tasks completed</span>
             </strong>
             <span className="positive">
               <ArrowUpRight size={13} />
@@ -133,7 +134,7 @@ export function Overview({
             <Flag size={16} />
           </span>
           <span>
-            <strong>8</strong> active projects
+            <strong>{workspaceStatistics.activeProjects}</strong> active projects
           </span>
           <small>2 near the finish line</small>
         </div>
@@ -142,7 +143,7 @@ export function Overview({
             <Check size={16} />
           </span>
           <span>
-            <strong>92%</strong> on-time delivery
+            <strong>{workspaceStatistics.onTimeDelivery}</strong> on-time delivery
           </span>
           <small>
             <ArrowUpRight size={11} />
@@ -152,7 +153,7 @@ export function Overview({
         <div>
           <Avatars names={['JD', 'MK', 'AL']} small />
           <span>
-            <strong>12</strong> lovely teammates
+            <strong>{workspaceStatistics.members}</strong> lovely teammates
           </span>
           <button aria-label="View team knowledge" onClick={() => navigate('/knowledge')}>
             <ChevronRight size={15} />
