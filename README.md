@@ -370,7 +370,28 @@ Choose a complete preset, then override individual tokens:
 
 Presets include foreground/background colors, control contrast, panel shape, shadow and header treatment. `supportedThemes` and `themePresets` are exported. Switch in widget preferences, the Playground, or with `orfin.updateSettings({ theme: 'forest' })`.
 
-**Use your own design system completely:** `theme: 'none'` removes the preset stylesheet and its palette, typography, borders and shadows. Positioning, scrolling, interaction and accessible controls remain. Pass your application’s CSS as `styles`, or style the exposed shadow parts from an external stylesheet. The Playground’s **Northstar appearance** is a working example; its [complete host stylesheet](demo/host-theme.css) covers chat, preferences, hover, tours and section selection.
+**Use your own design system completely:** `theme: 'none'` removes the preset stylesheet and its palette, typography, borders and shadows. Positioning, scrolling, interaction and accessible controls remain. Pass your application’s CSS as `styles`, or style the exposed shadow parts from an external stylesheet. The Playground’s **Northstar appearance — No preset · Project styles** is a working example; its [complete host stylesheet](demo/host-theme.css) covers chat, preferences, hover, tours and section selection. The [styling guide](docs/STYLING.md) explains the Shadow DOM boundary, controls, states and runtime switching.
+
+Start without a preset and define the appearance in your project's ordinary CSS file:
+
+```ts
+const orfin = createOrfin({ endpoint: '/api/orfin', theme: 'none' });
+```
+
+```css
+[data-orfin-root][data-theme='none']::part(orfin) {
+  font-family: Georgia, serif;
+  color: #263c35;
+}
+
+[data-orfin-root][data-theme='none']::part(panel) {
+  background: #f9fff3;
+  border: 2px solid #315947;
+  border-radius: 0;
+}
+```
+
+This minimal example styles the text and panel; use the guide or the complete host stylesheet for all controls and states. Ordinary selectors such as `[data-orfin-root] .panel` do **not** cross the shadow boundary. For descendant and attribute-state selectors, pass your project's stylesheet text through `styles`:
 
 ```ts
 const orfin = createOrfin({

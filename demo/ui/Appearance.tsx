@@ -67,7 +67,7 @@ export function Appearance({
         onClick={() => update({ theme: 'none' })}
       >
         <span>Northstar appearance</span>
-        <small>Your own typography, surfaces and controls.</small>
+        <small>No preset · Project styles</small>
         {settings.theme === 'none' && <Check size={14} />}
       </button>
       <label className="setting-field">

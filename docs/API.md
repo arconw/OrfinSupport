@@ -140,6 +140,8 @@ Each request includes only the available sections of the current document. A sel
 
 External CSS needs to target the host or exposed shadow parts. The widget does not load remote fonts. Mobile rules fit the viewport, use dynamic viewport height and respect safe-area insets. Motion respects `prefers-reduced-motion`.
 
+See the [styling guide](STYLING.md) for a complete explanation of no-preset mode, external CSS, component states and restoring a built-in theme. Ordinary host selectors do not cross Shadow DOM.
+
 The ten `ThemePreset` values are `cloud`, `iris`, `lagoon`, `sand`, `rose`, `midnight`, `graphite`, `forest`, `plum` and `espresso`. `themePresets` exports their tokens; `supportedThemes` exports the names. The first five are light and the last five are dark. `--orfin-shadow` overrides the preset panel shadow.
 
 `Theme` also accepts `'none'`. This completely omits the preset stylesheet and inline preset tokens. The structural layout stylesheet remains for positioning, scroll containment, controls, responsive geometry and motion. Supply visual styling through `styles` (default `''`) or external `::part()` rules. CSS custom properties are inherited; your stylesheet maps them to your design system. Visual defaults in the token table apply to presets only.
