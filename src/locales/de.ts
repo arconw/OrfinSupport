@@ -46,6 +46,7 @@ export const de = {
   tourControls: 'Rundgang steuern',
   conversation: 'Unterhaltung',
   clearContext: 'Bereichsauswahl aufheben',
+  externalTheme: 'Website-Stil',
   cloud: 'Wolke',
   midnight: 'Mitternacht',
   lagoon: 'Lagune',

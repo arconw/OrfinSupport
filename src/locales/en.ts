@@ -44,6 +44,7 @@ export const en = {
   tourControls: 'Tour controls',
   conversation: 'Conversation',
   clearContext: 'Clear section context',
+  externalTheme: 'Host appearance',
   cloud: 'Cloud',
   midnight: 'Midnight',
   lagoon: 'Lagoon',

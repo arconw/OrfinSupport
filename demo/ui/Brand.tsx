@@ -2,11 +2,11 @@ export function OrfinLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <path
-        d="M20 3c2 10 7 15 17 17-10 2-15 7-17 17C18 27 13 22 3 20 13 18 18 13 20 3Z"
+        d="M8 9C12 4 24 3 30 8c5 4 7 12 4 18-2 5-7 8-13 8h-4l-6 3 1-6C5 28 3 16 8 9Z"
         fill="currentColor"
       />
-      <circle cx="17" cy="20" r="1.4" fill="white" />
-      <circle cx="23" cy="20" r="1.4" fill="white" />
+      <ellipse cx="16" cy="19" rx="1.7" ry="2.5" fill="var(--orfin-eye, white)" />
+      <ellipse cx="25" cy="18.5" rx="1.7" ry="2.5" fill="var(--orfin-eye, white)" />
     </svg>
   );
 }
@@ -71,12 +71,9 @@ export function WelcomeArt() {
         transform="rotate(8 137 66)"
         fill="#eef2ff"
       />
-      <path
-        d="M179 87c3 14 9 20 23 23-14 3-20 9-23 23-3-14-9-20-23-23 14-3 20-9 23-23Z"
-        fill="#4361ee"
-      />
-      <circle cx="175" cy="110" r="2" fill="white" />
-      <circle cx="184" cy="110" r="2" fill="white" />
+      <g transform="translate(154 85) scale(1.3)" color="#4361ee">
+        <OrfinLogo size={40} />
+      </g>
       <rect
         x="153"
         y="143"

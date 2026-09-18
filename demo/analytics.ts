@@ -1,7 +1,9 @@
 export const deliveryReport = {
   title: 'Studio delivery report',
-  period: 'Aug 10 – Sep 18, 2026',
-  source: 'Northstar delivery ledger v2026.09.18',
+  period: 'Aug 10 – Sep 20, 2026',
+  calendar:
+    'Fictional snapshot after September 20, 2026. Completed Monday–Sunday weeks; both comparison windows contain 21 calendar days.',
+  source: 'Northstar delivery ledger v2026.09.20',
   weeks: [
     { label: 'Aug 10', delivered: 14, planned: 20 },
     { label: 'Aug 17', delivered: 16, planned: 20 },
@@ -58,7 +60,11 @@ export function analyzeDelivery() {
     ...deliveryReport,
     comparison: {
       previousPeriod: 'Aug 10–30',
-      currentPeriod: 'Aug 31–Sep 18',
+      currentPeriod: 'Aug 31–Sep 20',
+      previousStart: '2026-08-10',
+      previousEnd: '2026-08-30',
+      currentStart: '2026-08-31',
+      currentEnd: '2026-09-20',
       previous,
       current,
       change: current - previous,
@@ -74,4 +80,9 @@ export function analyzeDelivery() {
   };
 }
 
-export const dailyDelivery = { current: [3, 5, 4, 6, 4, 1, 1], previous: [3, 4, 3, 5, 4, 2, 1] };
+export const dailyDelivery = {
+  current: [3, 5, 4, 6, 4, 1, 1],
+  previous: [3, 4, 3, 5, 4, 2, 1],
+  currentPeriod: 'Sep 14–20',
+  previousPeriod: 'Sep 7–13',
+};

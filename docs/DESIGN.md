@@ -59,3 +59,7 @@ Ten assistant presets form two families of five. Cloud, Iris, Lagoon, Sand and R
 Review: a grid of ten miniature dashboard cards would confuse theme selection with the product demo. Keep theme samples compact in the playground; spend the expressive design on the report and product illustrations. Motion follows actions: retain the spotlight while its target changes and fade its mask in and out. Nothing should flash or obscure tour controls.
 
 Design process informed by [Anthropic's frontend-design skill](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
+
+The default Orfin character is a rounded, slightly asymmetric speech shape with two tall eyes. Its small lower-left tail suggests a conversation; its silhouette stays recognizable at launcher and message sizes. This identity is separate from Northstar’s compass symbol. Custom logos retain a reserved, consistent footprint.
+
+The host appearance example deliberately changes typography, corners and control treatment: warm paper, forest ink, serif headings and double-rule separators. It uses no preset stylesheet. Functional geometry and reduced-motion behavior remain library concerns; application CSS supplies every visual surface. The mobile theme gallery uses a three-column grid and never expands the page width.

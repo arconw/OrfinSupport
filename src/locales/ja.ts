@@ -46,6 +46,7 @@ export const ja = {
   tourControls: 'ツアーの操作',
   conversation: '会話',
   clearContext: '選択したセクションを解除',
+  externalTheme: 'サイトの外観',
   cloud: 'クラウド',
   midnight: 'ミッドナイト',
   lagoon: 'ラグーン',

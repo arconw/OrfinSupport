@@ -2,6 +2,7 @@ import type { Tool, ToolContext } from '../src/core/types';
 import { analyzeDelivery } from './analytics';
 import { cartSummary, productById, productIds, products, updateCart } from './catalog';
 import type { CartSnapshot } from './catalog';
+import { reportViewFromRequest, type ReportView } from './report-store';
 
 export interface CartRepository {
   get(context: ToolContext): CartSnapshot;
@@ -128,11 +129,33 @@ export function createStudioTools(carts: CartRepository): Tool[] {
     {
       name: 'get_delivery_report',
       description:
-        'Read studio analytics: six weekly delivered/planned counts, two comparable three-week periods, Brand versus Web segments, lead times, rework and evidence references. Interpret changes using this data and distinguish observed associations from causal proof. Opens the report.',
-      parameters: schema({}),
-      execute: (_args, context) => {
+        'Read studio analytics and its current visible filters. Optional period/segment change the displayed view; omit them to preserve visitor selections from page context. Returns visible chart/table rows plus explicitly labeled full-studio comparison and evidence. Focus on the requested view and distinguish association from causation. Opens the report.',
+      parameters: schema(
+        {
+          period: { type: 'string', enum: ['all', 'recent'] },
+          segment: { type: 'string', enum: ['all', 'brand', 'web'] },
+        },
+        [],
+      ),
+      execute: (args, context) => {
+        const current = reportViewFromRequest(context.request);
+        const view: ReportView = {
+          period: (args.period ?? current.period) as ReportView['period'],
+          segment: (args.segment ?? current.segment) as ReportView['segment'],
+        };
+        const report = analyzeDelivery();
+        context.emitAction?.({ type: 'custom', name: 'report_view_changed', payload: { view } });
         context.emitAction?.({ type: 'navigate', path: '/reports', sectionId: 'delivery-chart' });
-        return analyzeDelivery();
+        return {
+          ...report,
+          selection: view,
+          visibleWeeks: view.period === 'recent' ? report.weeks.slice(3) : report.weeks,
+          visibleSegments: report.segments.filter(
+            (item) => view.segment === 'all' || item.id === view.segment,
+          ),
+          comparisonScope:
+            'The 48-to-66 comparison is for the full studio. Segment selection filters only the discipline table, not the studio chart or summary.',
+        };
       },
     },
   ];

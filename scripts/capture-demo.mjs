@@ -150,6 +150,13 @@ await sharp({ create: { width: 1025, height: 665, channels: 4, background: '#eef
   )
   .png()
   .toFile('docs/assets/themes.png');
+await page.goto(`${baseURL}/#/settings`);
+await page.evaluate(() => window.__orfin.close());
+await page.getByRole('button', { name: /Northstar appearance/ }).click();
+await page.locator('[data-orfin-root] .launcher').click();
+await page.locator('[data-orfin-root] textarea').blur();
+await page.screenshot({ path: 'docs/assets/host-appearance.png', animations: 'disabled' });
+await capture(2000);
 gif.finish();
 await writeFile('docs/assets/demo.gif', gif.bytes());
 await page.evaluate(() => {

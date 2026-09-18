@@ -13,6 +13,7 @@ export type ThemePreset =
   | 'forest'
   | 'plum'
   | 'espresso';
+export type Theme = ThemePreset | 'none';
 export interface AssistantLogo {
   src: string;
   alt?: string;
@@ -73,7 +74,8 @@ export interface AssistantSettings {
   highlightOpacity: number;
   highlightTransition: number;
   logo: AssistantLogo | null;
-  theme: ThemePreset;
+  theme: Theme;
+  styles: string;
   locale: Locale;
   translations: TranslationOverrides;
 }

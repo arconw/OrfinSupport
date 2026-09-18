@@ -7,7 +7,7 @@ export const workspaceStatistics = {
   members: 12,
   activeProjects: 8,
   completedTasks: 24,
-  period: 'this week',
+  period: 'this sample week, September 14–20, 2026',
   onTimeDelivery: '92%',
 } as const;
 

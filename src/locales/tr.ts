@@ -46,6 +46,7 @@ export const tr = {
   tourControls: 'Tur kontrolleri',
   conversation: 'Sohbet',
   clearContext: 'Seçili bölümü kaldır',
+  externalTheme: 'Site görünümü',
   cloud: 'Bulut',
   midnight: 'Gece yarısı',
   lagoon: 'Lagün',

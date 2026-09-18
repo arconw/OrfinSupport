@@ -33,7 +33,10 @@ describe('MCP bridge', () => {
           },
         ],
       });
-      expect(workspaceStatistics).toMatchObject({ completedTasks: 24, period: 'this week' });
+      expect(workspaceStatistics).toMatchObject({
+        completedTasks: 24,
+        period: 'this sample week, September 14–20, 2026',
+      });
     } finally {
       await connection.close();
     }

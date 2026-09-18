@@ -61,6 +61,15 @@ export function Appearance({
           </div>
         </div>
       ))}
+      <button
+        className={`host-appearance ${settings.theme === 'none' ? 'selected' : ''}`}
+        aria-pressed={settings.theme === 'none'}
+        onClick={() => update({ theme: 'none' })}
+      >
+        <span>Northstar appearance</span>
+        <small>Your own typography, surfaces and controls.</small>
+        {settings.theme === 'none' && <Check size={14} />}
+      </button>
       <label className="setting-field">
         <span>Language</span>
         <select

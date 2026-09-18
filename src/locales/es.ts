@@ -46,6 +46,7 @@ export const es = {
   tourControls: 'Controles del recorrido',
   conversation: 'Conversación',
   clearContext: 'Quitar la sección seleccionada',
+  externalTheme: 'Estilo del sitio',
   cloud: 'Nube',
   midnight: 'Medianoche',
   lagoon: 'Laguna',

@@ -5,6 +5,8 @@ import { createStudioTools } from './tools';
 import { DemoCartStore } from './cart-store';
 import { money, productById, products } from './catalog';
 import { studioCopy } from './locales/studio';
+import { reportViewFromRequest } from './report-store';
+import { reportViewCopy } from './locales/report-view';
 
 type ScenarioKind = 'analysis' | 'compare' | 'review' | 'product' | 'cart' | 'changed' | 'catalog';
 interface DemoCall {
@@ -51,10 +53,18 @@ function scenarioFor(request: ChatRequest): Scenario | undefined {
   const named = products.filter(
     (product) => query.includes(product.name.toLowerCase()) || query.includes(product.id),
   );
-  const pageProduct = products.find((product) => request.page.url.endsWith(`/shop/${product.id}`));
+  const pageProduct = products.find((product) =>
+    request.page.sections.some((section) => section.id === `product-${product.id}`),
+  );
   const product =
     named[0] ??
-    (/second|втор|deuxième|zweite|第二|두 번째|الثاني/.test(query) ? products[1] : pageProduct);
+    (/second|втор|deuxième|zweite|第二|두 번째|الثاني/.test(query)
+      ? products[1]
+      : /\b(it|this|another|more|quantity)\b|add\s+(one|two|\d)\s+to|этот|его|ещ[её]|количеств/.test(
+            query,
+          )
+        ? pageProduct
+        : undefined);
   const call = (name: string, args: Record<string, unknown> = {}): DemoCall => ({ name, args });
   if (
     /review|three.star|3.star|отзыв|три звезд|три звёзд|avis|reseña|bewertung|recensione|avaliaç|recenz|відгук|yorum|مراجع|समीक्षा|评价|レビュー|리뷰/.test(
@@ -239,6 +249,8 @@ export async function* studioScenario(
       ),
     },
   );
+  if (scenario.kind === 'analysis')
+    reply = reportViewCopy(reportViewFromRequest(request), request.locale) + reply;
   if (scenario.kind === 'review') {
     const data = reviews as {
       reviews: { id: string; author: string; rating: number; text: string }[];

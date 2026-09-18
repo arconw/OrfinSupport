@@ -93,7 +93,7 @@ export function Overview({
             </strong>
             <span className="positive">
               <ArrowUpRight size={13} />
-              9.1%
+              {week === 'This week' ? '9.1%' : '10%'}
             </span>
           </div>
           <div
@@ -116,7 +116,7 @@ export function Overview({
           <div className="chart-footer">
             <span>
               <i />
-              Completed tasks
+              {week === 'This week' ? dailyDelivery.currentPeriod : dailyDelivery.previousPeriod}
             </span>
             <select
               aria-label="Chart period"

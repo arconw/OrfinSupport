@@ -22,7 +22,7 @@ import {
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { OrfinSupport } from '../../src/adapters/react';
 import { createHttpTransport } from '../../src/core/transport';
-import { defaultSettings, resolveSettings } from '../../src/core/settings';
+import { resolveSettings } from '../../src/core/settings';
 import type { OrfinController, OrfinOptions, SettingsInput } from '../../src/index';
 import { initialProjects, sections } from '../data';
 import type { Project } from '../data';
@@ -38,6 +38,8 @@ import { ProductPage } from './Product';
 import { ComparePage } from './Compare';
 import { DemoCartStore } from '../cart-store';
 import { productIds, validateCart } from '../catalog';
+import hostStyles from '../host-theme.css?inline';
+import { DemoReportStore, validReportView } from '../report-store';
 
 declare global {
   interface Window {
@@ -60,9 +62,10 @@ const liveAvailable = import.meta.env.DEV || import.meta.env.VITE_ORFIN_DEMO_LIV
 export function App() {
   const [path, setPath] = useState(routeFromURL);
   const cartStore = useMemo(() => new DemoCartStore(), []);
+  const reportStore = useMemo(() => new DemoReportStore(), []);
   const cart = useSyncExternalStore(cartStore.subscribe, cartStore.get);
   const [orfin, setOrfin] = useState<OrfinController | null>(null);
-  const [settings, setSettings] = useState(defaultSettings);
+  const [settings, setSettings] = useState(() => resolveSettings({ styles: hostStyles }));
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [projects, setProjects] = useState(initialProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -97,15 +100,16 @@ export function App() {
   }, [toast]);
   const options = useMemo<OrfinOptions>(
     () => ({
-      transport:
-        mode === 'demo'
-          ? createDemoTransport(cartStore)
-          : {
-              async *stream(request, signal) {
-                await cartStore.whenReady();
-                yield* createHttpTransport({ endpoint: '/api/orfin' }).stream(request, signal);
-              },
-            },
+      transport: {
+        async *stream(request, signal) {
+          if (mode === 'live') await cartStore.whenReady();
+          const transport =
+            mode === 'demo'
+              ? createDemoTransport(cartStore)
+              : createHttpTransport({ endpoint: '/api/orfin' });
+          yield* transport.stream(reportStore.context(request), signal);
+        },
+      },
       sections,
       initiallyOpen: true,
       navigate,
@@ -115,15 +119,20 @@ export function App() {
         ...productIds.map((id) => `/shop/${id}`),
       ],
       actions: {
+        report_view_changed: (payload) => {
+          if (!validReportView(payload.view)) throw new Error('Invalid report view.');
+          reportStore.set(payload.view);
+        },
         cart_changed: (payload) => {
           if (!validateCart(payload.cart)) throw new Error('Invalid cart action.');
           cartStore.accept(payload.cart);
         },
       },
       theme: 'cloud',
+      styles: hostStyles,
       memory: { key: 'orfin:northstar:v1' },
     }),
-    [mode, navigate, cartStore],
+    [mode, navigate, cartStore, reportStore],
   );
   const ready = useCallback((controller: OrfinController) => {
     setOrfin(controller);
@@ -141,8 +150,9 @@ export function App() {
     );
   }, [orfin]);
   const update = (input: SettingsInput) => {
-    setSettings((previous) => resolveSettings(input, previous));
-    orfin?.updateSettings(input);
+    const next = { ...input, styles: hostStyles };
+    setSettings((previous) => resolveSettings(next, previous));
+    orfin?.updateSettings(next);
   };
   const active =
     routes.find(
@@ -175,7 +185,7 @@ export function App() {
               target="_blank"
               rel="noreferrer"
             >
-              Run Live AI locally ↗
+              Explore Live AI ↗
             </a>
           )}
           <label className="mode-switch">
@@ -192,14 +202,14 @@ export function App() {
                 setMode(nextMode);
                 setToast(
                   nextMode === 'live'
-                    ? 'Live AI uses your local llm-gate through the demo server.'
-                    : 'Demo mode uses sample responses. No API needed.',
+                    ? 'Live AI is ready. Ask Orfin to explore, explain or take action.'
+                    : 'Demo replies are ready. Try a tour, compare equipment or explore the report.',
                 );
               }}
             >
               <option value="demo">Demo replies</option>
               <option value="live" disabled={!liveAvailable}>
-                {liveAvailable ? 'Live AI · local gateway' : 'Live AI · run locally'}
+                {liveAvailable ? 'Live AI' : 'Live AI · setup required'}
               </option>
             </select>
             <ChevronDown size={12} />
@@ -391,7 +401,7 @@ export function App() {
               }}
             />
           )}
-          {path === '/reports' && <ReportsPage orfin={orfin} />}
+          {path === '/reports' && <ReportsPage orfin={orfin} store={reportStore} />}
           {path === '/shop' && <ShopPage orfin={orfin} store={cartStore} navigate={navigate} />}
           {path.startsWith('/shop/') && (
             <ProductPage

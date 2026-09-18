@@ -46,6 +46,7 @@ export const ko = {
   tourControls: '둘러보기 제어',
   conversation: '대화',
   clearContext: '선택한 섹션 해제',
+  externalTheme: '사이트 스타일',
   cloud: '구름',
   midnight: '한밤중',
   lagoon: '라군',

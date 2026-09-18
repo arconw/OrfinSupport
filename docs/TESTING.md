@@ -2,7 +2,7 @@
 
 Validated locally on **2026-09-18**, using Node.js 24, TypeScript strict mode, Chromium through Playwright, and the local `llm-gate` Codex endpoint.
 
-Expansion validation: **62 unit/integration tests, 56 Chromium browser tests, 2 static production demo tests, 3 Next.js production tests, 12 live gateway scenarios and 3 new live browser workflows**. The accepted baseline also includes two real MCP browser scenarios. The new live workflows cover cart mutations, Russian comparison/review retrieval and numeric analysis through the actual gateway.
+Expansion validation: **63 unit/integration tests, 60 Chromium browser tests, 2 static production demo tests, 3 Next.js production tests, 12 live gateway scenarios and 5 live browser workflows**. The live browser workflows cover MCP in English and Russian, cart mutations, Russian comparison/review retrieval and numeric analysis through the actual gateway. The browser suite additionally checks mobile fade frames, a host stylesheet with the preset disabled, preserved conversation and current report filters.
 
 ## Automated coverage
 

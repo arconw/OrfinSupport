@@ -46,6 +46,7 @@ export const ru = {
   tourControls: 'Управление экскурсией',
   conversation: 'Переписка',
   clearContext: 'Убрать выбранную секцию',
+  externalTheme: 'Оформление сайта',
   cloud: 'Облако',
   midnight: 'Полночь',
   lagoon: 'Лагуна',

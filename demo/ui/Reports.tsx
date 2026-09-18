@@ -1,12 +1,19 @@
 import { ArrowUpRight, FileText, MoveUpRight } from 'lucide-react';
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { OrfinController } from '../../src/index';
 import { analyzeDelivery, deliveryReport } from '../analytics';
 import { OrfinLogo } from './Brand';
+import type { DemoReportStore, ReportView } from '../report-store';
 
-export function ReportsPage({ orfin }: { orfin: OrfinController | null }) {
-  const [view, setView] = useState<'all' | 'recent'>('all');
-  const [segment, setSegment] = useState('all');
+export function ReportsPage({
+  orfin,
+  store,
+}: {
+  orfin: OrfinController | null;
+  store: DemoReportStore;
+}) {
+  const selection = useSyncExternalStore(store.subscribe, store.get);
+  const { period: view, segment } = selection;
   const analysis = analyzeDelivery();
   const weeks = view === 'all' ? deliveryReport.weeks : deliveryReport.weeks.slice(3);
   const segments = analysis.segments.filter((item) => segment === 'all' || item.id === segment);
@@ -23,7 +30,7 @@ export function ReportsPage({ orfin }: { orfin: OrfinController | null }) {
           className="button report-ask"
           onClick={() =>
             void orfin?.send(
-              'Analyze our delivery results. Compare Brand and Web, explain the trend with numbers and show the evidence. Distinguish possible causes from proven facts.',
+              'Analyze our delivery results for the current chart period and selected segment. Explain the trend with numbers and show the evidence. Distinguish possible causes from proven facts.',
             )
           }
         >
@@ -65,10 +72,16 @@ export function ReportsPage({ orfin }: { orfin: OrfinController | null }) {
             </span>
           </div>
           <div className="segmented-control" aria-label="Chart period">
-            <button aria-pressed={view === 'all'} onClick={() => setView('all')}>
+            <button
+              aria-pressed={view === 'all'}
+              onClick={() => store.set({ ...selection, period: 'all' })}
+            >
               Six weeks
             </button>
-            <button aria-pressed={view === 'recent'} onClick={() => setView('recent')}>
+            <button
+              aria-pressed={view === 'recent'}
+              onClick={() => store.set({ ...selection, period: 'recent' })}
+            >
               Latest three
             </button>
           </div>
@@ -126,7 +139,9 @@ export function ReportsPage({ orfin }: { orfin: OrfinController | null }) {
           <select
             aria-label="Report segment"
             value={segment}
-            onChange={(event) => setSegment(event.target.value)}
+            onChange={(event) =>
+              store.set({ ...selection, segment: event.target.value as ReportView['segment'] })
+            }
           >
             <option value="all">All disciplines</option>
             {analysis.segments.map((item) => (
@@ -207,8 +222,8 @@ export function ReportsPage({ orfin }: { orfin: OrfinController | null }) {
         </div>
       </section>
       <p className="dataset-note">
-        Source: {deliveryReport.source}. Mock data, shared with the report tool. A task is counted
-        once at delivery; rework counts tasks that required another review. No forecast is implied.
+        Source: {deliveryReport.source}. {deliveryReport.calendar} A task is counted once at
+        delivery; rework counts tasks that required another review. No forecast is implied.
       </p>
     </div>
   );

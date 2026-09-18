@@ -56,6 +56,7 @@ export function SettingsPage({
     {
       endpoint: '/api/orfin',
       theme: settings.theme,
+      ...(settings.theme === 'none' ? { styles: 'yourApplicationStyles' } : {}),
       logo: settings.logo,
       highlightOpacity: settings.highlightOpacity,
       highlightTransition: settings.highlightTransition,

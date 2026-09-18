@@ -107,3 +107,19 @@ test('mobile reports, comparison and product pages have no document overflow and
   await page.getByRole('button', { name: 'Remove Luma 32 Pro', exact: true }).click();
   await expect(page.locator('.cart-total')).toContainText('$0');
 });
+
+test('report answers use the current chart and discipline selections', async ({ page }) => {
+  await page.goto('/#/reports');
+  await page.evaluate(() => window.__orfin!.close());
+  await page.getByRole('button', { name: 'Latest three', exact: true }).click();
+  await page.getByLabel('Report segment', { exact: true }).selectOption('web');
+  await ask(page, 'Analyze the current report and explain what changed.');
+  const reply = page.locator(`${root} .message.assistant`).last();
+  await expect(reply).toContainText('Current view: Latest three weeks · Web experiences');
+  await expect(reply).toContainText('24 → 30 (+25%)');
+  await expect(reply).toContainText('Full studio comparison');
+  await expect(page.getByLabel('Report segment', { exact: true })).toHaveValue('web');
+  await expect(page.locator('.chart-week')).toHaveCount(3);
+  await expect(page.locator('.segment-table tbody tr')).toHaveCount(1);
+  await expect(page.locator('.report-context')).toContainText('Aug 31–Sep 20');
+});

@@ -46,6 +46,7 @@ export const ar = {
   tourControls: 'عناصر التحكم بالجولة',
   conversation: 'المحادثة',
   clearContext: 'إزالة القسم المحدد',
+  externalTheme: 'مظهر الموقع',
   cloud: 'سحابة',
   midnight: 'منتصف الليل',
   lagoon: 'بحيرة',

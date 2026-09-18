@@ -90,3 +90,24 @@ test('live analytics interprets changes and cites the evidence', async ({ page }
   await expect(page.locator('.report-number')).toContainText('66');
   await page.screenshot({ path: testInfo.outputPath('live-analysis.png') });
 });
+
+test('live analysis follows changed report filters', async ({ page }) => {
+  await page.goto('/#/reports');
+  await page.getByLabel('Assistant provider').selectOption('live');
+  await page.evaluate(() => window.__orfin!.close());
+  await page.getByRole('button', { name: 'Latest three', exact: true }).click();
+  await page.getByLabel('Report segment', { exact: true }).selectOption('web');
+  await page.evaluate(() => window.__orfin!.open());
+  const answer = await ask(
+    page,
+    'Use get_delivery_report for the current visible filters. Which chart period and discipline am I viewing, and how did that discipline change? Preserve my selections.',
+    'get_delivery_report',
+  );
+  await expect(answer).toContainText(/Web/i);
+  await expect(answer).toContainText('24');
+  await expect(answer).toContainText('30');
+  await expect(answer).toContainText('25');
+  await expect(page.getByLabel('Report segment', { exact: true })).toHaveValue('web');
+  await expect(page.locator('.chart-week')).toHaveCount(3);
+  await expect(page.locator('.segment-table tbody tr')).toHaveCount(1);
+});

@@ -91,6 +91,7 @@ button:disabled {
   letter-spacing: -0.6px;
 }
 .brand-mark {
+  --orfin-eye: var(--cobalt);
   display: grid;
   place-items: center;
   color: #fff;
@@ -1878,7 +1879,9 @@ button:disabled {
   }
   .mode-switch select {
     font-size: 11px;
-    max-width: 125px;
+    width: 84px;
+    min-width: 0;
+    max-width: 100%;
   }
   .sidebar {
     display: none;

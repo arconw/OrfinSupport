@@ -46,6 +46,7 @@ export const pt = {
   tourControls: 'Controles da visita',
   conversation: 'Conversa',
   clearContext: 'Remover seção selecionada',
+  externalTheme: 'Estilo do site',
   cloud: 'Nuvem',
   midnight: 'Meia-noite',
   lagoon: 'Lagoa',

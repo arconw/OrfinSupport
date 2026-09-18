@@ -1,0 +1,127 @@
+:host([data-theme='none']) .orfin {
+  --accent: var(--orfin-accent, #496052);
+  --surface: var(--orfin-surface, #fffef8);
+  --soft: var(--orfin-soft, #f1efe4);
+  --text: var(--orfin-text, #303c34);
+  --muted: var(--orfin-muted, #626b5e);
+  --line: var(--orfin-border, #d8dacf);
+  font-family: var(--orfin-font, Georgia, serif);
+  font-size: 14px;
+  color: var(--text);
+}
+:host([data-theme='none']) button,
+:host([data-theme='none']) select,
+:host([data-theme='none']) textarea {
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+:host([data-theme='none']) button:hover {
+  background: var(--soft);
+}
+:host([data-theme='none']) button:focus-visible,
+:host([data-theme='none']) select:focus-visible {
+  outline: 2px solid var(--accent);
+}
+:host([data-theme='none']) .panel,
+:host([data-theme='none']) .popover,
+:host([data-theme='none']) .picker-bar,
+:host([data-theme='none']) .section-list {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 12px 35px #293c2526;
+}
+:host([data-theme='none']) .header {
+  border-bottom: 3px double var(--accent);
+}
+:host([data-theme='none']) .heading h2 {
+  font-size: 19px;
+  font-weight: 500;
+}
+:host([data-theme='none']) .welcome h3 {
+  font-size: 28px;
+  font-weight: 500;
+}
+:host([data-theme='none']) .welcome-mark,
+:host([data-theme='none']) .avatar,
+:host([data-theme='none']) .message-label,
+:host([data-theme='none']) .context,
+:host([data-theme='none']) .popover-top,
+:host([data-theme='none']) a {
+  color: var(--accent);
+}
+:host([data-theme='none']) .launcher,
+:host([data-theme='none']) .send,
+:host([data-theme='none']) .primary,
+:host([data-theme='none']) .toggle[aria-checked='true'] {
+  background: var(--accent);
+  color: var(--surface);
+  border: 1px solid var(--accent);
+}
+:host([data-theme='none']) .launcher {
+  --orfin-eye: var(--accent);
+  border-radius: 8px;
+}
+:host([data-theme='none']) .icon-button,
+:host([data-theme='none']) .mini {
+  background: transparent;
+  border: 0;
+}
+:host([data-theme='none']) .input-wrap,
+:host([data-theme='none']) .message.user,
+:host([data-theme='none']) .error,
+:host([data-theme='none']) .theme[aria-pressed='true'] {
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+:host([data-theme='none']) .input-wrap:focus-within {
+  outline: 2px solid var(--accent);
+}
+:host([data-theme='none']) textarea {
+  font-size: 13px;
+  border: 0;
+  background: transparent;
+}
+:host([data-theme='none']) .tool,
+:host([data-theme='none']) .status,
+:host([data-theme='none']) .footer,
+:host([data-theme='none']) .source,
+:host([data-theme='none']) .mini,
+:host([data-theme='none']) .popover p {
+  font-size: 12px;
+  color: var(--muted);
+}
+:host([data-theme='none']) .message,
+:host([data-theme='none']) .suggestion,
+:host([data-theme='none']) .primary,
+:host([data-theme='none']) .secondary,
+:host([data-theme='none']) .theme,
+:host([data-theme='none']) .tour-inline {
+  font-size: 13px;
+}
+:host([data-theme='none']) .tour-inline,
+:host([data-theme='none']) .composer {
+  border-top: 1px solid var(--line);
+}
+:host([data-theme='none']) .tour-progress i,
+:host([data-theme='none']) .toggle {
+  background: var(--line);
+}
+:host([data-theme='none']) .tour-progress i.active,
+:host([data-theme='none']) .thinking i,
+:host([data-theme='none']) .status i {
+  background: var(--accent);
+}
+:host([data-theme='none']) .toggle::after {
+  background: var(--surface);
+  border-radius: 2px;
+}
+:host([data-theme='none']) .spot-label {
+  background: var(--accent);
+  color: var(--surface);
+  font:
+    12px system-ui,
+    sans-serif;
+}

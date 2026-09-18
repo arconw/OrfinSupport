@@ -22,10 +22,11 @@ export function createLogoRenderer(refresh: () => void) {
     }
     const src = logo?.src ? imageURL(logo.src) : undefined;
     const alt = logo?.alt?.trim() || 'Orfin';
-    return html`<span class="orfin-logo" style=${`width:${size}px;height:${size}px`}>
+    return html`<span class="orfin-logo" part="logo" style=${`width:${size}px;height:${size}px`}>
       ${
         src && !failed.has(src)
           ? html`<img
+              part="logo-image"
               src=${src}
               alt=${alt}
               width=${size}

@@ -50,7 +50,7 @@ const orfin = createOrfin({
 });
 ```
 
-`transport` overrides `endpoint`. `title` and `welcome` customize the empty state. `sections` supplies the public catalog. `allowedPaths` restricts navigation; without it, allowed paths come from the section catalog. `navigate` plugs into the host router. `themeVariables` accepts `--orfin-*` CSS custom properties. `nonce` is applied to the injected style element. `onEvent({ type, detail })` observes interaction events without receiving message content.
+`transport` overrides `endpoint`. `title` and `welcome` customize the empty state. `sections` supplies the public catalog. `allowedPaths` restricts navigation; without it, allowed paths come from the section catalog. `navigate` plugs into the host router. `themeVariables` accepts `--orfin-*` CSS custom properties. `styles` supplies trusted application CSS inside Shadow DOM. `nonce` is applied to every injected style element. `onEvent({ type, detail })` observes interaction events without receiving message content.
 
 Mount one controller per page in a browser lifecycle hook. `createOrfin` deliberately throws during SSR; framework adapters handle the lifecycle. Configuration that changes identity, catalog, transport or routing requires a remount. Feature, theme, logo, locale, memory and timing changes use `updateSettings`. Logo images use `{ src, alt? }`, or `null` for Orfin. `highlightOpacity` is clamped to 0–1 and `highlightTransition` to 0–1500 ms; non-finite values preserve the previous setting.
 
@@ -141,6 +141,24 @@ Each request includes only the available sections of the current document. A sel
 External CSS needs to target the host or exposed shadow parts. The widget does not load remote fonts. Mobile rules fit the viewport, use dynamic viewport height and respect safe-area insets. Motion respects `prefers-reduced-motion`.
 
 The ten `ThemePreset` values are `cloud`, `iris`, `lagoon`, `sand`, `rose`, `midnight`, `graphite`, `forest`, `plum` and `espresso`. `themePresets` exports their tokens; `supportedThemes` exports the names. The first five are light and the last five are dark. `--orfin-shadow` overrides the preset panel shadow.
+
+`Theme` also accepts `'none'`. This completely omits the preset stylesheet and inline preset tokens. The structural layout stylesheet remains for positioning, scroll containment, controls, responsive geometry and motion. Supply visual styling through `styles` (default `''`) or external `::part()` rules. CSS custom properties are inherited; your stylesheet maps them to your design system. Visual defaults in the token table apply to presets only.
+
+`styles` can be changed through `updateSettings({ styles })` and all framework reactive settings APIs. It is set as stylesheet text, never as HTML and never included in a chat request. This is trusted developer configuration. Reset with `styles: ''`. It applies after the preset, so scope rules to `:host([data-theme='none'])` if they should stop applying when a preset is chosen. The host exposes `data-theme` for external selectors too.
+
+Parts include `orfin`, `panel`, `header`, `heading`, `avatar`, `logo`, `logo-image`, `conversation`, `welcome`, `welcome-mark`, `suggestion`, `message`, `user`, `assistant`, `message-label`, `tool`, `source`, `composer`, `input-wrap`, `input`, `send`, `mini`, `footer`, `launcher`, `preferences`, `language`, `theme`, `toggle`, `error`, `retry`, `popover`, `tour-popover`, `popover-top`, `primary`, `secondary`, `icon-button`, `tour-inline`, `picker-bar`, `section-list`, `spotlight` and `spot-label`. Use trusted `styles` for descendants and state selectors such as `.theme[aria-pressed='true']`. See the complete [Northstar host stylesheet](../demo/host-theme.css).
+
+```css
+[data-orfin-root][data-theme='none']::part(orfin) {
+  font-family: var(--app-font);
+  color: var(--app-text);
+}
+[data-orfin-root][data-theme='none']::part(panel) {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+}
+```
 
 The same `logo` appears throughout the widget. Use meaningful alternative text. Missing/failed images fall back to Orfin; `logo: null` restores the default. This setting updates through every framework’s existing reactive settings API.
 

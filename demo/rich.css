@@ -857,12 +857,17 @@
   margin: 0 0 10px;
 }
 .theme-family .theme-previews {
+  display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 .theme-family .theme-preview {
   min-width: 0;
   padding: 7px 5px;
+}
+.settings-column,
+.settings-card {
+  min-width: 0;
 }
 .theme-family .theme-preview strong {
   font-size: 10px;
@@ -891,6 +896,36 @@
   border-top: 1px solid #e7ebf2;
   margin-top: 20px;
   padding-top: 4px;
+}
+.host-appearance {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  text-align: start;
+  padding: 16px;
+  border: 1px solid #d8dacf;
+  border-radius: 4px;
+  background: #fffef8;
+  color: #303c34;
+}
+.host-appearance span {
+  font:
+    17px Georgia,
+    serif;
+}
+.host-appearance small {
+  grid-column: 1;
+  margin-top: 6px;
+  color: #626b5e;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.host-appearance svg {
+  grid-column: 2;
+  grid-row: 1;
+}
+.host-appearance.selected {
+  outline: 2px solid #496052;
 }
 .logo-settings input {
   width: 100%;

@@ -16,7 +16,7 @@
     <img src="https://img.shields.io/badge/tested-unit_·_browser_·_live_LLM-67758b?style=flat-square" alt="Unit, browser and live model checks" />
   </p>
   <img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/demo.gif" width="1080" alt="Orfin answers during a tour, analyzes delivery results, compares displays, reads a three-star review and updates the demo cart" />
-  <p><sub>Recorded from the working playground. Demo replies are labeled; live mode uses your local LLM gateway.</sub></p>
+  <p><sub>Recorded from the working playground: guided tours, grounded analysis, comparison, reviews and a cart that actually changes.</sub></p>
 </div>
 
 **Bring your own LLM provider and model.** Connect a compatible Chat Completions API, Anthropic Messages, or a custom `ModelProvider` adapter. OrfinSupport supplies the widget, streaming agent loop, context, tools and page interactions; your backend owns credentials and access. Compatibility depends on the provider’s protocol and capabilities. [Provider examples](#models-and-context).
@@ -34,7 +34,7 @@ Your visitors can ask a question, take a tour, or point at the part of the inter
 | **Project knowledge**        | Combines a trusted project prompt, section instructions and retrieved documents. Responses can include source links.                                                     |
 | **Your tools and MCP**       | Calls validated server and MCP tools, updates your interface through registered actions, and explains the result.                                                        |
 | **Real streaming**           | Streams text, tool activity, sources and browser actions. Includes cancellation, retry and useful connection errors.                                                     |
-| **Your product’s style**     | Ten complete presets (five light, five dark), a reactive custom logo, CSS variables and shadow parts. Shadow DOM protects the interface from host styles.                |
+| **Your product’s style**     | Ten presets (five light, five dark), an unthemed host mode, reactive custom logos, CSS variables and shadow parts. Shadow DOM protects the interface from host styles.   |
 | **16 languages**             | Localizes the widget, tooltips, tours and errors. Switch languages without remounting; the chosen locale also controls model replies.                                    |
 | **Configurable behavior**    | Switch features on or off at runtime. Choose marked sections or visible-page context, dwell time, language and memory policy.                                            |
 
@@ -365,6 +365,23 @@ Choose a complete preset, then override individual tokens:
 
 Presets include foreground/background colors, control contrast, panel shape, shadow and header treatment. `supportedThemes` and `themePresets` are exported. Switch in widget preferences, the Playground, or with `orfin.updateSettings({ theme: 'forest' })`.
 
+**Use your own design system completely:** `theme: 'none'` removes the preset stylesheet and its palette, typography, borders and shadows. Positioning, scrolling, interaction and accessible controls remain. Pass your application’s CSS as `styles`, or style the exposed shadow parts from an external stylesheet. The Playground’s **Northstar appearance** is a working example; its [complete host stylesheet](demo/host-theme.css) covers chat, preferences, hover, tours and section selection.
+
+```ts
+const orfin = createOrfin({
+  endpoint: '/api/orfin',
+  theme: 'none',
+  styles: yourApplicationStyles,
+});
+
+orfin.updateSettings({ styles: updatedApplicationStyles });
+orfin.updateSettings({ theme: 'forest', styles: '' });
+```
+
+`styles` is a trusted CSS string inserted into a separate Shadow DOM stylesheet; it is never sent to the model. Use your bundler’s CSS-as-text import or an ordinary string. It follows the layout and preset styles, so scope it to `:host([data-theme='none'])` if it should apply only without a preset. The same settings work through React’s hook, the Vue composable and Angular signals. Switching retains conversation, locale and logo. Custom styling owns contrast and focus visibility; the library still enforces reduced-motion behavior.
+
+<img src="https://raw.githubusercontent.com/arconw/OrfinSupport/main/docs/assets/host-appearance.png" alt="Northstar supplies its own serif typography, paper surfaces and forest controls with the Orfin preset stylesheet disabled" width="1080" />
+
 ```ts
 createOrfin({
   endpoint: '/api/orfin',
@@ -385,7 +402,7 @@ Change the logo without remounting: `orfin.updateSettings({ logo: { src: '/brand
 
 The spotlight defaults to `highlightOpacity: 0.15` (approximately 85% background brightness), `highlightDuration: 2000` and `highlightTransition: 280` milliseconds. Set opacity to `0.7` for the former stronger mask. Reduced-motion preferences disable visual transitions.
 
-The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)` and `::part(launcher)`. A `nonce` option supports nonce-authorized style elements. CSS variables remain available for external theming. [Complete settings and style reference](docs/API.md).
+The widget uses Shadow DOM and the browser top layer where available, with a high stacking fallback. Host CSS can target `::part(panel)`, `::part(header)`, `::part(conversation)`, `::part(composer)`, `::part(launcher)` and the other documented parts. A `nonce` option supports all injected style elements. CSS variables remain available for external theming. [Complete settings and style reference](docs/API.md).
 
 ## What Orfin remembers
 

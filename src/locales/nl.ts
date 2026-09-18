@@ -46,6 +46,7 @@ export const nl = {
   tourControls: 'Bediening rondleiding',
   conversation: 'Gesprek',
   clearContext: 'Geselecteerd onderdeel verwijderen',
+  externalTheme: 'Websitestijl',
   cloud: 'Wolk',
   midnight: 'Middernacht',
   lagoon: 'Lagune',

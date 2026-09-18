@@ -46,6 +46,7 @@ export const hi = {
   tourControls: 'परिचय के नियंत्रण',
   conversation: 'बातचीत',
   clearContext: 'चुना हुआ अनुभाग हटाएँ',
+  externalTheme: 'साइट की शैली',
   cloud: 'बादल',
   midnight: 'आधी रात',
   lagoon: 'लैगून',

@@ -46,6 +46,7 @@ export const zh = {
   tourControls: '导览控制',
   conversation: '对话',
   clearContext: '清除选中的区域',
+  externalTheme: '网站样式',
   cloud: '云朵',
   midnight: '午夜',
   lagoon: '潟湖',

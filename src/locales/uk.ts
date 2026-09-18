@@ -46,6 +46,7 @@ export const uk = {
   tourControls: 'Керування екскурсією',
   conversation: 'Розмова',
   clearContext: 'Прибрати вибрану секцію',
+  externalTheme: 'Оформлення сайту',
   cloud: 'Хмара',
   midnight: 'Північ',
   lagoon: 'Лагуна',

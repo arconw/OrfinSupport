@@ -6,6 +6,7 @@ import { createStudioTools } from '../../demo/tools';
 import { workspaceStatistics } from '../../demo/data';
 import { DemoCartStore } from '../../demo/cart-store';
 import { studioScenario } from '../../demo/studio-mock';
+import { DemoReportStore } from '../../demo/report-store';
 import { collect, request } from './helpers';
 import type { BrowserAction, ToolContext } from '../../src/core/types';
 
@@ -31,9 +32,45 @@ describe('studio data and tools', () => {
       workspaceStatistics.completedTasks,
     );
     expect(report.lastWeek!.delivered).toBe(workspaceStatistics.completedTasks);
+    expect(dailyDelivery.previous.reduce((sum, count) => sum + count, 0)).toBe(
+      report.weeks.at(-2)!.delivered,
+    );
+    const { previousStart, previousEnd, currentStart, currentEnd } = report.comparison;
+    const days = (start: string, end: string) =>
+      (Date.parse(end) - Date.parse(start)) / 86400000 + 1;
+    expect(days(previousStart, previousEnd)).toBe(21);
+    expect(days(currentStart, currentEnd)).toBe(21);
     expect(Math.round((report.lastWeek!.delivered / report.lastWeek!.planned) * 100) + '%').toBe(
       workspaceStatistics.onTimeDelivery,
     );
+  });
+  it('preserves visible report filters in tool results and browser actions', async () => {
+    const store = new DemoReportStore();
+    store.set({ period: 'recent', segment: 'web' });
+    const input = request();
+    input.page.sections = [{ id: 'delivery-chart', title: 'Report', description: 'Delivery' }];
+    const actions: BrowserAction[] = [];
+    const tool = createStudioTools({ get: emptyCart, set: () => {} }).find(
+      (item) => item.name === 'get_delivery_report',
+    )!;
+    const result = await tool.execute(
+      {},
+      {
+        request: store.context(input),
+        signal: AbortSignal.timeout(1000),
+        emitAction: (action) => actions.push(action),
+      },
+    );
+    expect(result).toMatchObject({
+      selection: { period: 'recent', segment: 'web' },
+      visibleWeeks: analyzeDelivery().weeks.slice(3),
+      visibleSegments: [expect.objectContaining({ id: 'web', previous: 24, current: 30 })],
+    });
+    expect(actions[0]).toEqual({
+      type: 'custom',
+      name: 'report_view_changed',
+      payload: { view: { period: 'recent', segment: 'web' } },
+    });
   });
   it('calculates a cart from catalog prices and supports set/remove without mutating old snapshots', () => {
     const original = emptyCart();

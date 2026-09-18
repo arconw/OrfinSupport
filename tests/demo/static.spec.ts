@@ -19,8 +19,8 @@ for (const viewport of [
     await expect(provider).toHaveValue('demo');
     const liveOption = provider.locator('option[value="live"]');
     await expect(liveOption).toHaveJSProperty('disabled', true);
-    await expect(liveOption).toHaveText('Live AI · run locally');
-    await expect(provider).toHaveAccessibleDescription(/Live AI.*locally/u);
+    await expect(liveOption).toHaveText('Live AI · setup required');
+    await expect(provider).toHaveAccessibleDescription(/Explore Live AI/u);
     await provider.focus();
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
