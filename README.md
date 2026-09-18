@@ -6,7 +6,7 @@ Built static demo for [OrfinSupport](https://github.com/arconw/OrfinSupport).
 
 Library and editable demo source: [`main`](https://github.com/arconw/OrfinSupport/tree/main).
 
-Source revision: `ae54c171dd26757e61146ae64c0074c686a5d65a`.
+Source revision: `3e4edae006d314dd8f9dae1d83602821b5a58178`.
 
 This public playground uses localized sample replies with working catalog, report, comparison, review and cart tools. Live AI is disabled here; run the source locally to connect your LLM backend. No purchases or payments are available.
 
@@ -20,4 +20,4 @@ Project commands are configurable and route-specific: Equipment offers Compare p
 
 Copy configuration exports usable command arrays with declarative route rules and localized visitor prompts. Project styles includes the actual CSS. Internal tool selection is handled by the project backend.
 
-The workspace uses a 16px text base, larger compact labels and stronger secondary text contrast. Documentation recordings capture the current demo at native resolution.
+The workspace and assistant use locally hosted Inter with firmer strokes and stronger text contrast. Messages use 15px type and the composer uses 16px. The project-owned serif appearance remains independent. Documentation recordings capture the current demo at native resolution.

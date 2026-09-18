@@ -4,7 +4,7 @@ OrfinSupport's source code is MIT licensed. Dependencies retain their own licens
 
 The static playground includes the following assets and libraries. Their license notices are also distributed with the built site under `licenses/`:
 
-- [DM Sans](licenses/DM-Sans.txt) — SIL Open Font License, distributed through Fontsource.
+- [Inter](licenses/Inter.txt) — SIL Open Font License, distributed through Fontsource.
 - [Manrope](licenses/Manrope.txt) — SIL Open Font License, distributed through Fontsource.
 - [Lucide](licenses/Lucide.txt) — ISC license and included upstream notices.
 - [Lit](licenses/Lit.txt) — BSD 3-Clause license.
