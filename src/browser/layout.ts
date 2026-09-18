@@ -285,7 +285,6 @@ export const layoutStyles = css`
     resize: none;
     line-height: 1.5;
     padding: 0;
-    outline: none !important;
   }
   .send {
     height: 31px;

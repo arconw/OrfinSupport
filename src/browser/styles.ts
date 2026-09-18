@@ -186,6 +186,9 @@ export const widgetStyles = css`
     background: transparent;
     font-size: 12px;
   }
+  textarea:focus-visible {
+    outline: none;
+  }
   textarea::placeholder {
     color: var(--muted);
   }

@@ -171,9 +171,14 @@ test('host appearance removes preset CSS and supports reactive external styling 
   );
   await expect(page.locator(`${root} .panel`)).toHaveCSS('background-color', 'rgb(240, 248, 255)');
   await page.addStyleTag({
-    content: '[data-orfin-root]::part(header) { border-bottom: 5px solid rgb(12, 80, 50); }',
+    content: `[data-orfin-root]::part(header) { border-bottom: 5px solid rgb(12, 80, 50); }
+      [data-orfin-root][data-theme='none']::part(input):focus-visible { outline: 4px solid rgb(12, 80, 50); }`,
   });
   await expect(page.locator(`${root} .header`)).toHaveCSS('border-bottom-width', '5px');
+  await page.locator(`${root} textarea`).focus();
+  await expect(page.locator(`${root} textarea`)).toHaveCSS('outline-style', 'solid');
+  await expect(page.locator(`${root} textarea`)).toHaveCSS('outline-width', '4px');
+  await expect(page.locator(`${root} textarea`)).toHaveCSS('outline-color', 'rgb(12, 80, 50)');
   await page.evaluate(() => window.__orfin!.updateSettings({ styles: '', theme: 'forest' }));
   await expect(page.locator(`${root} .panel`)).toHaveCSS('background-color', 'rgb(32, 51, 45)');
   await expect(page.locator(`${root} .message`)).toHaveCount(2);
