@@ -30,6 +30,10 @@ test('page commands use real demo tools and survive routing, locale and history 
   await page.getByRole('menuitem', { name: 'Проанализировать результаты', exact: true }).click();
   await expect(page.locator(`${root} .message.assistant`).last()).toContainText('37,5%');
   await expect(page.locator(`${root} .message.user`)).toHaveCount(2);
+  await expect(page.locator(`${root} .message.user`).last()).toContainText('Проанализируй');
+  await expect(page.locator(`${root} .message.user`).last()).not.toContainText(
+    'get_delivery_report',
+  );
   await expect(page.locator(`${root} textarea`)).toHaveValue('Keep my draft');
   await page.locator(`${root} .actions-trigger`).click();
   await page.evaluate(() => window.__orfin!.updateSettings({ features: { tools: false } }));
@@ -37,6 +41,42 @@ test('page commands use real demo tools and survive routing, locale and history 
     page.getByRole('menuitem', { name: 'Проанализировать результаты', exact: true }),
   ).toHaveCount(0);
   await expect(page.getByRole('menuitem').first()).toBeFocused();
+});
+
+test('Copy configuration provides reusable command arrays, route rules and real project CSS', async ({
+  page,
+}) => {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/#/settings');
+  await page.evaluate(() => window.__orfin!.close());
+  const copy = async () => {
+    await page.getByRole('button', { name: 'Copy configuration', exact: true }).click();
+    return JSON.parse(await page.evaluate(() => navigator.clipboard.readText()));
+  };
+  const contextual = await copy();
+  expect(Array.isArray(contextual.menuActions)).toBe(true);
+  expect(contextual.menuActions[0]).toMatchObject({
+    id: 'compare-products',
+    visibleOn: ['/shop', '/shop/*', '/compare'],
+  });
+  expect(contextual.menuActions[0].prompt).not.toContain('compare_products');
+  await page.getByRole('button', { name: /Northstar appearance/ }).click();
+  const unthemed = await copy();
+  expect(unthemed.theme).toBe('none');
+  expect(unthemed.styles).toContain(':host(');
+  await page.evaluate((config) => {
+    window.__orfin!.updateSettings({ menuActions: config.menuActions });
+    location.hash = '/shop';
+    window.__orfin!.open();
+  }, contextual);
+  await page.locator(`${root} .actions-trigger`).click();
+  await expect(page.getByRole('menuitem').first()).toHaveText('Compare products');
+  await page.goto('/#/settings');
+  await page.evaluate(() => window.__orfin!.close());
+  await page.getByRole('combobox', { name: 'Actions menu', exact: true }).selectOption('none');
+  expect((await copy()).menuActions).toEqual([]);
+  await page.getByRole('combobox', { name: 'Actions menu', exact: true }).selectOption('default');
+  expect((await copy()).menuActions).toBeNull();
 });
 
 test('runtime replacement, empty lists and history-only navigation preserve focus and state', async ({
@@ -140,11 +180,21 @@ test('waiting, typing, interrupted tools and retry reflect the actual response l
           async *stream(_request, signal) {
             const attempt = ++count;
             const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+            const waitForStop = () =>
+              signal.aborted
+                ? Promise.resolve()
+                : new Promise((resolve) =>
+                    signal.addEventListener('abort', resolve, { once: true }),
+                  );
             await wait(150);
             yield {
               type: 'tool',
               tool: { id: 'work', name: 'project_operation', status: 'running' },
             };
+            if (attempt === 1) {
+              await waitForStop();
+              return;
+            }
             await wait(800);
             if (signal.aborted) return;
             if (attempt === 3) throw new Error('Controlled transport failure');
@@ -153,6 +203,10 @@ test('waiting, typing, interrupted tools and retry reflect the actual response l
               tool: { id: 'work', name: 'project_operation', status: 'complete' },
             };
             yield { type: 'delta', text: 'A partial reply' };
+            if (attempt === 2) {
+              await waitForStop();
+              return;
+            }
             await wait(800);
             if (signal.aborted) return;
             yield { type: 'delta', text: ' is finished.' };

@@ -27,6 +27,8 @@ const handler = createOrfinHandler({
     parameters: { reasoning_effort: 'low' },
   }),
   context: projectContext,
+  systemPrompt:
+    'For equipment comparison requests, call compare_products to read the current catalog and show the comparison. For delivery analysis requests, call get_delivery_report to read the selected filters and evidence. Do not replace these operations with recalled context. Explain the result in the selected language using natural wording, without exposing internal tool identifiers. If a required operation is unavailable, explain that limitation.',
   authorize: (request) => ({ identity: sessions.identify(request.headers.get('cookie') ?? '').id }),
   sections,
   retriever: demoRetriever,

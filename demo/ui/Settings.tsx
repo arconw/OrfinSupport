@@ -57,14 +57,10 @@ export function SettingsPage({
     {
       endpoint: '/api/orfin',
       theme: settings.theme,
-      ...(settings.theme === 'none' ? { styles: 'yourApplicationStyles' } : {}),
+      ...(settings.theme === 'none' ? { styles: settings.styles } : {}),
       logo: settings.logo,
       motion: settings.motion,
-      menuActions: settings.menuActions?.some(
-        (action) => typeof action !== 'string' && action.visible,
-      )
-        ? 'projectMenu (demo/menu-actions.ts)'
-        : settings.menuActions,
+      menuActions: settings.menuActions,
       highlightOpacity: settings.highlightOpacity,
       highlightTransition: settings.highlightTransition,
       features: settings.features,

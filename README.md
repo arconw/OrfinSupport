@@ -56,22 +56,22 @@ const compare: CustomMenuAction = {
     ru: { label: 'Сравнить товары' },
     fr: { label: 'Comparer les produits' },
   },
-  prompt: 'Use compare_products to compare Luma 27 and Luma 32 Pro for a small desk.',
+  prompt: 'Compare Luma 27 and Luma 32 Pro for a small desk. Explain the price difference.',
   requires: ['tools'],
-  visible: ({ url }) => new URL(url).pathname.startsWith('/products'),
+  visibleOn: ['/products', '/products/*'],
 };
 
 const orfin = createOrfin({
   endpoint: '/api/orfin',
   menuActions: [compare, 'tour', 'pick', 'page'],
 });
-
-orfin.updateSettings({ menuActions: ['page', compare] });
-orfin.updateSettings({ menuActions: [] });
-orfin.updateSettings({ menuActions: null });
 ```
 
+For later updates, `orfin.updateSettings({ menuActions: ['page', compare] })` reorders/replaces commands. Use `menuActions: []` to hide the entry, or `menuActions: null` to restore the three built-ins. These are separate runtime choices; the setup above keeps your custom button installed.
+
 The button submits its configured prompt through the normal streaming conversation. Your backend registers the `compare_products` tool, reads **your catalog**, validates arguments and returns real characteristics and prices. The model explains those results; Orfin is not a source of product facts. Keep the provider key, catalog credentials and tool authorization on the server. `requires` controls visibility in the interface; server feature policy and authorization still control execution. See the [working project menu](demo/menu-actions.ts), [catalog tools](demo/tools.ts) and [backend tool integration](#tools-that-belong-to-your-product).
+
+Use natural visitor wording for `prompt`. The demo’s [server instructions](demo/server.ts) require catalog/report tools for the relevant requests, so internal tool names do not appear in visitor messages. `visibleOn` is JSON-safe: it matches pathname or `#/` router paths, with a trailing `/*` for descendants. Advanced projects can supply a `visible(context)` predicate instead. Playground copies actual command arrays, translations and route rules; Project styles copies its real CSS too.
 
 The demo adds **Compare products** on Equipment/product/comparison pages and **Analyze delivery** on Reports, in both Demo replies and Live AI. Playground’s **Actions menu** setting demonstrates standard, reordered, contextual and empty lists. Your project can replace `menuActions` through React’s hook, Vue’s composable or Angular’s injected API after a route or selection changes. Predicates are reevaluated on hash/popstate navigation, observed page changes and settings updates; after a History API change with no DOM update, call `orfin.refreshPage()`. History, drafts and the selected logo remain intact. [Full menu API](docs/API.md#actions-menu).
 

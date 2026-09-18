@@ -71,3 +71,26 @@ it('contains a broken project predicate and ignores empty custom commands', () =
     }),
   ).toMatchObject([{ builtin: 'page' }]);
 });
+
+it('keeps declarative route visibility through JSON and respects path boundaries and hash routers', () => {
+  const action: CustomMenuAction = {
+    ...compare,
+    visible: undefined,
+    visibleOn: ['/products/*', '/compare'],
+  };
+  const menuActions = JSON.parse(JSON.stringify([action, 'page']));
+  for (const url of [
+    'https://project.test/products',
+    'https://project.test/products/compact?color=blue',
+    'https://project.test/compare',
+    'https://project.test/base/#/products/compact?color=blue',
+  ])
+    expect(resolve({ menuActions }, url)[0]?.key).toBe('custom:compare');
+  for (const url of [
+    'https://project.test/products-other',
+    'https://project.test/reports',
+    'https://project.test/base/#/reports',
+  ])
+    expect(resolve({ menuActions }, url).map((action) => action.key)).toEqual(['builtin:page']);
+  expect(resolve({ menuActions: [{ ...action, visibleOn: [] }] })).toEqual([]);
+});

@@ -79,6 +79,7 @@ export interface CustomMenuAction {
   prompt: string;
   translations?: Record<string, Partial<Pick<CustomMenuAction, 'label' | 'prompt'>>>;
   requires?: readonly Exclude<keyof Features, 'pageContext'>[];
+  visibleOn?: readonly string[];
   visible?: (context: MenuActionContext) => boolean;
 }
 

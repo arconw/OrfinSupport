@@ -40,6 +40,20 @@ export function resolveMenuActions(
     if (!action.id.trim() || seen.has(key) || !settings.features.chat) continue;
     if (action.requires?.some((feature) => !settings.features[feature])) continue;
     try {
+      if (action.visibleOn) {
+        const address = new URL(context.url);
+        const path = address.hash.startsWith('#/')
+          ? address.hash.slice(1).split('?')[0]!
+          : address.pathname;
+        if (
+          !action.visibleOn.some((route) =>
+            route.endsWith('/*')
+              ? path === route.slice(0, -2) || path.startsWith(route.slice(0, -1))
+              : path === route,
+          )
+        )
+          continue;
+      }
       if (action.visible && !action.visible(context)) continue;
     } catch {
       continue;

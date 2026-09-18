@@ -68,14 +68,17 @@ Mount one controller per page in a browser lifecycle hook. `createOrfin` deliber
 
 A `CustomMenuAction` contains:
 
-| Field              | Meaning                                                                                                                        |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `id`               | Stable project identifier, used to retain focus across reorder/replacement. Duplicate custom IDs use the first eligible entry. |
-| `label`            | Default plain-text button label.                                                                                               |
-| `prompt`           | User-visible message submitted through `send()` when chosen.                                                                   |
-| `translations`     | Locale → partial `{ label, prompt }` overrides; same English/regional fallback chain as section translations.                  |
-| `requires`         | Optional boolean feature names that must all be enabled, such as `['tools', 'navigation']`.                                    |
-| `visible(context)` | Optional pure synchronous predicate receiving `{ url, locale, features }`. False or an exception hides the command.            |
+| Field              | Meaning                                                                                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | Stable project identifier, used to retain focus across reorder/replacement. Duplicate custom IDs use the first eligible entry.                                    |
+| `label`            | Default plain-text button label.                                                                                                                                  |
+| `prompt`           | User-visible message submitted through `send()` when chosen.                                                                                                      |
+| `translations`     | Locale → partial `{ label, prompt }` overrides; same English/regional fallback chain as section translations.                                                     |
+| `requires`         | Optional boolean feature names that must all be enabled, such as `['tools', 'navigation']`.                                                                       |
+| `visibleOn`        | Optional JSON-safe list of exact routes or trailing `/*` patterns. Matches `#/` router paths when present, otherwise the URL pathname; query strings are ignored. |
+| `visible(context)` | Optional pure synchronous predicate receiving `{ url, locale, features }`. False or an exception hides the command.                                               |
+
+A route pattern ending in `/*` matches that route and its descendants, but not similarly named sibling routes. `visibleOn: []` hides the command; omitting it imposes no route restriction. If both `visibleOn` and `visible` are set, both conditions must pass. Only the predicate requires JavaScript; declarative arrays survive JSON serialization.
 
 Custom commands and page explanation are disabled during a reply. An ineligible command is rechecked before dispatch. No menu definitions, predicates or callbacks are sent to the model; only the selected prompt enters the normal conversation. Custom commands require chat to be enabled. Predicates should inspect their supplied context without mutating the widget or page.
 

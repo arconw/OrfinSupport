@@ -9,8 +9,41 @@ import { studioScenario } from '../../demo/studio-mock';
 import { DemoReportStore } from '../../demo/report-store';
 import { collect, request } from './helpers';
 import type { BrowserAction, ToolContext } from '../../src/core/types';
+import { supportedLocales } from '../../src/core/locale';
+import { resolveSettings } from '../../src/core/settings';
+import { resolveMenuActions } from '../../src/core/menu';
+import { resolveTranslations } from '../../src/browser/i18n';
+import { projectMenu } from '../../demo/menu-actions';
 
 describe('studio data and tools', () => {
+  it.each(supportedLocales)(
+    'natural $code menu prompts select the actual comparison and report operations',
+    async ({ code }) => {
+      const settings = resolveSettings({ locale: code, menuActions: projectMenu });
+      for (const [route, tool] of [
+        ['/shop', 'compare_products'],
+        ['/reports', 'get_delivery_report'],
+      ]) {
+        const actions = resolveMenuActions(
+          settings,
+          { url: `https://project.test/#${route}`, locale: code, features: settings.features },
+          resolveTranslations(code),
+          false,
+        );
+        const prompt = actions[0]!.prompt!;
+        expect(prompt).not.toMatch(/compare_products|get_delivery_report|Use the .*tool/);
+        const input = request();
+        input.locale = code;
+        input.messages = [{ role: 'user', content: prompt }];
+        const iterator = studioScenario(input, AbortSignal.timeout(1000), new DemoCartStore());
+        expect((await iterator.next()).value).toMatchObject({
+          type: 'tool',
+          tool: { name: tool, status: 'running' },
+        });
+        await iterator.return(false);
+      }
+    },
+  );
   it('does not replace a recent cart snapshot with a late response', () => {
     const store = new DemoCartStore();
     const first = updateCart(emptyCart(), 'luma-27', 'add', 1);

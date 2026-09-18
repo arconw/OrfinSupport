@@ -66,6 +66,12 @@ function scenarioFor(request: ChatRequest): Scenario | undefined {
         ? pageProduct
         : undefined);
   const call = (name: string, args: Record<string, unknown> = {}): DemoCall => ({ name, args });
+  const analysisRequested =
+    !named.length &&
+    (/analys|analyz|delivery.*(?:result|report|trend)|brand.*web|web.*brand|why.*brand|анализ|аналіз|звіт|отч[её]т|тенденц|почему.*brand|analyse|analiz|análise|analise|rapporto|تحليل|विश्लेषण|分析|분석/.test(
+      query,
+    ) ||
+      (selected.startsWith('delivery-') && /section|this page|эту секц|этой секц/.test(query)));
   if (
     /review|three.star|3.star|отзыв|три звезд|три звёзд|avis|reseña|bewertung|recensione|avaliaç|recenz|відгук|yorum|مراجع|समीक्षा|评价|レビュー|리뷰/.test(
       query,
@@ -94,16 +100,11 @@ function scenarioFor(request: ChatRequest): Scenario | undefined {
     /compar|which.*(?:monitor|display|luma)|сравн|какой.*монитор|vergleich|confront|vergelijk|porówn|порівн|karşılaştır|مقارن|तुलना|比较|比較|비교/.test(
       query,
     ) &&
+    !analysisRequested &&
     !/brand.*web|web.*brand|discipline|segment|сегмент/.test(query)
   )
     return { kind: 'compare', calls: [call('compare_products')] };
-  if (
-    /analys|analyz|delivery.*(?:result|report|trend)|brand.*web|web.*brand|why.*brand|анализ|отч[её]т|тенденц|почему.*brand|analyse|analiz|análise|rapporto|تحليل|विश्लेषण|分析|분석/.test(
-      query,
-    ) ||
-    (selected.startsWith('delivery-') && /section|this page|эту секц|этой секц/.test(query))
-  )
-    return { kind: 'analysis', calls: [call('get_delivery_report')] };
+  if (analysisRequested) return { kind: 'analysis', calls: [call('get_delivery_report')] };
   const change =
     /add|put.*cart|set.*quant|remove|delete.*cart|добав|корзин.*(?:полож|измени)|количеств|удал|ajout|retir|quantité|añad|agrega|entfern|hinzuf|aggiung|adicion|dodaj|додай|екле|ekle|أضف|дода|जोड़|加入|添加|追加|담아|추가/.test(
       query,
